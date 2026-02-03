@@ -54,6 +54,7 @@ Public Class frmUsuarios
             db.Cat_Usuario.Add(nuevo)
             db.SaveChanges()
 
+            AuditoriaSistema.RegistrarEvento($"Alta de usuario {nuevo.UsuarioLogin} ({nuevo.NombreCompleto}) con rol {nuevo.Rol}.", "USUARIOS")
             MessageBox.Show("Usuario creado correctamente.")
             CargarUsuarios()
             Limpiar()
@@ -80,6 +81,7 @@ Public Class frmUsuarios
                     If MessageBox.Show("Este usuario tiene historial de documentos. ¿Desea desactivarlo en lugar de borrarlo?", "Integridad", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                         u.Activo = False
                         db.SaveChanges()
+                        AuditoriaSistema.RegistrarEvento($"Usuario desactivado: {u.UsuarioLogin} ({u.NombreCompleto}).", "USUARIOS")
                         MessageBox.Show("Usuario desactivado (Baja Lógica).")
                     End If
                 Else
@@ -88,6 +90,7 @@ Public Class frmUsuarios
                     db.EventosSistema.RemoveRange(logs)
                     db.Cat_Usuario.Remove(u)
                     db.SaveChanges()
+                    AuditoriaSistema.RegistrarEvento($"Usuario eliminado: {u.UsuarioLogin} ({u.NombreCompleto}).", "USUARIOS")
                     MessageBox.Show("Usuario eliminado permanentemente.")
                 End If
 

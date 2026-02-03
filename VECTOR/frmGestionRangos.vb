@@ -137,9 +137,10 @@ Public Class frmGestionRangos
         Try
             Using db As New SecretariaDBEntities()
                 Dim rango As Mae_NumeracionRangos
+                Dim esNuevo As Boolean = (_idEdicion = 0)
 
                 ' Determinar si es Nuevo o Edición
-                If _idEdicion = 0 Then
+                If esNuevo Then
                     rango = New Mae_NumeracionRangos()
                     db.Mae_NumeracionRangos.Add(rango)
                 Else
@@ -171,6 +172,8 @@ Public Class frmGestionRangos
 
                 db.SaveChanges()
 
+                Dim accion As String = If(esNuevo, "Creación", "Edición")
+                AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Activo: {rango.Activo}.", "RANGOS")
                 MessageBox.Show("Rango guardado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 ModoEdicion(False)

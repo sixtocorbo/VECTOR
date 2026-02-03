@@ -324,6 +324,7 @@ Public Class frmMesaEntrada
 
                 db.SaveChanges()
                 GuardarAdjuntos(doc.IdDocumento)
+                AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
                 MessageBox.Show("✅ Documento corregido exitosamente.", "Edición")
 
             Else
@@ -411,6 +412,8 @@ Public Class frmMesaEntrada
                 ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
                 db.SaveChanges()
                 GuardarAdjuntos(doc.IdDocumento)
+                Dim tipoCarga As String = If(_modoRespuesta, "Respuesta/Actuación", "Ingreso")
+                AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
 
                 ' --- MENSAJE PROFESIONAL (NUEVO BLOQUE) ---
                 Dim sb As New System.Text.StringBuilder()

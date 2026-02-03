@@ -126,6 +126,7 @@ Public Class frmUnificarOficinas
 
                 If resultado IsNot Nothing Then
                     If resultado.Resultado = 1 Then
+                        AuditoriaSistema.RegistrarEvento($"Unificación de {listaIds.Count} oficina(s) en '{nombreDestino}'.", "OFICINAS")
                         MessageBox.Show(resultado.Mensaje & " 🚀", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                         ' Limpiar todo

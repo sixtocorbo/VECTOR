@@ -6,6 +6,7 @@ Imports System.Reflection ' Necesario para el Doble Buffer
 Public Class frmBandeja
 
     Private db As New SecretariaDBEntities()
+    Private Const IdBandejaEntrada As Integer = 13
 
     ' 1. LISTA EN MEMORIA (Para búsquedas instantáneas)
     Private _listaOriginal As New List(Of Object)
@@ -30,10 +31,11 @@ Public Class frmBandeja
             Me.WindowState = FormWindowState.Maximized
             Me.Text = "VECTOR - Bandeja de: " & SesionGlobal.NombreOficina & " (" & SesionGlobal.NombreUsuario & ")"
 
-            ConfigurarBotones(False, False)
+            ConfigurarBotones(False, False, False)
             CargarGrilla() ' Trae datos de la BD por primera vez
         Catch ex As Exception
             Me.Text = "VECTOR - Sistema de Gestión"
+            ConfigurarBotones(False, False, False)
         End Try
     End Sub
 
@@ -148,10 +150,10 @@ Public Class frmBandeja
         dgvPendientes.DataSource = resultado
         DiseñarColumnas()
         dgvPendientes.ClearSelection()
-        ConfigurarBotones(False, False)
         If dgvPendientes.RowCount > 0 Then
             dgvPendientes.Rows(0).Selected = True
         End If
+        ActualizarBotonesPorSeleccion()
 
         lblContador.Text = "Registros: " & dgvPendientes.RowCount
         dgvPendientes.Refresh()
@@ -254,25 +256,32 @@ Public Class frmBandeja
     ' 4. BOTONES INTELIGENTES (Visual Mejorada)
     ' =======================================================
     Private Sub dgvPendientes_SelectionChanged(sender As Object, e As EventArgs) Handles dgvPendientes.SelectionChanged
-        If dgvPendientes.SelectedRows.Count > 0 Then
-            Dim idOficinaDoc As Integer = CInt(dgvPendientes.SelectedRows(0).Cells("IdOficinaActual").Value)
-            Dim esMio As Boolean = (idOficinaDoc = SesionGlobal.OficinaID)
-            ConfigurarBotones(True, esMio)
-        Else
-            ConfigurarBotones(False, False)
-        End If
+        ActualizarBotonesPorSeleccion()
     End Sub
 
-    Private Sub ConfigurarBotones(haySeleccion As Boolean, esMio As Boolean)
+    Private Sub ActualizarBotonesPorSeleccion()
+        If dgvPendientes.SelectedRows.Count = 0 Then
+            ConfigurarBotones(False, False, False)
+            Return
+        End If
+
+        Dim idOficinaDoc As Integer = CInt(dgvPendientes.SelectedRows(0).Cells("IdOficinaActual").Value)
+        Dim esMio As Boolean = (idOficinaDoc = SesionGlobal.OficinaID)
+        Dim esBandejaEntrada As Boolean = (idOficinaDoc = IdBandejaEntrada)
+        ConfigurarBotones(True, esMio, esBandejaEntrada)
+    End Sub
+
+    Private Sub ConfigurarBotones(haySeleccion As Boolean, esMio As Boolean, esBandejaEntrada As Boolean)
         ' Colores estándar para "apagado" (Gris normal de Windows)
         Dim bgApagado As Color = SystemColors.Control
         Dim fgApagado As Color = SystemColors.GrayText
 
         ' 1. BOTONES DE GESTIÓN (Pase, Vincular, etc.)
         ' Estos se apagan si no hay selección o si el documento no es mío
-        btnDarPase.Enabled = haySeleccion And esMio
-        btnDarPase.BackColor = If(haySeleccion And esMio, Color.ForestGreen, bgApagado)
-        btnDarPase.ForeColor = If(haySeleccion And esMio, Color.White, fgApagado)
+        Dim habilitarPase As Boolean = haySeleccion And esMio And esBandejaEntrada
+        btnDarPase.Enabled = habilitarPase
+        btnDarPase.BackColor = If(habilitarPase, Color.ForestGreen, bgApagado)
+        btnDarPase.ForeColor = If(habilitarPase, Color.White, fgApagado)
 
         btnVincular.Enabled = haySeleccion And esMio
         btnEliminar.Enabled = haySeleccion And esMio

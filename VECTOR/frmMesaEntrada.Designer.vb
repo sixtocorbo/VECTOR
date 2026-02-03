@@ -40,12 +40,19 @@ Partial Class frmMesaEntrada
         Me.Label7 = New System.Windows.Forms.Label()
         Me.txtAsunto = New System.Windows.Forms.TextBox()
         Me.Label6 = New System.Windows.Forms.Label()
+        Me.grpAdjuntos = New System.Windows.Forms.GroupBox()
+        Me.lblAdjuntosInfo = New System.Windows.Forms.Label()
+        Me.btnQuitarAdjunto = New System.Windows.Forms.Button()
+        Me.btnAbrirAdjunto = New System.Windows.Forms.Button()
+        Me.btnAdjuntar = New System.Windows.Forms.Button()
+        Me.lstAdjuntos = New System.Windows.Forms.ListBox()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.grpOrigen.SuspendLayout()
         Me.grpDetalles.SuspendLayout()
         CType(Me.numFojas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.grpContenido.SuspendLayout()
+        Me.grpAdjuntos.SuspendLayout()
         Me.SuspendLayout()
         '
         'grpOrigen
@@ -249,28 +256,104 @@ Partial Class frmMesaEntrada
         Me.Label6.TabIndex = 0
         Me.Label6.Text = "Asunto (Título breve):"
         '
+        'grpAdjuntos
+        '
+        Me.grpAdjuntos.Controls.Add(Me.lblAdjuntosInfo)
+        Me.grpAdjuntos.Controls.Add(Me.btnQuitarAdjunto)
+        Me.grpAdjuntos.Controls.Add(Me.btnAbrirAdjunto)
+        Me.grpAdjuntos.Controls.Add(Me.btnAdjuntar)
+        Me.grpAdjuntos.Controls.Add(Me.lstAdjuntos)
+        Me.grpAdjuntos.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.grpAdjuntos.Location = New System.Drawing.Point(18, 640)
+        Me.grpAdjuntos.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.grpAdjuntos.Name = "grpAdjuntos"
+        Me.grpAdjuntos.Padding = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.grpAdjuntos.Size = New System.Drawing.Size(840, 160)
+        Me.grpAdjuntos.TabIndex = 3
+        Me.grpAdjuntos.TabStop = False
+        Me.grpAdjuntos.Text = "4. Adjuntos Digitales"
+        '
+        'lblAdjuntosInfo
+        '
+        Me.lblAdjuntosInfo.AutoSize = True
+        Me.lblAdjuntosInfo.Location = New System.Drawing.Point(24, 131)
+        Me.lblAdjuntosInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblAdjuntosInfo.Name = "lblAdjuntosInfo"
+        Me.lblAdjuntosInfo.Size = New System.Drawing.Size(122, 25)
+        Me.lblAdjuntosInfo.TabIndex = 4
+        Me.lblAdjuntosInfo.Text = "0 archivo(s)"
+        '
+        'btnQuitarAdjunto
+        '
+        Me.btnQuitarAdjunto.BackColor = System.Drawing.Color.LightGray
+        Me.btnQuitarAdjunto.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnQuitarAdjunto.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnQuitarAdjunto.Location = New System.Drawing.Point(610, 107)
+        Me.btnQuitarAdjunto.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnQuitarAdjunto.Name = "btnQuitarAdjunto"
+        Me.btnQuitarAdjunto.Size = New System.Drawing.Size(202, 34)
+        Me.btnQuitarAdjunto.TabIndex = 3
+        Me.btnQuitarAdjunto.Text = "Quitar"
+        Me.btnQuitarAdjunto.UseVisualStyleBackColor = False
+        '
+        'btnAbrirAdjunto
+        '
+        Me.btnAbrirAdjunto.BackColor = System.Drawing.Color.LightGray
+        Me.btnAbrirAdjunto.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnAbrirAdjunto.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnAbrirAdjunto.Location = New System.Drawing.Point(610, 70)
+        Me.btnAbrirAdjunto.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnAbrirAdjunto.Name = "btnAbrirAdjunto"
+        Me.btnAbrirAdjunto.Size = New System.Drawing.Size(202, 34)
+        Me.btnAbrirAdjunto.TabIndex = 2
+        Me.btnAbrirAdjunto.Text = "Abrir"
+        Me.btnAbrirAdjunto.UseVisualStyleBackColor = False
+        '
+        'btnAdjuntar
+        '
+        Me.btnAdjuntar.BackColor = System.Drawing.Color.LightGray
+        Me.btnAdjuntar.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnAdjuntar.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnAdjuntar.Location = New System.Drawing.Point(610, 32)
+        Me.btnAdjuntar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnAdjuntar.Name = "btnAdjuntar"
+        Me.btnAdjuntar.Size = New System.Drawing.Size(202, 34)
+        Me.btnAdjuntar.TabIndex = 1
+        Me.btnAdjuntar.Text = "Adjuntar..."
+        Me.btnAdjuntar.UseVisualStyleBackColor = False
+        '
+        'lstAdjuntos
+        '
+        Me.lstAdjuntos.FormattingEnabled = True
+        Me.lstAdjuntos.ItemHeight = 25
+        Me.lstAdjuntos.Location = New System.Drawing.Point(28, 32)
+        Me.lstAdjuntos.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.lstAdjuntos.Name = "lstAdjuntos"
+        Me.lstAdjuntos.Size = New System.Drawing.Size(560, 104)
+        Me.lstAdjuntos.TabIndex = 0
+        '
         'btnGuardar
         '
         Me.btnGuardar.BackColor = System.Drawing.Color.ForestGreen
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(592, 646)
+        Me.btnGuardar.Location = New System.Drawing.Point(592, 822)
         Me.btnGuardar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnGuardar.Name = "btnGuardar"
         Me.btnGuardar.Size = New System.Drawing.Size(266, 58)
-        Me.btnGuardar.TabIndex = 3
+        Me.btnGuardar.TabIndex = 4
         Me.btnGuardar.Text = "REGISTRAR ENTRADA"
         Me.btnGuardar.UseVisualStyleBackColor = False
         '
         'btnCancelar
         '
         Me.btnCancelar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnCancelar.Location = New System.Drawing.Point(402, 646)
+        Me.btnCancelar.Location = New System.Drawing.Point(402, 822)
         Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnCancelar.Name = "btnCancelar"
         Me.btnCancelar.Size = New System.Drawing.Size(165, 58)
-        Me.btnCancelar.TabIndex = 4
+        Me.btnCancelar.TabIndex = 5
         Me.btnCancelar.Text = "Cancelar"
         Me.btnCancelar.UseVisualStyleBackColor = True
         '
@@ -279,9 +362,10 @@ Partial Class frmMesaEntrada
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ClientSize = New System.Drawing.Size(886, 731)
+        Me.ClientSize = New System.Drawing.Size(886, 900)
         Me.Controls.Add(Me.btnCancelar)
         Me.Controls.Add(Me.btnGuardar)
+        Me.Controls.Add(Me.grpAdjuntos)
         Me.Controls.Add(Me.grpContenido)
         Me.Controls.Add(Me.grpDetalles)
         Me.Controls.Add(Me.grpOrigen)
@@ -298,6 +382,8 @@ Partial Class frmMesaEntrada
         CType(Me.numFojas, System.ComponentModel.ISupportInitialize).EndInit()
         Me.grpContenido.ResumeLayout(False)
         Me.grpContenido.PerformLayout()
+        Me.grpAdjuntos.ResumeLayout(False)
+        Me.grpAdjuntos.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -320,6 +406,12 @@ Partial Class frmMesaEntrada
     Friend WithEvents Label7 As Label
     Friend WithEvents txtAsunto As TextBox
     Friend WithEvents Label6 As Label
+    Friend WithEvents grpAdjuntos As GroupBox
+    Friend WithEvents lblAdjuntosInfo As Label
+    Friend WithEvents btnQuitarAdjunto As Button
+    Friend WithEvents btnAbrirAdjunto As Button
+    Friend WithEvents btnAdjuntar As Button
+    Friend WithEvents lstAdjuntos As ListBox
     Friend WithEvents btnGuardar As Button
     Friend WithEvents btnCancelar As Button
 End Class

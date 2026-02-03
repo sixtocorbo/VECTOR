@@ -153,6 +153,7 @@ Public Class frmPase
 
             db.SaveChanges()
 
+            AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {cboDestino.Text}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE")
             MessageBox.Show("✅ PASE EXITOSO." & vbCrLf & vbCrLf &
                             "Se han enviado " & count & " documento(s) a " & cboDestino.Text & ".", "Vector")
 

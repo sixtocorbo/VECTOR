@@ -29,13 +29,7 @@ Public Class frmLogin
                     SesionGlobal.Iniciar(usuario.IdUsuario, usuario.NombreCompleto, usuario.Rol, idOficina, nombreOficina)
 
                     ' 2. Registro en la tabla de auditoría EventosSistema
-                    Dim log As New EventosSistema()
-                    log.FechaEvento = DateTime.Now
-                    log.Descripcion = "Inicio de Sesión Exitoso"
-                    log.UsuarioId = usuario.IdUsuario
-                    log.Modulo = "LOGIN"
-                    db.EventosSistema.Add(log)
-                    db.SaveChanges()
+                    AuditoriaSistema.RegistrarEvento($"Inicio de sesión exitoso. Oficina: {nombreOficina}.", "LOGIN", usuario.IdUsuario)
 
                     ' 3. Transición al formulario principal
                     Dim principal As New frmPrincipal()

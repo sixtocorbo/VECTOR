@@ -89,6 +89,7 @@
 
     Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
         If MessageBox.Show("¿Desea salir del sistema?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            AuditoriaSistema.RegistrarEvento("Salida del sistema desde menú principal.", "SISTEMA")
             Application.Exit()
         End If
     End Sub
@@ -97,6 +98,8 @@
         If e.CloseReason = CloseReason.UserClosing Then
             If MessageBox.Show("¿Seguro que desea cerrar el sistema?", "VECTOR", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
                 e.Cancel = True
+            Else
+                AuditoriaSistema.RegistrarEvento("Salida del sistema desde cierre de ventana.", "SISTEMA")
             End If
         End If
     End Sub

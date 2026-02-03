@@ -431,6 +431,7 @@ Public Class frmBandeja
             docHijo.IdDocumentoPadre = docPadre.IdDocumento
             docHijo.IdHiloConversacion = docPadre.IdHiloConversacion
             db.SaveChanges()
+            AuditoriaSistema.RegistrarEvento($"Vinculación de documento {docHijo.NumeroOficial} como hijo de {docPadre.NumeroOficial}.", "DOCUMENTOS")
             MessageBox.Show("✅ Vinculado.", "Vector")
             CargarGrilla()
         End If
@@ -451,6 +452,7 @@ Public Class frmBandeja
                 db.Tra_Movimiento.RemoveRange(doc.Tra_Movimiento)
                 db.Mae_Documento.Remove(doc)
                 db.SaveChanges()
+                AuditoriaSistema.RegistrarEvento($"Eliminación definitiva de documento {doc.NumeroOficial}.", "DOCUMENTOS")
                 CargarGrilla()
             End If
         Else
@@ -459,6 +461,7 @@ Public Class frmBandeja
                 Dim mov As New Tra_Movimiento() With {.IdDocumento = idDoc, .FechaMovimiento = DateTime.Now, .IdOficinaOrigen = SesionGlobal.OficinaID, .IdOficinaDestino = SesionGlobal.OficinaID, .IdUsuarioResponsable = SesionGlobal.UsuarioID, .ObservacionPase = "ANULADO", .IdEstadoEnEseMomento = 5}
                 doc.Tra_Movimiento.Add(mov)
                 db.SaveChanges()
+                AuditoriaSistema.RegistrarEvento($"Anulación de documento {doc.NumeroOficial}.", "DOCUMENTOS")
                 CargarGrilla()
             End If
         End If
@@ -552,6 +555,7 @@ Public Class frmBandeja
                 Next
 
                 db.SaveChanges()
+                AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Documentos: {totalDocs}. Expediente: {docPadre.NumeroOficial}.", "RECEPCION")
                 CargarGrilla()
 
                 ' 7. DIGITALIZACIÓN

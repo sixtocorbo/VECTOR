@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient ' Necesario para SqlParameter
+﻿Imports System.Data.SqlClient ' Para SqlParameter
 Imports System.Linq
 
 Public Class frmUnificarOficinas
@@ -19,33 +19,41 @@ Public Class frmUnificarOficinas
         colCheck.Width = 40
         dgvOficinas.Columns.Add(colCheck)
 
-        ' Estilos
+        ' Estilos visuales
         dgvOficinas.AllowUserToAddRows = False
         dgvOficinas.RowHeadersVisible = False
         dgvOficinas.SelectionMode = DataGridViewSelectionMode.FullRowSelect
     End Sub
 
-    ' 2. CARGAR DATOS USANDO LINQ (ENTITY FRAMEWORK)
+    ' 2. CARGAR DATOS (CON FILTRO DE SEGURIDAD)
     Private Sub CargarOficinas(filtro As String)
         Try
-            ' REEMPLAZA 'SecretariaEntities' POR EL NOMBRE DE TU CONTEXTO
             Using db As New SecretariaDBEntities()
 
-                ' Consulta LINQ básica
+                ' --- ZONA DE SEGURIDAD ---
+                ' IDs que el sistema usa internamente y NO se deben tocar.
+                ' 1 = MESA DE ENTRADA, 13 = BANDEJA DE ENTRADA
+                Dim idsIntocables As Integer() = {1, 13}
+
+                ' Consulta LINQ
+                ' Filtramos:
+                ' 1. Que no esté en la lista de IDs prohibidos
+                ' 2. Que el nombre no contenga "ARCHIVO" (para proteger el histórico)
                 Dim query = From o In db.Cat_Oficina
+                            Where Not idsIntocables.Contains(o.IdOficina) AndAlso
+                                  Not o.Nombre.Contains("ARCHIVO")
                             Select o.IdOficina, o.Nombre
                             Order By Nombre Ascending
 
-                ' Aplicar filtro si existe
+                ' Aplicar filtro de búsqueda del usuario
                 If Not String.IsNullOrEmpty(filtro) Then
                     query = query.Where(Function(x) x.Nombre.Contains(filtro))
                 End If
 
-                ' Convertir a lista y asignar
-                ' ToList() ejecuta la consulta en la BD
+                ' Ejecutar y mostrar
                 dgvOficinas.DataSource = query.ToList()
 
-                ' Ajustes visuales de columnas (si se generaron automáticamente)
+                ' Ajustes estéticos
                 If dgvOficinas.Columns("IdOficina") IsNot Nothing Then dgvOficinas.Columns("IdOficina").Width = 60
                 If dgvOficinas.Columns("Nombre") IsNot Nothing Then dgvOficinas.Columns("Nombre").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             End Using
@@ -63,13 +71,14 @@ Public Class frmUnificarOficinas
     ' 4. BOTÓN UNIFICAR
     Private Sub btnUnificar_Click(sender As Object, e As EventArgs) Handles btnUnificar.Click
 
-        ' Validaciones
+        ' Validaciones básicas
         If String.IsNullOrWhiteSpace(txtNombreOficial.Text) Then
             MessageBox.Show("Por favor, escribe el NOMBRE OFICIAL (Destino).", "Falta Nombre", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtNombreOficial.Focus()
             Return
         End If
 
-        ' Recolectar IDs seleccionados
+        ' Recolectar seleccionados
         Dim idsParaBorrar As New List(Of Integer)()
         Dim nombresMuestra As String = ""
 
@@ -77,7 +86,7 @@ Public Class frmUnificarOficinas
             If Convert.ToBoolean(row.Cells("colSeleccionar").Value) Then
                 idsParaBorrar.Add(Convert.ToInt32(row.Cells("IdOficina").Value))
 
-                ' Guardar algunos nombres para el mensaje de alerta
+                ' Guardamos muestra para la alerta
                 If idsParaBorrar.Count <= 3 Then
                     nombresMuestra &= "- " & row.Cells("Nombre").Value.ToString() & vbCrLf
                 End If
@@ -89,31 +98,29 @@ Public Class frmUnificarOficinas
             Return
         End If
 
-        ' Confirmación
-        Dim msg As String = $"Vas a fusionar {idsParaBorrar.Count} oficinas en:" & vbCrLf &
-                            $"'{txtNombreOficial.Text.ToUpper()}'" & vbCrLf & vbCrLf &
-                            $"Ejemplos a borrar:" & vbCrLf & nombresMuestra & "..." & vbCrLf &
+        ' Confirmación Crítica
+        Dim msg As String = $"Vas a fusionar {idsParaBorrar.Count} oficinas en:" & vbCrLf & vbCrLf &
+                            $"DIR FINAL: '{txtNombreOficial.Text.ToUpper()}'" & vbCrLf & vbCrLf &
+                            $"Se eliminarán:" & vbCrLf & nombresMuestra & "..." & vbCrLf & vbCrLf &
                             "¿Confirmar operación?"
 
-        If MessageBox.Show(msg, "CONFIRMAR", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show(msg, "CONFIRMAR FUSIÓN", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             EjecutarFusionEF(txtNombreOficial.Text.ToUpper().Trim(), idsParaBorrar)
         End If
     End Sub
 
-    ' 5. EJECUTAR EL STORED PROCEDURE VÍA ENTITY FRAMEWORK
+    ' 5. EJECUTAR FUSIÓN (STORED PROCEDURE)
     Private Sub EjecutarFusionEF(nombreDestino As String, listaIds As List(Of Integer))
         Try
             Dim idsString As String = String.Join(",", listaIds)
 
-            ' REEMPLAZA 'SecretariaEntities' POR EL NOMBRE DE TU CONTEXTO
             Using db As New SecretariaDBEntities()
 
-                ' Parámetros SQL
+                ' Parámetros para SQL
                 Dim pNombre As New SqlParameter("@NombreDestino", nombreDestino)
                 Dim pLista As New SqlParameter("@ListaIdsBorrar", idsString)
 
-                ' Ejecutamos el SP usando SqlQuery para capturar el mensaje de retorno (SELECT 1, 'Mensaje')
-                ' Creamos una clase temporal interna para recibir el resultado
+                ' Llamada segura al SP esperando respuesta
                 Dim resultado = db.Database.SqlQuery(Of ResultadoSP)(
                     "EXEC sp_UnificarOficinas @NombreDestino, @ListaIdsBorrar", pNombre, pLista).FirstOrDefault()
 
@@ -121,7 +128,7 @@ Public Class frmUnificarOficinas
                     If resultado.Resultado = 1 Then
                         MessageBox.Show(resultado.Mensaje & " 🚀", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-                        ' Limpiar interfaz
+                        ' Limpiar todo
                         txtBuscar.Text = ""
                         txtNombreOficial.Text = ""
                         CargarOficinas("")
@@ -129,7 +136,6 @@ Public Class frmUnificarOficinas
                         MessageBox.Show("Error SQL: " & resultado.Mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End If
                 End If
-
             End Using
 
         Catch ex As Exception
@@ -137,18 +143,20 @@ Public Class frmUnificarOficinas
         End Try
     End Sub
 
-    ' CLASE AUXILIAR PARA LEER LA RESPUESTA DEL SP
+    ' Clase auxiliar para leer el SELECT del SP
     Private Class ResultadoSP
         Public Property Resultado As Integer
         Public Property Mensaje As String
     End Class
 
-    ' Evento click en celda para marcar checkbox fácil
+    ' Mejora de usabilidad: Click en celda = Check
     Private Sub dgvOficinas_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvOficinas.CellClick
-        If e.RowIndex >= 0 AndAlso e.ColumnIndex = -1 Then Return
-        If e.RowIndex >= 0 Then
-            Dim celda As DataGridViewCheckBoxCell = CType(dgvOficinas.Rows(e.RowIndex).Cells("colSeleccionar"), DataGridViewCheckBoxCell)
-            celda.Value = Not Convert.ToBoolean(celda.Value)
+        If e.RowIndex >= 0 AndAlso e.ColumnIndex <> -1 Then
+            ' Solo invertimos si no se hizo clic directo en el checkbox (para evitar doble acción)
+            If dgvOficinas.Columns(e.ColumnIndex).Name <> "colSeleccionar" Then
+                Dim celda As DataGridViewCheckBoxCell = CType(dgvOficinas.Rows(e.RowIndex).Cells("colSeleccionar"), DataGridViewCheckBoxCell)
+                celda.Value = Not Convert.ToBoolean(celda.Value)
+            End If
         End If
     End Sub
 

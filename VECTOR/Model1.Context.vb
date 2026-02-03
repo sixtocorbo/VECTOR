@@ -10,6 +10,8 @@
 Imports System
 Imports System.Data.Entity
 Imports System.Data.Entity.Infrastructure
+Imports System.Data.Entity.Core.Objects
+Imports System.Linq
 
 Partial Public Class SecretariaDBEntities
     Inherits DbContext
@@ -30,5 +32,17 @@ Partial Public Class SecretariaDBEntities
     Public Overridable Property Mae_NumeracionRangos() As DbSet(Of Mae_NumeracionRangos)
     Public Overridable Property Mae_Reclusos() As DbSet(Of Mae_Reclusos)
     Public Overridable Property Tra_Movimiento() As DbSet(Of Tra_Movimiento)
+    Public Overridable Property Cat_Oficina_MergeLog() As DbSet(Of Cat_Oficina_MergeLog)
+    Public Overridable Property EventosSistema() As DbSet(Of EventosSistema)
+    Public Overridable Property Usuarios() As DbSet(Of Usuarios)
+    Public Overridable Property Cat_Oficina_Backup_20260203_093509() As DbSet(Of Cat_Oficina_Backup_20260203_093509)
+
+    Public Overridable Function sp_UnificarOficinas(nombreDestino As String, listaIdsBorrar As String) As ObjectResult(Of sp_UnificarOficinas_Result)
+        Dim nombreDestinoParameter As ObjectParameter = If(nombreDestino IsNot Nothing, New ObjectParameter("NombreDestino", nombreDestino), New ObjectParameter("NombreDestino", GetType(String)))
+
+        Dim listaIdsBorrarParameter As ObjectParameter = If(listaIdsBorrar IsNot Nothing, New ObjectParameter("ListaIdsBorrar", listaIdsBorrar), New ObjectParameter("ListaIdsBorrar", GetType(String)))
+
+        Return DirectCast(Me, IObjectContextAdapter).ObjectContext.ExecuteFunction(Of sp_UnificarOficinas_Result)("sp_UnificarOficinas", nombreDestinoParameter, listaIdsBorrarParameter)
+    End Function
 
 End Class

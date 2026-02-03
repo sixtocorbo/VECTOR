@@ -24,6 +24,12 @@
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdUsu__3D5E1FD2" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdDoc__32E0915F" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdDoc__398D8EEE" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_MergeLog" Width="1.5" PointX="8.375" PointY="4.75" />
+        <EntityTypeShape EntityType="SecretariaDBModel.EventosSistema" Width="1.5" PointX="9.625" PointY="0.875" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Usuarios" Width="1.5" PointX="7.375" PointY="0.875" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_Backup_20260203_093509" Width="1.5" PointX="8.375" PointY="8.75" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Eventos_Usuarios" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Eventos_CatUsuario" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

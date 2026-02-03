@@ -91,10 +91,19 @@
     <Compile Include="Cat_Oficina.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Cat_Oficina_Backup_20260203_093509.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Cat_Oficina_MergeLog.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Cat_TipoDocumento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Cat_Usuario.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventosSistema.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="frmBandeja.Designer.vb">
@@ -145,6 +154,12 @@
     <Compile Include="frmUnificarOficinas.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmUsuarios.Designer.vb">
+      <DependentUpon>frmUsuarios.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmUsuarios.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Mae_Documento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -186,7 +201,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SesionGlobal.vb" />
+    <Compile Include="sp_UnificarOficinas_Result.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Tra_Movimiento.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Usuarios.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
   </ItemGroup>

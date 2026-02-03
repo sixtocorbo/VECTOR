@@ -10,16 +10,13 @@
 Imports System
 Imports System.Collections.Generic
 
-Partial Public Class Cat_Usuario
-    Public Property IdUsuario As Integer
-    Public Property NombreCompleto As String
-    Public Property UsuarioLogin As String
-    Public Property Activo As Nullable(Of Boolean)
+Partial Public Class Usuarios
+    Public Property Id As Integer
+    Public Property NombreUsuario As String
     Public Property Clave As String
     Public Property Rol As String
+    Public Property Activo As Nullable(Of Boolean)
 
-    Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
-    Public Overridable Property Tra_Movimiento As ICollection(Of Tra_Movimiento) = New HashSet(Of Tra_Movimiento)
     Public Overridable Property EventosSistema As ICollection(Of EventosSistema) = New HashSet(Of EventosSistema)
 
 End Class

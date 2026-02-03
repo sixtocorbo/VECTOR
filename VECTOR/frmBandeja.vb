@@ -290,19 +290,10 @@ Public Class frmBandeja
         ' Historial siempre habilitado si hay algo seleccionado
         btnHistorial.Enabled = haySeleccion
 
-        ' 2. LÓGICA DEL BOTÓN ÚNICO DE ENTRADA (btnNuevoIngreso)
-        ' Este botón nunca se deshabilita, pero cambia su "identidad"
-        If haySeleccion AndAlso Not esMio Then
-            ' MODO ALERTA: Hay algo de otra oficina seleccionado
-            btnNuevoIngreso.Text = "📥 RECIBIR / NUEVO"
-            btnNuevoIngreso.BackColor = Color.DarkCyan ' Color distinto para llamar la atención
-            btnNuevoIngreso.ForeColor = Color.White
-        Else
-            ' MODO NORMAL: Nada seleccionado o es un documento propio
-            btnNuevoIngreso.Text = "➕ NUEVO INGRESO"
-            btnNuevoIngreso.BackColor = Color.ForestGreen
-            btnNuevoIngreso.ForeColor = Color.White
-        End If
+        ' 2. BOTÓN NUEVO INGRESO (solo crea ingresos)
+        btnNuevoIngreso.Text = "➕ NUEVO INGRESO"
+        btnNuevoIngreso.BackColor = Color.ForestGreen
+        btnNuevoIngreso.ForeColor = Color.White
     End Sub
 
     ' =======================================================

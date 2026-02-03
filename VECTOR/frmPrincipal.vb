@@ -6,6 +6,8 @@
 
         ' 2. Mostrar datos de Sesión en la barra inferior
         Try
+            ' NOTA: Asegúrate de que SesionGlobal existe en tu proyecto.
+            ' Si da error, comenta estas líneas temporalmente.
             lblEstadoUsuario.Text = "👤 Usuario: " & SesionGlobal.NombreUsuario
             lblEstadoOficina.Text = "🏢 Oficina: " & SesionGlobal.NombreOficina
         Catch ex As Exception
@@ -14,6 +16,7 @@
         End Try
 
         ' 3. Opcional: Abrir la bandeja automáticamente al iniciar
+        ' Si aún no tienes frmBandeja, comenta esta línea
         AbrirFormularioHijo(Of frmBandeja)()
     End Sub
 
@@ -50,9 +53,14 @@
         AbrirFormularioHijo(Of frmBandeja)()
     End Sub
 
-    ' --- NUEVO EVENTO PARA ABRIR LA GESTIÓN DE RANGOS ---
     Private Sub GestionRangosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionRangosToolStripMenuItem.Click
+        ' Asegúrate de tener frmGestionRangos creado, o comenta esta línea si aún no existe
         AbrirFormularioHijo(Of frmGestionRangos)()
+    End Sub
+
+    ' --- NUEVO: EVENTO PARA LA HERRAMIENTA DE UNIFICAR ---
+    Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmUnificarOficinas)()
     End Sub
     ' -----------------------------------------------------
 

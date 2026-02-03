@@ -139,6 +139,12 @@
     <Compile Include="frmPrincipal.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmUnificarOficinas.Designer.vb">
+      <DependentUpon>frmUnificarOficinas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmUnificarOficinas.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Mae_Documento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

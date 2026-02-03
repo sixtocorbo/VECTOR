@@ -452,12 +452,6 @@ Public Class frmBandeja
         fNuevo.ShowDialog()
         CargarGrilla()
     End Sub
-    ' Encapsula la apertura de un nuevo registro
-    Private Sub AbrirNuevoIngreso()
-        Dim fNuevo As New frmMesaEntrada()
-        fNuevo.ShowDialog()
-        CargarGrilla()
-    End Sub
 
     ' Encapsula la lógica de recepción que ya tienes (con el Reload de BD)
     Private Sub EjecutarRecibirDocumento()
@@ -572,10 +566,6 @@ Public Class frmBandeja
     Private Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
         txtBuscar.Clear()
         CargarGrilla()
-    End Sub
-
-    Private Sub btnRecibir_Click(sender As Object, e As EventArgs) Handles btnRecibir.Click
-        EjecutarRecibirDocumento()
     End Sub
 
 End Class

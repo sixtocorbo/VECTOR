@@ -31,7 +31,6 @@ Partial Class frmBandeja
         Me.btnHistorial = New System.Windows.Forms.Button()
         Me.btnRefrescar = New System.Windows.Forms.Button()
         Me.dgvPendientes = New System.Windows.Forms.DataGridView()
-        Me.btnRecibir = New System.Windows.Forms.Button()
         Me.PanelSuperior.SuspendLayout()
         Me.PanelInferior.SuspendLayout()
         CType(Me.dgvPendientes, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -40,7 +39,6 @@ Partial Class frmBandeja
         'PanelSuperior
         '
         Me.PanelSuperior.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.PanelSuperior.Controls.Add(Me.btnRecibir)
         Me.PanelSuperior.Controls.Add(Me.chkVerDerivados)
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
@@ -225,21 +223,6 @@ Partial Class frmBandeja
         Me.dgvPendientes.Size = New System.Drawing.Size(1800, 663)
         Me.dgvPendientes.TabIndex = 2
         '
-        'btnRecibir
-        '
-        Me.btnRecibir.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnRecibir.BackColor = System.Drawing.Color.ForestGreen
-        Me.btnRecibir.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnRecibir.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnRecibir.ForeColor = System.Drawing.Color.White
-        Me.btnRecibir.Location = New System.Drawing.Point(1400, 38)
-        Me.btnRecibir.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnRecibir.Name = "btnRecibir"
-        Me.btnRecibir.Size = New System.Drawing.Size(276, 46)
-        Me.btnRecibir.TabIndex = 6
-        Me.btnRecibir.Text = "RECIBIR"
-        Me.btnRecibir.UseVisualStyleBackColor = False
-        '
         'frmBandeja
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -275,5 +258,4 @@ Partial Class frmBandeja
     Friend WithEvents btnEliminar As Button
     Friend WithEvents chkVerDerivados As CheckBox
     Friend WithEvents lblContador As Label
-    Friend WithEvents btnRecibir As Button
 End Class

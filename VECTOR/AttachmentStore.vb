@@ -81,9 +81,9 @@ Public Module AttachmentStore
 
         For Each stored In storedPrev
             If Not storedNew.Contains(stored) Then
-                Dim path = Path.Combine(folder, stored)
-                If File.Exists(path) Then
-                    File.Delete(path)
+                Dim filePath = Path.Combine(folder, stored) ' Cambiado a filePath
+                If File.Exists(filePath) Then
+                    File.Delete(filePath)
                 End If
             End If
         Next

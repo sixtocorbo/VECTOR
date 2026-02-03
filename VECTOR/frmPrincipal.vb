@@ -15,9 +15,23 @@
             lblEstadoOficina.Text = "Oficina: Mesa Central"
         End Try
 
+        ConfigurarPermisosMenu()
+
         ' 3. Opcional: Abrir la bandeja automáticamente al iniciar
         ' Si aún no tienes frmBandeja, comenta esta línea
         AbrirFormularioHijo(Of frmBandeja)()
+    End Sub
+
+    Private Sub ConfigurarPermisosMenu()
+        Dim esAdmin As Boolean
+
+        Try
+            esAdmin = SesionGlobal.EsAdmin
+        Catch ex As Exception
+            esAdmin = True
+        End Try
+
+        GestionUsuariosToolStripMenuItem.Enabled = esAdmin
     End Sub
 
     ' =================================================================
@@ -58,6 +72,15 @@
         AbrirFormularioHijo(Of frmGestionRangos)()
     End Sub
 
+    Private Sub GestionUsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionUsuariosToolStripMenuItem.Click
+        If Not PuedeGestionarUsuarios() Then
+            MessageBox.Show("Solo los usuarios con rol Administrador pueden gestionar usuarios.", "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        AbrirFormularioHijo(Of frmUsuarios)()
+    End Sub
+
     ' --- NUEVO: EVENTO PARA LA HERRAMIENTA DE UNIFICAR ---
     Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmUnificarOficinas)()
@@ -77,5 +100,13 @@
             End If
         End If
     End Sub
+
+    Private Function PuedeGestionarUsuarios() As Boolean
+        Try
+            Return SesionGlobal.EsAdmin
+        Catch ex As Exception
+            Return True
+        End Try
+    End Function
 
 End Class

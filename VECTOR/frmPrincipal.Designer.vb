@@ -28,6 +28,7 @@ Partial Class frmPrincipal
         Me.GestiónToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.BandejaDeEntradaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionRangosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.GestionUsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UnificarOficinasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem() ' <--- NUEVO
         Me.VentanasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
@@ -64,7 +65,7 @@ Partial Class frmPrincipal
         '
         'GestiónToolStripMenuItem
         '
-        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
+        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
         Me.GestiónToolStripMenuItem.Name = "GestiónToolStripMenuItem"
         Me.GestiónToolStripMenuItem.Size = New System.Drawing.Size(88, 29)
         Me.GestiónToolStripMenuItem.Text = "Gestión"
@@ -80,6 +81,12 @@ Partial Class frmPrincipal
         Me.GestionRangosToolStripMenuItem.Name = "GestionRangosToolStripMenuItem"
         Me.GestionRangosToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
         Me.GestionRangosToolStripMenuItem.Text = "Numeración y Rangos"
+        '
+        'GestionUsuariosToolStripMenuItem
+        '
+        Me.GestionUsuariosToolStripMenuItem.Name = "GestionUsuariosToolStripMenuItem"
+        Me.GestionUsuariosToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.GestionUsuariosToolStripMenuItem.Text = "Gestión de Usuarios"
         '
         'UnificarOficinasToolStripMenuItem
         '
@@ -146,6 +153,7 @@ Partial Class frmPrincipal
     Friend WithEvents GestiónToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents BandejaDeEntradaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionRangosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents GestionUsuariosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents UnificarOficinasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem ' <--- NUEVO
     Friend WithEvents VentanasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents StatusStrip1 As System.Windows.Forms.StatusStrip

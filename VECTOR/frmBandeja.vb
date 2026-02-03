@@ -7,6 +7,8 @@ Public Class frmBandeja
 
     Private db As New SecretariaDBEntities()
     Private Const IdBandejaEntrada As Integer = 13
+    Private _fontNormal As Font
+    Private _fontItalic As Font
 
     ' 1. LISTA EN MEMORIA (Para búsquedas instantáneas)
     Private _listaOriginal As New List(Of Object)
@@ -30,6 +32,8 @@ Public Class frmBandeja
             ' Configuración Visual
             Me.WindowState = FormWindowState.Maximized
             Me.Text = "VECTOR - Bandeja de: " & SesionGlobal.NombreOficina & " (" & SesionGlobal.NombreUsuario & ")"
+            _fontNormal = dgvPendientes.Font
+            _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
 
             ConfigurarBotones(False, False, False)
             CargarGrilla() ' Trae datos de la BD por primera vez
@@ -37,6 +41,13 @@ Public Class frmBandeja
             Me.Text = "VECTOR - Sistema de Gestión"
             ConfigurarBotones(False, False, False)
         End Try
+    End Sub
+
+    Private Sub frmBandeja_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        If _fontItalic IsNot Nothing Then
+            _fontItalic.Dispose()
+            _fontItalic = Nothing
+        End If
     End Sub
 
     ' =======================================================
@@ -180,6 +191,22 @@ Public Class frmBandeja
     ' =======================================================
     ' 3. SEMÁFORO DE COLORES (Alertas Visuales)
     ' =======================================================
+    Private Sub dgvPendientes_RowPrePaint(sender As Object, e As DataGridViewRowPrePaintEventArgs) Handles dgvPendientes.RowPrePaint
+        If e.RowIndex < 0 Then Return
+        If Not dgvPendientes.Columns.Contains("IdOficinaActual") Then Return
+
+        Dim fila = dgvPendientes.Rows(e.RowIndex)
+        If fila.Cells("IdOficinaActual").Value Is Nothing Then Return
+
+        Dim idOficinaDoc As Integer = CInt(fila.Cells("IdOficinaActual").Value)
+        Dim esMio As Boolean = (idOficinaDoc = SesionGlobal.OficinaID)
+
+        If esMio Then
+            fila.DefaultCellStyle.Font = _fontNormal
+        Else
+            fila.DefaultCellStyle.Font = _fontItalic
+        End If
+    End Sub
     'Private Sub dgvPendientes_RowPrePaint(sender As Object, e As DataGridViewRowPrePaintEventArgs) Handles dgvPendientes.RowPrePaint
     '    If e.RowIndex < 0 Then Return
 

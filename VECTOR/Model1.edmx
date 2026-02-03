@@ -1,0 +1,708 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Cat_Estado">
+          <Key>
+            <PropertyRef Name="IdEstado" />
+          </Key>
+          <Property Name="IdEstado" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ColorHex" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="Cat_Oficina">
+          <Key>
+            <PropertyRef Name="IdOficina" />
+          </Key>
+          <Property Name="IdOficina" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="EsExterna" Type="bit" />
+          <Property Name="Direccion" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="Cat_TipoDocumento">
+          <Key>
+            <PropertyRef Name="IdTipo" />
+          </Key>
+          <Property Name="IdTipo" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Codigo" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="EsInterno" Type="bit" />
+        </EntityType>
+        <EntityType Name="Cat_Usuario">
+          <Key>
+            <PropertyRef Name="IdUsuario" />
+          </Key>
+          <Property Name="IdUsuario" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NombreCompleto" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="UsuarioLogin" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Activo" Type="bit" />
+        </EntityType>
+        <EntityType Name="Mae_Documento">
+          <Key>
+            <PropertyRef Name="IdDocumento" />
+          </Key>
+          <Property Name="IdDocumento" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdTipo" Type="int" Nullable="false" />
+          <Property Name="NumeroOficial" Type="varchar" MaxLength="50" />
+          <Property Name="NumeroInterno" Type="varchar" MaxLength="37" StoreGeneratedPattern="Computed" Nullable="false" />
+          <Property Name="Asunto" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar(max)" />
+          <Property Name="FechaCreacion" Type="datetime" />
+          <Property Name="FechaRecepcion" Type="datetime" />
+          <Property Name="Fojas" Type="int" />
+          <Property Name="IdDocumentoPadre" Type="bigint" />
+          <Property Name="IdHiloConversacion" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="IdEstadoActual" Type="int" Nullable="false" />
+          <Property Name="IdOficinaActual" Type="int" Nullable="false" />
+          <Property Name="IdUsuarioCreador" Type="int" />
+        </EntityType>
+        <EntityType Name="Mae_NumeracionRangos">
+          <Key>
+            <PropertyRef Name="IdRango" />
+          </Key>
+          <Property Name="IdRango" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdTipo" Type="int" Nullable="false" />
+          <Property Name="NombreRango" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="NumeroInicio" Type="int" Nullable="false" />
+          <Property Name="NumeroFin" Type="int" Nullable="false" />
+          <Property Name="UltimoUtilizado" Type="int" Nullable="false" />
+          <Property Name="Activo" Type="bit" Nullable="false" />
+          <Property Name="FechaCreacion" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Mae_Reclusos">
+          <Key>
+            <PropertyRef Name="IdRecluso" />
+          </Key>
+          <Property Name="IdRecluso" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NombreCompleto" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="Activo" Type="bit" />
+        </EntityType>
+        <EntityType Name="Tra_Movimiento">
+          <Key>
+            <PropertyRef Name="IdMovimiento" />
+          </Key>
+          <Property Name="IdMovimiento" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdDocumento" Type="bigint" Nullable="false" />
+          <Property Name="FechaMovimiento" Type="datetime" />
+          <Property Name="IdOficinaOrigen" Type="int" Nullable="false" />
+          <Property Name="IdOficinaDestino" Type="int" Nullable="false" />
+          <Property Name="IdUsuarioResponsable" Type="int" />
+          <Property Name="ObservacionPase" Type="nvarchar" MaxLength="500" />
+          <Property Name="IdEstadoEnEseMomento" Type="int" />
+        </EntityType>
+        <Association Name="FK__Mae_Docum__IdDoc__32E0915F">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="0..1" />
+          <End Role="Mae_Documento1" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Mae_Documento1">
+              <PropertyRef Name="IdDocumentoPadre" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdEst__34C8D9D1">
+          <End Role="Cat_Estado" Type="Self.Cat_Estado" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Estado">
+              <PropertyRef Name="IdEstado" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdEstadoActual" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdOfi__35BCFE0A">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdOficinaActual" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdTip__2F10007B">
+          <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_TipoDocumento">
+              <PropertyRef Name="IdTipo" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdTipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdUsu__36B12243">
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="0..1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Usuario">
+              <PropertyRef Name="IdUsuario" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdUsuarioCreador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdDoc__398D8EEE">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdEst__3E52440B">
+          <End Role="Cat_Estado" Type="Self.Cat_Estado" Multiplicity="0..1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Estado">
+              <PropertyRef Name="IdEstado" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdEstadoEnEseMomento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdOfi__3B75D760">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdOficinaOrigen" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdOfi__3C69FB99">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdOficinaDestino" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdUsu__3D5E1FD2">
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="0..1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Usuario">
+              <PropertyRef Name="IdUsuario" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdUsuarioResponsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Numeracion_Tipo">
+          <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
+          <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_TipoDocumento">
+              <PropertyRef Name="IdTipo" />
+            </Principal>
+            <Dependent Role="Mae_NumeracionRangos">
+              <PropertyRef Name="IdTipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SecretariaDBModelStoreContainer">
+          <EntitySet Name="Cat_Estado" EntityType="Self.Cat_Estado" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cat_Oficina" EntityType="Self.Cat_Oficina" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cat_TipoDocumento" EntityType="Self.Cat_TipoDocumento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cat_Usuario" EntityType="Self.Cat_Usuario" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Mae_Documento" EntityType="Self.Mae_Documento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Mae_NumeracionRangos" EntityType="Self.Mae_NumeracionRangos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Mae_Reclusos" EntityType="Self.Mae_Reclusos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tra_Movimiento" EntityType="Self.Tra_Movimiento" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Mae_Docum__IdDoc__32E0915F" Association="Self.FK__Mae_Docum__IdDoc__32E0915F">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Mae_Documento1" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdEst__34C8D9D1" Association="Self.FK__Mae_Docum__IdEst__34C8D9D1">
+            <End Role="Cat_Estado" EntitySet="Cat_Estado" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdOfi__35BCFE0A" Association="Self.FK__Mae_Docum__IdOfi__35BCFE0A">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdTip__2F10007B" Association="Self.FK__Mae_Docum__IdTip__2F10007B">
+            <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdUsu__36B12243" Association="Self.FK__Mae_Docum__IdUsu__36B12243">
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdDoc__398D8EEE" Association="Self.FK__Tra_Movim__IdDoc__398D8EEE">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdEst__3E52440B" Association="Self.FK__Tra_Movim__IdEst__3E52440B">
+            <End Role="Cat_Estado" EntitySet="Cat_Estado" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdOfi__3B75D760" Association="Self.FK__Tra_Movim__IdOfi__3B75D760">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdOfi__3C69FB99" Association="Self.FK__Tra_Movim__IdOfi__3C69FB99">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdUsu__3D5E1FD2" Association="Self.FK__Tra_Movim__IdUsu__3D5E1FD2">
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Numeracion_Tipo" Association="Self.FK_Numeracion_Tipo">
+            <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
+            <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SecretariaDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Cat_Estado">
+          <Key>
+            <PropertyRef Name="IdEstado" />
+          </Key>
+          <Property Name="IdEstado" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ColorHex" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdEst__34C8D9D1" FromRole="Cat_Estado" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdEst__3E52440B" FromRole="Cat_Estado" ToRole="Tra_Movimiento" />
+        </EntityType>
+        <EntityType Name="Cat_Oficina">
+          <Key>
+            <PropertyRef Name="IdOficina" />
+          </Key>
+          <Property Name="IdOficina" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="EsExterna" Type="Boolean" />
+          <Property Name="Direccion" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdOfi__35BCFE0A" FromRole="Cat_Oficina" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdOfi__3B75D760" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
+          <NavigationProperty Name="Tra_Movimiento1" Relationship="Self.FK__Tra_Movim__IdOfi__3C69FB99" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
+        </EntityType>
+        <EntityType Name="Cat_TipoDocumento">
+          <Key>
+            <PropertyRef Name="IdTipo" />
+          </Key>
+          <Property Name="IdTipo" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Codigo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="EsInterno" Type="Boolean" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdTip__2F10007B" FromRole="Cat_TipoDocumento" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Mae_NumeracionRangos" Relationship="Self.FK_Numeracion_Tipo" FromRole="Cat_TipoDocumento" ToRole="Mae_NumeracionRangos" />
+        </EntityType>
+        <EntityType Name="Cat_Usuario">
+          <Key>
+            <PropertyRef Name="IdUsuario" />
+          </Key>
+          <Property Name="IdUsuario" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NombreCompleto" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UsuarioLogin" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Activo" Type="Boolean" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdUsu__36B12243" FromRole="Cat_Usuario" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdUsu__3D5E1FD2" FromRole="Cat_Usuario" ToRole="Tra_Movimiento" />
+        </EntityType>
+        <EntityType Name="Mae_Documento">
+          <Key>
+            <PropertyRef Name="IdDocumento" />
+          </Key>
+          <Property Name="IdDocumento" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdTipo" Type="Int32" Nullable="false" />
+          <Property Name="NumeroOficial" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NumeroInterno" Type="String" MaxLength="37" FixedLength="false" Unicode="false" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="Asunto" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Descripcion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FechaCreacion" Type="DateTime" Precision="3" />
+          <Property Name="FechaRecepcion" Type="DateTime" Precision="3" />
+          <Property Name="Fojas" Type="Int32" />
+          <Property Name="IdDocumentoPadre" Type="Int64" />
+          <Property Name="IdHiloConversacion" Type="Guid" Nullable="false" />
+          <Property Name="IdEstadoActual" Type="Int32" Nullable="false" />
+          <Property Name="IdOficinaActual" Type="Int32" Nullable="false" />
+          <Property Name="IdUsuarioCreador" Type="Int32" />
+          <NavigationProperty Name="Cat_Estado" Relationship="Self.FK__Mae_Docum__IdEst__34C8D9D1" FromRole="Mae_Documento" ToRole="Cat_Estado" />
+          <NavigationProperty Name="Cat_Oficina" Relationship="Self.FK__Mae_Docum__IdOfi__35BCFE0A" FromRole="Mae_Documento" ToRole="Cat_Oficina" />
+          <NavigationProperty Name="Cat_TipoDocumento" Relationship="Self.FK__Mae_Docum__IdTip__2F10007B" FromRole="Mae_Documento" ToRole="Cat_TipoDocumento" />
+          <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK__Mae_Docum__IdUsu__36B12243" FromRole="Mae_Documento" ToRole="Cat_Usuario" />
+          <NavigationProperty Name="Mae_Documento1" Relationship="Self.FK__Mae_Docum__IdDoc__32E0915F" FromRole="Mae_Documento" ToRole="Mae_Documento1" />
+          <NavigationProperty Name="Mae_Documento2" Relationship="Self.FK__Mae_Docum__IdDoc__32E0915F" FromRole="Mae_Documento1" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdDoc__398D8EEE" FromRole="Mae_Documento" ToRole="Tra_Movimiento" />
+        </EntityType>
+        <EntityType Name="Mae_NumeracionRangos">
+          <Key>
+            <PropertyRef Name="IdRango" />
+          </Key>
+          <Property Name="IdRango" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdTipo" Type="Int32" Nullable="false" />
+          <Property Name="NombreRango" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="NumeroInicio" Type="Int32" Nullable="false" />
+          <Property Name="NumeroFin" Type="Int32" Nullable="false" />
+          <Property Name="UltimoUtilizado" Type="Int32" Nullable="false" />
+          <Property Name="Activo" Type="Boolean" Nullable="false" />
+          <Property Name="FechaCreacion" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Cat_TipoDocumento" Relationship="Self.FK_Numeracion_Tipo" FromRole="Mae_NumeracionRangos" ToRole="Cat_TipoDocumento" />
+        </EntityType>
+        <EntityType Name="Mae_Reclusos">
+          <Key>
+            <PropertyRef Name="IdRecluso" />
+          </Key>
+          <Property Name="IdRecluso" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NombreCompleto" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Activo" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Tra_Movimiento">
+          <Key>
+            <PropertyRef Name="IdMovimiento" />
+          </Key>
+          <Property Name="IdMovimiento" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdDocumento" Type="Int64" Nullable="false" />
+          <Property Name="FechaMovimiento" Type="DateTime" Precision="3" />
+          <Property Name="IdOficinaOrigen" Type="Int32" Nullable="false" />
+          <Property Name="IdOficinaDestino" Type="Int32" Nullable="false" />
+          <Property Name="IdUsuarioResponsable" Type="Int32" />
+          <Property Name="ObservacionPase" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="IdEstadoEnEseMomento" Type="Int32" />
+          <NavigationProperty Name="Cat_Estado" Relationship="Self.FK__Tra_Movim__IdEst__3E52440B" FromRole="Tra_Movimiento" ToRole="Cat_Estado" />
+          <NavigationProperty Name="Cat_Oficina" Relationship="Self.FK__Tra_Movim__IdOfi__3B75D760" FromRole="Tra_Movimiento" ToRole="Cat_Oficina" />
+          <NavigationProperty Name="Cat_Oficina1" Relationship="Self.FK__Tra_Movim__IdOfi__3C69FB99" FromRole="Tra_Movimiento" ToRole="Cat_Oficina" />
+          <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK__Tra_Movim__IdUsu__3D5E1FD2" FromRole="Tra_Movimiento" ToRole="Cat_Usuario" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Tra_Movim__IdDoc__398D8EEE" FromRole="Tra_Movimiento" ToRole="Mae_Documento" />
+        </EntityType>
+        <Association Name="FK__Mae_Docum__IdEst__34C8D9D1">
+          <End Role="Cat_Estado" Type="Self.Cat_Estado" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Estado">
+              <PropertyRef Name="IdEstado" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdEstadoActual" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdEst__3E52440B">
+          <End Role="Cat_Estado" Type="Self.Cat_Estado" Multiplicity="0..1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Estado">
+              <PropertyRef Name="IdEstado" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdEstadoEnEseMomento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdOfi__35BCFE0A">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdOficinaActual" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdOfi__3B75D760">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdOficinaOrigen" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdOfi__3C69FB99">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdOficinaDestino" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdTip__2F10007B">
+          <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_TipoDocumento">
+              <PropertyRef Name="IdTipo" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdTipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Numeracion_Tipo">
+          <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
+          <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_TipoDocumento">
+              <PropertyRef Name="IdTipo" />
+            </Principal>
+            <Dependent Role="Mae_NumeracionRangos">
+              <PropertyRef Name="IdTipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdUsu__36B12243">
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="0..1" />
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Usuario">
+              <PropertyRef Name="IdUsuario" />
+            </Principal>
+            <Dependent Role="Mae_Documento">
+              <PropertyRef Name="IdUsuarioCreador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdUsu__3D5E1FD2">
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="0..1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Usuario">
+              <PropertyRef Name="IdUsuario" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdUsuarioResponsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Mae_Docum__IdDoc__32E0915F">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="0..1" />
+          <End Role="Mae_Documento1" Type="Self.Mae_Documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Mae_Documento1">
+              <PropertyRef Name="IdDocumentoPadre" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tra_Movim__IdDoc__398D8EEE">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="1" />
+          <End Role="Tra_Movimiento" Type="Self.Tra_Movimiento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Tra_Movimiento">
+              <PropertyRef Name="IdDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SecretariaDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Cat_Estado" EntityType="Self.Cat_Estado" />
+          <EntitySet Name="Cat_Oficina" EntityType="Self.Cat_Oficina" />
+          <EntitySet Name="Cat_TipoDocumento" EntityType="Self.Cat_TipoDocumento" />
+          <EntitySet Name="Cat_Usuario" EntityType="Self.Cat_Usuario" />
+          <EntitySet Name="Mae_Documento" EntityType="Self.Mae_Documento" />
+          <EntitySet Name="Mae_NumeracionRangos" EntityType="Self.Mae_NumeracionRangos" />
+          <EntitySet Name="Mae_Reclusos" EntityType="Self.Mae_Reclusos" />
+          <EntitySet Name="Tra_Movimiento" EntityType="Self.Tra_Movimiento" />
+          <AssociationSet Name="FK__Mae_Docum__IdEst__34C8D9D1" Association="Self.FK__Mae_Docum__IdEst__34C8D9D1">
+            <End Role="Cat_Estado" EntitySet="Cat_Estado" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdEst__3E52440B" Association="Self.FK__Tra_Movim__IdEst__3E52440B">
+            <End Role="Cat_Estado" EntitySet="Cat_Estado" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdOfi__35BCFE0A" Association="Self.FK__Mae_Docum__IdOfi__35BCFE0A">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdOfi__3B75D760" Association="Self.FK__Tra_Movim__IdOfi__3B75D760">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdOfi__3C69FB99" Association="Self.FK__Tra_Movim__IdOfi__3C69FB99">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdTip__2F10007B" Association="Self.FK__Mae_Docum__IdTip__2F10007B">
+            <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Numeracion_Tipo" Association="Self.FK_Numeracion_Tipo">
+            <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
+            <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdUsu__36B12243" Association="Self.FK__Mae_Docum__IdUsu__36B12243">
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdUsu__3D5E1FD2" Association="Self.FK__Tra_Movim__IdUsu__3D5E1FD2">
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Mae_Docum__IdDoc__32E0915F" Association="Self.FK__Mae_Docum__IdDoc__32E0915F">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Mae_Documento1" EntitySet="Mae_Documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tra_Movim__IdDoc__398D8EEE" Association="Self.FK__Tra_Movim__IdDoc__398D8EEE">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SecretariaDBModelStoreContainer" CdmEntityContainer="SecretariaDBEntities">
+          <EntitySetMapping Name="Cat_Estado">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Estado">
+              <MappingFragment StoreEntitySet="Cat_Estado">
+                <ScalarProperty Name="IdEstado" ColumnName="IdEstado" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="ColorHex" ColumnName="ColorHex" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Cat_Oficina">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Oficina">
+              <MappingFragment StoreEntitySet="Cat_Oficina">
+                <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="EsExterna" ColumnName="EsExterna" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Cat_TipoDocumento">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_TipoDocumento">
+              <MappingFragment StoreEntitySet="Cat_TipoDocumento">
+                <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+                <ScalarProperty Name="EsInterno" ColumnName="EsInterno" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Cat_Usuario">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Usuario">
+              <MappingFragment StoreEntitySet="Cat_Usuario">
+                <ScalarProperty Name="IdUsuario" ColumnName="IdUsuario" />
+                <ScalarProperty Name="NombreCompleto" ColumnName="NombreCompleto" />
+                <ScalarProperty Name="UsuarioLogin" ColumnName="UsuarioLogin" />
+                <ScalarProperty Name="Activo" ColumnName="Activo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mae_Documento">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Mae_Documento">
+              <MappingFragment StoreEntitySet="Mae_Documento">
+                <ScalarProperty Name="IdDocumento" ColumnName="IdDocumento" />
+                <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
+                <ScalarProperty Name="NumeroOficial" ColumnName="NumeroOficial" />
+                <ScalarProperty Name="NumeroInterno" ColumnName="NumeroInterno" />
+                <ScalarProperty Name="Asunto" ColumnName="Asunto" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="FechaCreacion" ColumnName="FechaCreacion" />
+                <ScalarProperty Name="FechaRecepcion" ColumnName="FechaRecepcion" />
+                <ScalarProperty Name="Fojas" ColumnName="Fojas" />
+                <ScalarProperty Name="IdDocumentoPadre" ColumnName="IdDocumentoPadre" />
+                <ScalarProperty Name="IdHiloConversacion" ColumnName="IdHiloConversacion" />
+                <ScalarProperty Name="IdEstadoActual" ColumnName="IdEstadoActual" />
+                <ScalarProperty Name="IdOficinaActual" ColumnName="IdOficinaActual" />
+                <ScalarProperty Name="IdUsuarioCreador" ColumnName="IdUsuarioCreador" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mae_NumeracionRangos">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Mae_NumeracionRangos">
+              <MappingFragment StoreEntitySet="Mae_NumeracionRangos">
+                <ScalarProperty Name="IdRango" ColumnName="IdRango" />
+                <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
+                <ScalarProperty Name="NombreRango" ColumnName="NombreRango" />
+                <ScalarProperty Name="NumeroInicio" ColumnName="NumeroInicio" />
+                <ScalarProperty Name="NumeroFin" ColumnName="NumeroFin" />
+                <ScalarProperty Name="UltimoUtilizado" ColumnName="UltimoUtilizado" />
+                <ScalarProperty Name="Activo" ColumnName="Activo" />
+                <ScalarProperty Name="FechaCreacion" ColumnName="FechaCreacion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mae_Reclusos">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Mae_Reclusos">
+              <MappingFragment StoreEntitySet="Mae_Reclusos">
+                <ScalarProperty Name="IdRecluso" ColumnName="IdRecluso" />
+                <ScalarProperty Name="NombreCompleto" ColumnName="NombreCompleto" />
+                <ScalarProperty Name="Activo" ColumnName="Activo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tra_Movimiento">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Tra_Movimiento">
+              <MappingFragment StoreEntitySet="Tra_Movimiento">
+                <ScalarProperty Name="IdMovimiento" ColumnName="IdMovimiento" />
+                <ScalarProperty Name="IdDocumento" ColumnName="IdDocumento" />
+                <ScalarProperty Name="FechaMovimiento" ColumnName="FechaMovimiento" />
+                <ScalarProperty Name="IdOficinaOrigen" ColumnName="IdOficinaOrigen" />
+                <ScalarProperty Name="IdOficinaDestino" ColumnName="IdOficinaDestino" />
+                <ScalarProperty Name="IdUsuarioResponsable" ColumnName="IdUsuarioResponsable" />
+                <ScalarProperty Name="ObservacionPase" ColumnName="ObservacionPase" />
+                <ScalarProperty Name="IdEstadoEnEseMomento" ColumnName="IdEstadoEnEseMomento" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

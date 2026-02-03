@@ -1,0 +1,390 @@
+﻿Imports System.Data.Entity
+Imports System.Drawing
+
+Public Class frmMesaEntrada
+
+    Private db As New SecretariaDBEntities()
+
+    ' =======================================================
+    ' VARIABLES DE ESTADO
+    ' =======================================================
+    Private _modoRespuesta As Boolean = False
+    Private _idDocPadre As Long? = Nothing
+    Private _guidHilo As Guid? = Nothing
+    Private _asuntoPadre As String = ""
+
+    ' Variable para saber si estamos EDITANDO un existente
+    Private _idEdicion As Long? = Nothing
+
+    ' Variable para "DIGITALIZAR" (Cargar a nombre de otro)
+    Private _idOrigenForzado As Integer? = Nothing
+
+    ' Variable para controlar si el número se genera solo
+    Private _generacionAutomatica As Boolean = False
+
+    ' =======================================================
+    ' CONSTRUCTORES (POLIMORFISMO)
+    ' =======================================================
+
+    ' 1. CONSTRUCTOR PARA NUEVO INGRESO
+    Public Sub New()
+        InitializeComponent()
+        _modoRespuesta = False
+        _idEdicion = Nothing
+        _idOrigenForzado = Nothing
+    End Sub
+
+    ' 2. CONSTRUCTOR PARA RESPUESTA / DIGITALIZACIÓN
+    Public Sub New(idPadre As Long, guidHilo As Guid, asuntoOriginal As String, Optional idOrigenExterno As Integer? = Nothing)
+        InitializeComponent()
+        _modoRespuesta = True
+        _idDocPadre = idPadre
+        _guidHilo = guidHilo
+        _asuntoPadre = asuntoOriginal
+        _idEdicion = Nothing
+        _idOrigenForzado = idOrigenExterno
+    End Sub
+
+    ' 3. CONSTRUCTOR PARA EDICIÓN
+    Public Sub New(idDocAEditar As Long)
+        InitializeComponent()
+        _modoRespuesta = False
+        _idEdicion = idDocAEditar
+        _idOrigenForzado = Nothing
+    End Sub
+
+    ' =======================================================
+    ' CARGA DE FORMULARIO
+    ' =======================================================
+    Private Sub frmMesaEntrada_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        CargarListas()
+
+        If _idEdicion.HasValue Then
+            ' MODO A: EDITAR (Update)
+            CargarDatosParaEditar()
+        ElseIf _modoRespuesta Then
+            ' MODO B: RESPUESTA / ADJUNTO (Insert Hijo)
+            PreparaModoRespuesta()
+        Else
+            ' MODO C: NUEVO (Insert Padre)
+            LimpiarControles()
+            Try
+                ' Por defecto, el origen soy yo
+                cboOrigen.SelectedValue = SesionGlobal.OficinaID
+            Catch
+            End Try
+        End If
+    End Sub
+
+    Private Sub CargarListas()
+        ' A. CARGA TIPOS DE DOCUMENTO
+        ' Primero configuramos QUÉ vamos a usar
+        cboTipo.DisplayMember = "Nombre"
+        cboTipo.ValueMember = "IdTipo"
+        ' Al final cargamos la lista (esto dispara el evento, pero ya sabe qué es el Value)
+        cboTipo.DataSource = db.Cat_TipoDocumento.ToList()
+        cboTipo.SelectedIndex = -1
+
+        ' B. CARGA OFICINAS
+        ' Primero configuramos QUÉ vamos a usar
+        cboOrigen.DisplayMember = "Nombre"
+        cboOrigen.ValueMember = "IdOficina"
+        ' Al final cargamos la lista
+        cboOrigen.DataSource = db.Cat_Oficina.OrderBy(Function(o) o.Nombre).ToList()
+        cboOrigen.SelectedIndex = -1
+    End Sub
+
+    ' =======================================================
+    ' LÓGICA DE RANGOS Y NUMERACIÓN (NUEVO)
+    ' =======================================================
+    Private Sub VerificarRangoNumeracion()
+        ' 1. Validaciones de Seguridad
+        If _idEdicion.HasValue Then Return
+
+        ' VALIDACIÓN CRÍTICA: Si no hay valor o el valor NO ES UN NÚMERO, salimos.
+        ' Esto evita el error InvalidCastException si el combo devuelve un objeto.
+        If cboOrigen.SelectedValue Is Nothing OrElse Not IsNumeric(cboOrigen.SelectedValue) Then
+            HabilitarEscrituraManual()
+            Return
+        End If
+
+        ' Ahora es seguro convertir a Integer
+        Dim idOrigenSeleccionado As Integer = CInt(cboOrigen.SelectedValue)
+
+        ' Si el origen NO es mi oficina (ej: viene de Gerencia), debo escribir manual
+        If idOrigenSeleccionado <> SesionGlobal.OficinaID Then
+            HabilitarEscrituraManual()
+            Return
+        End If
+
+        ' 2. Validación del Tipo
+        If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
+
+        Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
+
+        ' 3. Buscamos si hay un rango activo
+        Dim rangoActivo = db.Mae_NumeracionRangos.FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+
+        If rangoActivo IsNot Nothing Then
+            ' CASO A: HAY RANGO AUTOMÁTICO
+            _generacionAutomatica = True
+            txtNumeroRef.Text = "(Automático - Próx: " & (rangoActivo.UltimoUtilizado + 1) & ")"
+            txtNumeroRef.Enabled = False
+            txtNumeroRef.BackColor = Color.LightGoldenrodYellow
+        Else
+            ' CASO B: NO HAY RANGO (Escritura manual)
+            HabilitarEscrituraManual()
+        End If
+    End Sub
+
+    Private Sub HabilitarEscrituraManual()
+        _generacionAutomatica = False
+        txtNumeroRef.Enabled = True
+        txtNumeroRef.BackColor = Color.White
+        ' Si tenía texto automático, lo limpiamos
+        If txtNumeroRef.Text.StartsWith("(Auto") Then txtNumeroRef.Clear()
+    End Sub
+
+    ' Eventos para disparar la verificación
+    Private Sub cboTipo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTipo.SelectedIndexChanged
+        VerificarRangoNumeracion()
+    End Sub
+
+    Private Sub cboOrigen_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOrigen.SelectedIndexChanged
+        VerificarRangoNumeracion()
+    End Sub
+
+    ' =======================================================
+    ' CONFIGURACIONES DE MODO
+    ' =======================================================
+    Private Sub PreparaModoRespuesta()
+        Me.Text = "VECTOR - Carga de Actuación / Respuesta"
+        Me.BackColor = Color.Ivory
+        btnGuardar.Text = "GUARDAR ACTUACIÓN"
+
+        If _idOrigenForzado.HasValue Then
+            ' DIGITALIZACIÓN: Viene de afuera, origen fijo, numeración manual.
+            cboOrigen.SelectedValue = _idOrigenForzado.Value
+            cboOrigen.Enabled = False
+        Else
+            ' RESPUESTA PROPIA: Origen soy yo.
+            Try
+                cboOrigen.SelectedValue = SesionGlobal.OficinaID
+                cboOrigen.Enabled = False
+            Catch
+            End Try
+        End If
+
+        ' Verificar rangos después de setear el origen
+        VerificarRangoNumeracion()
+
+        txtAsunto.Text = "REF: " & _asuntoPadre
+        txtDescripcion.Focus()
+    End Sub
+
+    Private Sub CargarDatosParaEditar()
+        Dim doc = db.Mae_Documento.Find(_idEdicion.Value)
+
+        Me.Text = "EDITAR DOCUMENTO: " & doc.NumeroOficial
+        Me.BackColor = Color.AliceBlue
+        btnGuardar.Text = "GUARDAR CAMBIOS"
+
+        cboTipo.SelectedValue = doc.IdTipo
+
+        Dim primerMov = doc.Tra_Movimiento.OrderBy(Function(m) m.IdMovimiento).FirstOrDefault()
+        If primerMov IsNot Nothing Then
+            cboOrigen.SelectedValue = primerMov.IdOficinaOrigen
+        End If
+        cboOrigen.Enabled = False
+
+        txtNumeroRef.Text = doc.NumeroOficial
+        txtAsunto.Text = doc.Asunto
+        txtDescripcion.Text = doc.Descripcion
+        numFojas.Value = doc.Fojas
+        dtpFechaRecepcion.Value = If(doc.FechaRecepcion.HasValue, doc.FechaRecepcion.Value, DateTime.Now)
+    End Sub
+
+    ' =======================================================
+    ' GUARDAR (INSERT O UPDATE)
+    ' =======================================================
+    Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
+
+        ' 1. Validaciones básicas
+        If cboTipo.SelectedIndex = -1 Then
+            MessageBox.Show("Seleccione el TIPO de documento.", "Falta Dato", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        ' Si es manual, validamos que haya escrito algo
+        If Not _generacionAutomatica AndAlso String.IsNullOrWhiteSpace(txtNumeroRef.Text) Then
+            MessageBox.Show("Ingrese la Referencia/Número.", "Falta Dato", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Try
+            Dim doc As Mae_Documento
+
+            If _idEdicion.HasValue Then
+                ' =================================================
+                ' CASO UPDATE: EDITAR EXISTENTE
+                ' =================================================
+                doc = db.Mae_Documento.Find(_idEdicion.Value)
+
+                ' En edición NO cambiamos el número automáticamente, respetamos el que tiene
+                doc.IdTipo = CInt(cboTipo.SelectedValue)
+                doc.NumeroOficial = txtNumeroRef.Text.Trim()
+                doc.Asunto = txtAsunto.Text.ToUpper().Trim()
+                doc.Descripcion = txtDescripcion.Text.Trim()
+                doc.Fojas = CInt(numFojas.Value)
+                doc.FechaRecepcion = dtpFechaRecepcion.Value
+
+                db.SaveChanges()
+                MessageBox.Show("✅ Documento corregido exitosamente.", "Edición")
+
+            Else
+                ' =================================================
+                ' CASO INSERT: CREAR NUEVO
+                ' =================================================
+                doc = New Mae_Documento()
+
+                ' --- LÓGICA DE NUMERACIÓN (AUTO vs MANUAL) ---
+                If _generacionAutomatica Then
+                    Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
+
+                    ' Volvemos a consultar el rango para asegurar concurrencia
+                    Dim rango = db.Mae_NumeracionRangos.FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+
+                    If rango Is Nothing Then
+                        MessageBox.Show("El rango de numeración se desactivó o no existe. Guarde manualmente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        HabilitarEscrituraManual()
+                        Return
+                    End If
+
+                    If rango.UltimoUtilizado >= rango.NumeroFin Then
+                        MessageBox.Show("¡SE AGOTÓ LA NUMERACIÓN PARA ESTE TIPO!" & vbCrLf & "Contacte al administrador.", "Rango Agotado", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                        Return
+                    End If
+
+                    ' Generamos el número
+                    Dim nuevoNumero As Integer = rango.UltimoUtilizado + 1
+                    Dim anioCorto As String = DateTime.Now.ToString("yy") ' Ej: /26
+
+                    doc.NumeroOficial = nuevoNumero.ToString() & "/" & anioCorto
+
+                    ' Actualizamos el contador
+                    rango.UltimoUtilizado = nuevoNumero
+                Else
+                    ' Manual
+                    doc.NumeroOficial = txtNumeroRef.Text.Trim()
+                End If
+                ' ---------------------------------------------
+
+                doc.IdTipo = CInt(cboTipo.SelectedValue)
+                doc.Asunto = txtAsunto.Text.ToUpper().Trim()
+                doc.Descripcion = txtDescripcion.Text.Trim()
+                doc.Fojas = CInt(numFojas.Value)
+                doc.FechaCreacion = DateTime.Now
+                doc.FechaRecepcion = dtpFechaRecepcion.Value
+
+                doc.IdEstadoActual = 1
+                doc.IdOficinaActual = SesionGlobal.OficinaID
+                doc.IdUsuarioCreador = SesionGlobal.UsuarioID
+
+                ' Lógica de Familia
+                If _modoRespuesta Then
+                    doc.IdHiloConversacion = _guidHilo.Value
+                    doc.IdDocumentoPadre = _idDocPadre
+                Else
+                    doc.IdHiloConversacion = Guid.NewGuid()
+                    doc.IdDocumentoPadre = Nothing
+                End If
+
+                db.Mae_Documento.Add(doc)
+
+                ' Trazabilidad
+                Dim mov As New Tra_Movimiento()
+                mov.IdDocumento = doc.IdDocumento
+                mov.FechaMovimiento = DateTime.Now
+                mov.IdOficinaOrigen = CInt(cboOrigen.SelectedValue)
+                mov.IdOficinaDestino = SesionGlobal.OficinaID
+
+                If _modoRespuesta Then
+                    If _idOrigenForzado.HasValue Then
+                        mov.ObservacionPase = "Carga de actuación externa (Digitalización)."
+                    Else
+                        mov.ObservacionPase = "Generación de respuesta interna."
+                    End If
+                Else
+                    mov.ObservacionPase = "Ingreso inicial de expediente."
+                End If
+
+                mov.IdUsuarioResponsable = SesionGlobal.UsuarioID
+                mov.IdEstadoEnEseMomento = 1
+
+                doc.Tra_Movimiento.Add(mov)
+
+                ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
+                db.SaveChanges()
+
+                ' --- MENSAJE PROFESIONAL (NUEVO BLOQUE) ---
+                Dim sb As New System.Text.StringBuilder()
+                sb.AppendLine("✅ Documento registrado exitosamente.")
+                sb.AppendLine()
+                sb.AppendLine("📄 REF: " & cboTipo.Text.ToUpper() & " " & doc.NumeroOficial)
+                sb.AppendLine("📌 ASUNTO: " & doc.Asunto)
+                sb.AppendLine()
+                sb.AppendLine("El expediente ya se encuentra disponible en su Bandeja.")
+
+                MessageBox.Show(sb.ToString(), "Registro Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                ' ------------------------------------------
+            End If
+
+            Me.Close()
+
+        Catch ex As Exception
+            MessageBox.Show("Error al guardar: " & ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub LimpiarControles()
+        txtNumeroRef.Clear()
+        txtAsunto.Clear()
+        txtDescripcion.Clear()
+        cboTipo.SelectedIndex = -1
+        cboOrigen.SelectedIndex = -1
+        numFojas.Value = 1
+        dtpFechaRecepcion.Value = DateTime.Now
+    End Sub
+
+    Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
+        Me.Close()
+    End Sub
+
+    Private Sub btnBuscarPPL_Click(sender As Object, e As EventArgs) Handles btnBuscarPPL.Click
+        Dim f As New frmBuscadorReclusos()
+
+        If f.ShowDialog() = DialogResult.OK Then
+
+            Dim textoAInsertar As String = f.ResultadoFormateado
+
+            ' Lógica de inserción inteligente
+            If txtAsunto.Focused Then
+                txtAsunto.Text &= " - REF: " & textoAInsertar
+                txtAsunto.SelectionStart = txtAsunto.Text.Length
+
+            ElseIf txtDescripcion.Focused Then
+                Dim posicion As Integer = txtDescripcion.SelectionStart
+                txtDescripcion.Text = txtDescripcion.Text.Insert(posicion, textoAInsertar)
+                txtDescripcion.SelectionStart = posicion + textoAInsertar.Length
+
+            Else
+                ' Si no hay foco, sugerimos el asunto estándar
+                If String.IsNullOrWhiteSpace(txtAsunto.Text) Then
+                    txtAsunto.Text = "PPL " & textoAInsertar
+                Else
+                    txtAsunto.Text &= " (" & textoAInsertar & ")"
+                End If
+            End If
+        End If
+    End Sub
+End Class

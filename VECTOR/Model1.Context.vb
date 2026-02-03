@@ -26,14 +26,14 @@ Partial Public Class SecretariaDBEntities
 
     Public Overridable Property Cat_Estado() As DbSet(Of Cat_Estado)
     Public Overridable Property Cat_Oficina() As DbSet(Of Cat_Oficina)
+    Public Overridable Property Cat_Oficina_MergeLog() As DbSet(Of Cat_Oficina_MergeLog)
     Public Overridable Property Cat_TipoDocumento() As DbSet(Of Cat_TipoDocumento)
     Public Overridable Property Cat_Usuario() As DbSet(Of Cat_Usuario)
+    Public Overridable Property EventosSistema() As DbSet(Of EventosSistema)
     Public Overridable Property Mae_Documento() As DbSet(Of Mae_Documento)
     Public Overridable Property Mae_NumeracionRangos() As DbSet(Of Mae_NumeracionRangos)
     Public Overridable Property Mae_Reclusos() As DbSet(Of Mae_Reclusos)
     Public Overridable Property Tra_Movimiento() As DbSet(Of Tra_Movimiento)
-    Public Overridable Property Cat_Oficina_MergeLog() As DbSet(Of Cat_Oficina_MergeLog)
-    Public Overridable Property EventosSistema() As DbSet(Of EventosSistema)
     Public Overridable Property Usuarios() As DbSet(Of Usuarios)
     Public Overridable Property Cat_Oficina_Backup_20260203_093509() As DbSet(Of Cat_Oficina_Backup_20260203_093509)
 

@@ -17,7 +17,6 @@ Partial Public Class EventosSistema
     Public Property Descripcion As String
     Public Property Modulo As String
 
-    Public Overridable Property Usuarios As Usuarios
     Public Overridable Property Cat_Usuario As Cat_Usuario
 
 End Class

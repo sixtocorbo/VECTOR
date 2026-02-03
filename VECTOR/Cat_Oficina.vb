@@ -19,5 +19,6 @@ Partial Public Class Cat_Oficina
     Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
     Public Overridable Property Tra_Movimiento As ICollection(Of Tra_Movimiento) = New HashSet(Of Tra_Movimiento)
     Public Overridable Property Tra_Movimiento1 As ICollection(Of Tra_Movimiento) = New HashSet(Of Tra_Movimiento)
+    Public Overridable Property Cat_Usuario As ICollection(Of Cat_Usuario) = New HashSet(Of Cat_Usuario)
 
 End Class

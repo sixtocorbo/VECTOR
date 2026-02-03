@@ -17,7 +17,9 @@ Partial Public Class Cat_Usuario
     Public Property Activo As Nullable(Of Boolean)
     Public Property Clave As String
     Public Property Rol As String
+    Public Property IdOficina As Nullable(Of Integer)
 
+    Public Overridable Property Cat_Oficina As Cat_Oficina
     Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
     Public Overridable Property Tra_Movimiento As ICollection(Of Tra_Movimiento) = New HashSet(Of Tra_Movimiento)
     Public Overridable Property EventosSistema As ICollection(Of EventosSistema) = New HashSet(Of EventosSistema)

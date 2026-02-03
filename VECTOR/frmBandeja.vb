@@ -514,8 +514,5 @@ Public Class frmBandeja
         txtBuscar.Clear()
         CargarGrilla()
     End Sub
-    Private Sub btnBuscar_Click(sender As Object, e As EventArgs) Handles btnBuscar.Click
-        AplicarFiltroRapido()
-    End Sub
 
 End Class

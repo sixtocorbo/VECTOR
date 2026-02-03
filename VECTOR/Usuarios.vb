@@ -17,6 +17,4 @@ Partial Public Class Usuarios
     Public Property Rol As String
     Public Property Activo As Nullable(Of Boolean)
 
-    Public Overridable Property EventosSistema As ICollection(Of EventosSistema) = New HashSet(Of EventosSistema)
-
 End Class

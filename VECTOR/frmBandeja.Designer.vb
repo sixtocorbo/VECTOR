@@ -20,7 +20,6 @@ Partial Class frmBandeja
         Me.PanelSuperior = New System.Windows.Forms.Panel()
         Me.chkVerDerivados = New System.Windows.Forms.CheckBox()
         Me.btnNuevoIngreso = New System.Windows.Forms.Button()
-        Me.btnBuscar = New System.Windows.Forms.Button()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.PanelInferior = New System.Windows.Forms.Panel()
@@ -43,7 +42,6 @@ Partial Class frmBandeja
         Me.PanelSuperior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelSuperior.Controls.Add(Me.chkVerDerivados)
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
-        Me.PanelSuperior.Controls.Add(Me.btnBuscar)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
         Me.PanelSuperior.Controls.Add(Me.Label1)
         Me.PanelSuperior.Dock = System.Windows.Forms.DockStyle.Top
@@ -56,7 +54,7 @@ Partial Class frmBandeja
         'chkVerDerivados
         '
         Me.chkVerDerivados.AutoSize = True
-        Me.chkVerDerivados.Location = New System.Drawing.Point(660, 40)
+        Me.chkVerDerivados.Location = New System.Drawing.Point(528, 38)
         Me.chkVerDerivados.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkVerDerivados.Name = "chkVerDerivados"
         Me.chkVerDerivados.Size = New System.Drawing.Size(195, 24)
@@ -77,16 +75,6 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso.TabIndex = 3
         Me.btnNuevoIngreso.Text = "+ NUEVO INGRESO"
         Me.btnNuevoIngreso.UseVisualStyleBackColor = False
-        '
-        'btnBuscar
-        '
-        Me.btnBuscar.Location = New System.Drawing.Point(516, 34)
-        Me.btnBuscar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnBuscar.Name = "btnBuscar"
-        Me.btnBuscar.Size = New System.Drawing.Size(112, 35)
-        Me.btnBuscar.TabIndex = 2
-        Me.btnBuscar.Text = "Filtrar"
-        Me.btnBuscar.UseVisualStyleBackColor = True
         '
         'txtBuscar
         '
@@ -274,7 +262,6 @@ Partial Class frmBandeja
     End Sub
 
     Friend WithEvents PanelSuperior As Panel
-    Friend WithEvents btnBuscar As Button
     Friend WithEvents txtBuscar As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents PanelInferior As Panel

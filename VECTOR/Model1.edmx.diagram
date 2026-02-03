@@ -4,32 +4,32 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="8d4f2fa976874a89a24ef67b7652e731" Name="Diagram1">
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Estado" Width="1.5" PointX="0.75" PointY="6.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_TipoDocumento" Width="1.5" PointX="0.75" PointY="9.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Usuario" Width="1.5" PointX="0.75" PointY="12" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Mae_Documento" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Mae_NumeracionRangos" Width="1.5" PointX="3" PointY="8.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Mae_Reclusos" Width="1.5" PointX="5.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Tra_Movimiento" Width="1.5" PointX="5.25" PointY="1.875" IsExpanded="true" />
+      <Diagram DiagramId="db14eb29729941d28ec612a9013b39bc" Name="Diagram1">
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Estado" Width="1.5" PointX="6" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina" Width="1.5" PointX="0.75" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_MergeLog" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_TipoDocumento" Width="1.5" PointX="6" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Usuario" Width="1.5" PointX="3" PointY="4.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.EventosSistema" Width="1.5" PointX="5.25" PointY="4.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Mae_Documento" Width="1.5" PointX="8.25" PointY="3.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Mae_NumeracionRangos" Width="1.5" PointX="8.25" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Mae_Reclusos" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Tra_Movimiento" Width="1.5" PointX="10.5" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Usuarios" Width="1.5" PointX="0.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_Backup_20260203_093509" Width="1.5" PointX="2.75" PointY="8.75" IsExpanded="true" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdEst__34C8D9D1" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdEst__3E52440B" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdOfi__35BCFE0A" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdOfi__3B75D760" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdOfi__3C69FB99" ManuallyRouted="false" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Usuario_Oficina" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdTip__2F10007B" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK_Numeracion_Tipo" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdUsu__36B12243" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdUsu__3D5E1FD2" ManuallyRouted="false" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Eventos_CatUsuario" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdDoc__32E0915F" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdDoc__398D8EEE" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_MergeLog" Width="1.5" PointX="8.375" PointY="4.75" />
-        <EntityTypeShape EntityType="SecretariaDBModel.EventosSistema" Width="1.5" PointX="9.625" PointY="0.875" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Usuarios" Width="1.5" PointX="7.375" PointY="0.875" />
-        <EntityTypeShape EntityType="SecretariaDBModel.Cat_Oficina_Backup_20260203_093509" Width="1.5" PointX="8.375" PointY="8.75" />
-        <AssociationConnector Association="SecretariaDBModel.FK_Eventos_Usuarios" />
-        <AssociationConnector Association="SecretariaDBModel.FK_Eventos_CatUsuario" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

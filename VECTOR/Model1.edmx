@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Cat_Estado">
           <Key>
             <PropertyRef Name="IdEstado" />
@@ -65,6 +65,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Activo" Type="bit" />
           <Property Name="Clave" Type="varchar" MaxLength="255" />
           <Property Name="Rol" Type="varchar" MaxLength="50" />
+          <Property Name="IdOficina" Type="int" />
         </EntityType>
         <EntityType Name="EventosSistema">
           <Key>
@@ -271,18 +272,6 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Eventos_Usuarios">
-          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="1" />
-          <End Role="EventosSistema" Type="Self.EventosSistema" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Usuarios">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="EventosSistema">
-              <PropertyRef Name="UsuarioId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Numeracion_Tipo">
           <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
           <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
@@ -292,6 +281,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Principal>
             <Dependent Role="Mae_NumeracionRangos">
               <PropertyRef Name="IdTipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Usuario_Oficina">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="0..1" />
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Cat_Usuario">
+              <PropertyRef Name="IdOficina" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -366,16 +367,17 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
             <End Role="EventosSistema" EntitySet="EventosSistema" />
           </AssociationSet>
-          <AssociationSet Name="FK_Eventos_Usuarios" Association="Self.FK_Eventos_Usuarios">
-            <End Role="Usuarios" EntitySet="Usuarios" />
-            <End Role="EventosSistema" EntitySet="EventosSistema" />
-          </AssociationSet>
           <AssociationSet Name="FK_Numeracion_Tipo" Association="Self.FK_Numeracion_Tipo">
             <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
             <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
           </AssociationSet>
+          <AssociationSet Name="FK_Usuario_Oficina" Association="Self.FK_Usuario_Oficina">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SecretariaDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -400,6 +402,19 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdOfi__35BCFE0A" FromRole="Cat_Oficina" ToRole="Mae_Documento" />
           <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdOfi__3B75D760" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
           <NavigationProperty Name="Tra_Movimiento1" Relationship="Self.FK__Tra_Movim__IdOfi__3C69FB99" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
+          <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK_Usuario_Oficina" FromRole="Cat_Oficina" ToRole="Cat_Usuario" />
+        </EntityType>
+        <EntityType Name="Cat_Oficina_MergeLog">
+          <Key>
+            <PropertyRef Name="IdLog" />
+          </Key>
+          <Property Name="IdLog" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Fecha" Type="DateTime" Precision="3" />
+          <Property Name="IdFrom" Type="Int32" />
+          <Property Name="IdTo" Type="Int32" />
+          <Property Name="NombreFrom" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="NombreTo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Reason" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Cat_TipoDocumento">
           <Key>
@@ -420,11 +435,24 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="NombreCompleto" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="UsuarioLogin" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Activo" Type="Boolean" />
-          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdUsu__36B12243" FromRole="Cat_Usuario" ToRole="Mae_Documento" />
-          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdUsu__3D5E1FD2" FromRole="Cat_Usuario" ToRole="Tra_Movimiento" />
           <Property Name="Clave" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="Rol" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="EventosSistema" Relationship="SecretariaDBModel.FK_Eventos_CatUsuario" FromRole="Cat_Usuario" ToRole="EventosSistema" />
+          <Property Name="IdOficina" Type="Int32" />
+          <NavigationProperty Name="Cat_Oficina" Relationship="Self.FK_Usuario_Oficina" FromRole="Cat_Usuario" ToRole="Cat_Oficina" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdUsu__36B12243" FromRole="Cat_Usuario" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdUsu__3D5E1FD2" FromRole="Cat_Usuario" ToRole="Tra_Movimiento" />
+          <NavigationProperty Name="EventosSistema" Relationship="Self.FK_Eventos_CatUsuario" FromRole="Cat_Usuario" ToRole="EventosSistema" />
+        </EntityType>
+        <EntityType Name="EventosSistema">
+          <Key>
+            <PropertyRef Name="IdEvento" />
+          </Key>
+          <Property Name="IdEvento" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UsuarioId" Type="Int32" Nullable="false" />
+          <Property Name="FechaEvento" Type="DateTime" Precision="3" />
+          <Property Name="Descripcion" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Modulo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK_Eventos_CatUsuario" FromRole="EventosSistema" ToRole="Cat_Usuario" />
         </EntityType>
         <EntityType Name="Mae_Documento">
           <Key>
@@ -492,6 +520,26 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK__Tra_Movim__IdUsu__3D5E1FD2" FromRole="Tra_Movimiento" ToRole="Cat_Usuario" />
           <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Tra_Movim__IdDoc__398D8EEE" FromRole="Tra_Movimiento" ToRole="Mae_Documento" />
         </EntityType>
+        <EntityType Name="Usuarios">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NombreUsuario" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Clave" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Rol" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Activo" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Cat_Oficina_Backup_20260203_093509">
+          <Key>
+            <PropertyRef Name="IdOficina" />
+            <PropertyRef Name="Nombre" />
+          </Key>
+          <Property Name="IdOficina" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="EsExterna" Type="Boolean" />
+          <Property Name="Direccion" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
         <Association Name="FK__Mae_Docum__IdEst__34C8D9D1">
           <End Role="Cat_Estado" Type="Self.Cat_Estado" Multiplicity="1" />
           <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
@@ -552,6 +600,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Usuario_Oficina">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="0..1" />
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Cat_Usuario">
+              <PropertyRef Name="IdOficina" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__Mae_Docum__IdTip__2F10007B">
           <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
           <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="*" />
@@ -600,6 +660,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Eventos_CatUsuario">
+          <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="1" />
+          <End Role="EventosSistema" Type="Self.EventosSistema" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Usuario">
+              <PropertyRef Name="IdUsuario" />
+            </Principal>
+            <Dependent Role="EventosSistema">
+              <PropertyRef Name="UsuarioId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__Mae_Docum__IdDoc__32E0915F">
           <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="0..1" />
           <End Role="Mae_Documento1" Type="Self.Mae_Documento" Multiplicity="*" />
@@ -627,12 +699,16 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
         <EntityContainer Name="SecretariaDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Cat_Estado" EntityType="Self.Cat_Estado" />
           <EntitySet Name="Cat_Oficina" EntityType="Self.Cat_Oficina" />
+          <EntitySet Name="Cat_Oficina_MergeLog" EntityType="Self.Cat_Oficina_MergeLog" />
           <EntitySet Name="Cat_TipoDocumento" EntityType="Self.Cat_TipoDocumento" />
           <EntitySet Name="Cat_Usuario" EntityType="Self.Cat_Usuario" />
+          <EntitySet Name="EventosSistema" EntityType="Self.EventosSistema" />
           <EntitySet Name="Mae_Documento" EntityType="Self.Mae_Documento" />
           <EntitySet Name="Mae_NumeracionRangos" EntityType="Self.Mae_NumeracionRangos" />
           <EntitySet Name="Mae_Reclusos" EntityType="Self.Mae_Reclusos" />
           <EntitySet Name="Tra_Movimiento" EntityType="Self.Tra_Movimiento" />
+          <EntitySet Name="Usuarios" EntityType="Self.Usuarios" />
+          <EntitySet Name="Cat_Oficina_Backup_20260203_093509" EntityType="Self.Cat_Oficina_Backup_20260203_093509" />
           <AssociationSet Name="FK__Mae_Docum__IdEst__34C8D9D1" Association="Self.FK__Mae_Docum__IdEst__34C8D9D1">
             <End Role="Cat_Estado" EntitySet="Cat_Estado" />
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
@@ -653,6 +729,10 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
             <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
           </AssociationSet>
+          <AssociationSet Name="FK_Usuario_Oficina" Association="Self.FK_Usuario_Oficina">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+          </AssociationSet>
           <AssociationSet Name="FK__Mae_Docum__IdTip__2F10007B" Association="Self.FK__Mae_Docum__IdTip__2F10007B">
             <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
@@ -669,6 +749,10 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
             <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
           </AssociationSet>
+          <AssociationSet Name="FK_Eventos_CatUsuario" Association="Self.FK_Eventos_CatUsuario">
+            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
+            <End Role="EventosSistema" EntitySet="EventosSistema" />
+          </AssociationSet>
           <AssociationSet Name="FK__Mae_Docum__IdDoc__32E0915F" Association="Self.FK__Mae_Docum__IdDoc__32E0915F">
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
             <End Role="Mae_Documento1" EntitySet="Mae_Documento" />
@@ -677,96 +761,15 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
             <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
           </AssociationSet>
-          <EntitySet Name="Cat_Oficina_MergeLog" EntityType="SecretariaDBModel.Cat_Oficina_MergeLog" />
-          <EntitySet Name="EventosSistema" EntityType="SecretariaDBModel.EventosSistema" />
-          <EntitySet Name="Usuarios" EntityType="SecretariaDBModel.Usuarios" />
-          <EntitySet Name="Cat_Oficina_Backup_20260203_093509" EntityType="SecretariaDBModel.Cat_Oficina_Backup_20260203_093509" />
-          <AssociationSet Name="FK_Eventos_Usuarios" Association="SecretariaDBModel.FK_Eventos_Usuarios">
-            <End Role="Usuarios" EntitySet="Usuarios" />
-            <End Role="EventosSistema" EntitySet="EventosSistema" />
-          </AssociationSet>
           <FunctionImport Name="sp_UnificarOficinas" ReturnType="Collection(SecretariaDBModel.sp_UnificarOficinas_Result)">
             <Parameter Name="NombreDestino" Mode="In" Type="String" />
             <Parameter Name="ListaIdsBorrar" Mode="In" Type="String" />
           </FunctionImport>
-          <AssociationSet Name="FK_Eventos_CatUsuario" Association="SecretariaDBModel.FK_Eventos_CatUsuario">
-            <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
-            <End Role="EventosSistema" EntitySet="EventosSistema" />
-          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="Cat_Oficina_MergeLog">
-          <Key>
-            <PropertyRef Name="IdLog" />
-          </Key>
-          <Property Name="IdLog" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Fecha" Type="DateTime" Precision="3" />
-          <Property Name="IdFrom" Type="Int32" />
-          <Property Name="IdTo" Type="Int32" />
-          <Property Name="NombreFrom" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="NombreTo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Reason" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="EventosSistema">
-          <Key>
-            <PropertyRef Name="IdEvento" />
-          </Key>
-          <Property Name="IdEvento" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="UsuarioId" Type="Int32" Nullable="false" />
-          <Property Name="FechaEvento" Type="DateTime" Precision="3" />
-          <Property Name="Descripcion" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="Modulo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Usuarios" Relationship="SecretariaDBModel.FK_Eventos_Usuarios" FromRole="EventosSistema" ToRole="Usuarios" />
-          <NavigationProperty Name="Cat_Usuario" Relationship="SecretariaDBModel.FK_Eventos_CatUsuario" FromRole="EventosSistema" ToRole="Cat_Usuario" />
-        </EntityType>
-        <EntityType Name="Usuarios">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NombreUsuario" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Clave" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="Rol" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="Activo" Type="Boolean" />
-          <NavigationProperty Name="EventosSistema" Relationship="SecretariaDBModel.FK_Eventos_Usuarios" FromRole="Usuarios" ToRole="EventosSistema" />
-        </EntityType>
-        <EntityType Name="Cat_Oficina_Backup_20260203_093509">
-          <Key>
-            <PropertyRef Name="IdOficina" />
-            <PropertyRef Name="Nombre" />
-          </Key>
-          <Property Name="IdOficina" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Nombre" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="EsExterna" Type="Boolean" />
-          <Property Name="Direccion" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <Association Name="FK_Eventos_Usuarios">
-          <End Type="SecretariaDBModel.Usuarios" Role="Usuarios" Multiplicity="1" />
-          <End Type="SecretariaDBModel.EventosSistema" Role="EventosSistema" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Usuarios">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="EventosSistema">
-              <PropertyRef Name="UsuarioId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <ComplexType Name="sp_UnificarOficinas_Result">
           <Property Type="Int32" Name="Resultado" Nullable="false" />
           <Property Type="String" Name="Mensaje" Nullable="false" MaxLength="14" />
         </ComplexType>
-        <Association Name="FK_Eventos_CatUsuario">
-          <End Type="SecretariaDBModel.Cat_Usuario" Role="Cat_Usuario" Multiplicity="1" />
-          <End Type="SecretariaDBModel.EventosSistema" Role="EventosSistema" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Cat_Usuario">
-              <PropertyRef Name="IdUsuario" />
-            </Principal>
-            <Dependent Role="EventosSistema">
-              <PropertyRef Name="UsuarioId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -792,6 +795,19 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Cat_Oficina_MergeLog">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Oficina_MergeLog">
+              <MappingFragment StoreEntitySet="Cat_Oficina_MergeLog">
+                <ScalarProperty Name="IdLog" ColumnName="IdLog" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="IdFrom" ColumnName="IdFrom" />
+                <ScalarProperty Name="IdTo" ColumnName="IdTo" />
+                <ScalarProperty Name="NombreFrom" ColumnName="NombreFrom" />
+                <ScalarProperty Name="NombreTo" ColumnName="NombreTo" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Cat_TipoDocumento">
             <EntityTypeMapping TypeName="SecretariaDBModel.Cat_TipoDocumento">
               <MappingFragment StoreEntitySet="Cat_TipoDocumento">
@@ -805,12 +821,24 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySetMapping Name="Cat_Usuario">
             <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Usuario">
               <MappingFragment StoreEntitySet="Cat_Usuario">
-                <ScalarProperty Name="Rol" ColumnName="Rol" />
-                <ScalarProperty Name="Clave" ColumnName="Clave" />
                 <ScalarProperty Name="IdUsuario" ColumnName="IdUsuario" />
                 <ScalarProperty Name="NombreCompleto" ColumnName="NombreCompleto" />
                 <ScalarProperty Name="UsuarioLogin" ColumnName="UsuarioLogin" />
                 <ScalarProperty Name="Activo" ColumnName="Activo" />
+                <ScalarProperty Name="Clave" ColumnName="Clave" />
+                <ScalarProperty Name="Rol" ColumnName="Rol" />
+                <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EventosSistema">
+            <EntityTypeMapping TypeName="SecretariaDBModel.EventosSistema">
+              <MappingFragment StoreEntitySet="EventosSistema">
+                <ScalarProperty Name="IdEvento" ColumnName="IdEvento" />
+                <ScalarProperty Name="UsuarioId" ColumnName="UsuarioId" />
+                <ScalarProperty Name="FechaEvento" ColumnName="FechaEvento" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Modulo" ColumnName="Modulo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -871,48 +899,24 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Cat_Oficina_MergeLog">
-            <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Oficina_MergeLog">
-              <MappingFragment StoreEntitySet="Cat_Oficina_MergeLog">
-                <ScalarProperty Name="Reason" ColumnName="Reason" />
-                <ScalarProperty Name="NombreTo" ColumnName="NombreTo" />
-                <ScalarProperty Name="NombreFrom" ColumnName="NombreFrom" />
-                <ScalarProperty Name="IdTo" ColumnName="IdTo" />
-                <ScalarProperty Name="IdFrom" ColumnName="IdFrom" />
-                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
-                <ScalarProperty Name="IdLog" ColumnName="IdLog" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="EventosSistema">
-            <EntityTypeMapping TypeName="SecretariaDBModel.EventosSistema">
-              <MappingFragment StoreEntitySet="EventosSistema">
-                <ScalarProperty Name="Modulo" ColumnName="Modulo" />
-                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
-                <ScalarProperty Name="FechaEvento" ColumnName="FechaEvento" />
-                <ScalarProperty Name="UsuarioId" ColumnName="UsuarioId" />
-                <ScalarProperty Name="IdEvento" ColumnName="IdEvento" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Usuarios">
             <EntityTypeMapping TypeName="SecretariaDBModel.Usuarios">
               <MappingFragment StoreEntitySet="Usuarios">
-                <ScalarProperty Name="Activo" ColumnName="Activo" />
-                <ScalarProperty Name="Rol" ColumnName="Rol" />
-                <ScalarProperty Name="Clave" ColumnName="Clave" />
-                <ScalarProperty Name="NombreUsuario" ColumnName="NombreUsuario" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="NombreUsuario" ColumnName="NombreUsuario" />
+                <ScalarProperty Name="Clave" ColumnName="Clave" />
+                <ScalarProperty Name="Rol" ColumnName="Rol" />
+                <ScalarProperty Name="Activo" ColumnName="Activo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Cat_Oficina_Backup_20260203_093509">
             <EntityTypeMapping TypeName="SecretariaDBModel.Cat_Oficina_Backup_20260203_093509">
               <MappingFragment StoreEntitySet="Cat_Oficina_Backup_20260203_093509">
-                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
-                <ScalarProperty Name="EsExterna" ColumnName="EsExterna" />
-                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
                 <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="EsExterna" ColumnName="EsExterna" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

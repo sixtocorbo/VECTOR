@@ -130,6 +130,12 @@
     <Compile Include="frmHistorial.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmLogin.Designer.vb">
+      <DependentUpon>frmLogin.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmLogin.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMesaEntrada.Designer.vb">
       <DependentUpon>frmMesaEntrada.vb</DependentUpon>
     </Compile>

@@ -85,6 +85,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttachmentStore.vb" />
     <Compile Include="Cat_Estado.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

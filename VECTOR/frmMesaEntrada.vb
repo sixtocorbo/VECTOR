@@ -1,5 +1,7 @@
 ﻿Imports System.Data.Entity
+Imports System.Diagnostics
 Imports System.Drawing
+Imports System.IO
 
 Public Class frmMesaEntrada
 
@@ -21,6 +23,9 @@ Public Class frmMesaEntrada
 
     ' Variable para controlar si el número se genera solo
     Private _generacionAutomatica As Boolean = False
+
+    ' Adjuntos digitales (almacenados en disco)
+    Private _adjuntos As New List(Of AttachmentInfo)()
 
     ' =======================================================
     ' CONSTRUCTORES (POLIMORFISMO)
@@ -74,6 +79,8 @@ Public Class frmMesaEntrada
             Catch
             End Try
         End If
+
+        CargarAdjuntosIniciales()
     End Sub
 
     Private Sub CargarListas()
@@ -205,6 +212,83 @@ Public Class frmMesaEntrada
     End Sub
 
     ' =======================================================
+    ' ADJUNTOS DIGITALES
+    ' =======================================================
+    Private Sub CargarAdjuntosIniciales()
+        If _idEdicion.HasValue Then
+            _adjuntos = AttachmentStore.LoadAttachments(_idEdicion.Value)
+        Else
+            _adjuntos = New List(Of AttachmentInfo)()
+        End If
+        RefrescarListaAdjuntos()
+    End Sub
+
+    Private Sub RefrescarListaAdjuntos()
+        lstAdjuntos.DataSource = Nothing
+        lstAdjuntos.DataSource = _adjuntos
+        lstAdjuntos.DisplayMember = "DisplayLabel"
+        lblAdjuntosInfo.Text = $"{_adjuntos.Count} archivo(s)"
+    End Sub
+
+    Private Function ObtenerAdjuntoSeleccionado() As AttachmentInfo
+        Return TryCast(lstAdjuntos.SelectedItem, AttachmentInfo)
+    End Function
+
+    Private Sub btnAdjuntar_Click(sender As Object, e As EventArgs) Handles btnAdjuntar.Click
+        Using ofd As New OpenFileDialog()
+            ofd.Title = "Seleccionar archivos"
+            ofd.Filter = "Documentos e Imágenes|*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg;*.tif;*.tiff|Todos los archivos|*.*"
+            ofd.Multiselect = True
+
+            If ofd.ShowDialog() <> DialogResult.OK Then Return
+
+            For Each archivo In ofd.FileNames
+                If _adjuntos.Any(Function(a) String.Equals(a.OriginalPath, archivo, StringComparison.OrdinalIgnoreCase)) Then
+                    Continue For
+                End If
+
+                Dim info As New AttachmentInfo() With {
+                    .DisplayName = Path.GetFileName(archivo),
+                    .OriginalPath = archivo,
+                    .StoredName = "",
+                    .AddedAt = DateTime.Now
+                }
+                _adjuntos.Add(info)
+            Next
+        End Using
+
+        RefrescarListaAdjuntos()
+    End Sub
+
+    Private Sub btnQuitarAdjunto_Click(sender As Object, e As EventArgs) Handles btnQuitarAdjunto.Click
+        Dim adjunto = ObtenerAdjuntoSeleccionado()
+        If adjunto Is Nothing Then Return
+
+        _adjuntos.Remove(adjunto)
+        RefrescarListaAdjuntos()
+    End Sub
+
+    Private Sub btnAbrirAdjunto_Click(sender As Object, e As EventArgs) Handles btnAbrirAdjunto.Click
+        Dim adjunto = ObtenerAdjuntoSeleccionado()
+        If adjunto Is Nothing Then Return
+
+        Dim ruta As String = ""
+
+        If Not String.IsNullOrWhiteSpace(adjunto.StoredName) AndAlso _idEdicion.HasValue Then
+            ruta = AttachmentStore.GetAttachmentPath(_idEdicion.Value, adjunto.StoredName)
+        Else
+            ruta = adjunto.OriginalPath
+        End If
+
+        If String.IsNullOrWhiteSpace(ruta) OrElse Not File.Exists(ruta) Then
+            MessageBox.Show("El archivo no está disponible en el sistema.", "Adjuntos", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Process.Start(New ProcessStartInfo(ruta) With {.UseShellExecute = True})
+    End Sub
+
+    ' =======================================================
     ' GUARDAR (INSERT O UPDATE)
     ' =======================================================
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
@@ -239,6 +323,7 @@ Public Class frmMesaEntrada
                 doc.FechaRecepcion = dtpFechaRecepcion.Value
 
                 db.SaveChanges()
+                GuardarAdjuntos(doc.IdDocumento)
                 MessageBox.Show("✅ Documento corregido exitosamente.", "Edición")
 
             Else
@@ -325,6 +410,7 @@ Public Class frmMesaEntrada
 
                 ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
                 db.SaveChanges()
+                GuardarAdjuntos(doc.IdDocumento)
 
                 ' --- MENSAJE PROFESIONAL (NUEVO BLOQUE) ---
                 Dim sb As New System.Text.StringBuilder()
@@ -343,6 +429,14 @@ Public Class frmMesaEntrada
 
         Catch ex As Exception
             MessageBox.Show("Error al guardar: " & ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub GuardarAdjuntos(idDocumento As Long)
+        Try
+            AttachmentStore.SaveAttachments(idDocumento, _adjuntos)
+        Catch ex As Exception
+            MessageBox.Show("El documento se guardó, pero falló el almacenamiento de adjuntos: " & ex.Message, "Adjuntos", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End Try
     End Sub
 

@@ -147,6 +147,11 @@ Public Class frmBandeja
 
         dgvPendientes.DataSource = resultado
         DiseñarColumnas()
+        dgvPendientes.ClearSelection()
+        ConfigurarBotones(False, False)
+        If dgvPendientes.RowCount > 0 Then
+            dgvPendientes.Rows(0).Selected = True
+        End If
 
         lblContador.Text = "Registros: " & dgvPendientes.RowCount
         dgvPendientes.Refresh()
@@ -263,39 +268,31 @@ Public Class frmBandeja
         Dim bgApagado As Color = SystemColors.Control
         Dim fgApagado As Color = SystemColors.GrayText
 
-        ' Reseteamos todo a apagado
-        btnRecibir.Enabled = False
-        btnRecibir.BackColor = bgApagado
-        btnRecibir.ForeColor = fgApagado
+        ' 1. BOTONES DE GESTIÓN (Pase, Vincular, etc.)
+        ' Estos se apagan si no hay selección o si el documento no es mío
+        btnDarPase.Enabled = haySeleccion And esMio
+        btnDarPase.BackColor = If(haySeleccion And esMio, Color.ForestGreen, bgApagado)
+        btnDarPase.ForeColor = If(haySeleccion And esMio, Color.White, fgApagado)
 
-        btnDarPase.Enabled = False
-        btnDarPase.BackColor = bgApagado
-        btnDarPase.ForeColor = fgApagado
+        btnVincular.Enabled = haySeleccion And esMio
+        btnEliminar.Enabled = haySeleccion And esMio
+        btnEditar.Enabled = haySeleccion And esMio
 
-        btnVincular.Enabled = False
-        btnEliminar.Enabled = False
-        btnEditar.Enabled = False
-        btnHistorial.Enabled = False
+        ' Historial siempre habilitado si hay algo seleccionado
+        btnHistorial.Enabled = haySeleccion
 
-        If Not haySeleccion Then Return
-
-        ' Encendemos lo que corresponda
-        btnHistorial.Enabled = True
-
-        If esMio Then
-            ' MÍOS: Editar, Pase, Vincular
-            btnDarPase.Enabled = True
-            btnDarPase.BackColor = Color.ForestGreen
-            btnDarPase.ForeColor = Color.White
-
-            btnVincular.Enabled = True
-            btnEliminar.Enabled = True
-            btnEditar.Enabled = True
+        ' 2. LÓGICA DEL BOTÓN ÚNICO DE ENTRADA (btnNuevoIngreso)
+        ' Este botón nunca se deshabilita, pero cambia su "identidad"
+        If haySeleccion AndAlso Not esMio Then
+            ' MODO ALERTA: Hay algo de otra oficina seleccionado
+            btnNuevoIngreso.Text = "📥 RECIBIR / NUEVO"
+            btnNuevoIngreso.BackColor = Color.DarkCyan ' Color distinto para llamar la atención
+            btnNuevoIngreso.ForeColor = Color.White
         Else
-            ' AJENOS: Solo Recibir
-            btnRecibir.Enabled = True
-            btnRecibir.BackColor = Color.DarkCyan
-            btnRecibir.ForeColor = Color.White
+            ' MODO NORMAL: Nada seleccionado o es un documento propio
+            btnNuevoIngreso.Text = "➕ NUEVO INGRESO"
+            btnNuevoIngreso.BackColor = Color.ForestGreen
+            btnNuevoIngreso.ForeColor = Color.White
         End If
     End Sub
 
@@ -322,65 +319,6 @@ Public Class frmBandeja
         Dim fEdicion As New frmMesaEntrada(idDoc)
         fEdicion.ShowDialog()
         CargarGrilla()
-    End Sub
-
-    Private Sub btnRecibir_Click(sender As Object, e As EventArgs) Handles btnRecibir.Click
-        If dgvPendientes.SelectedRows.Count = 0 Then Return
-        Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
-        Dim docBase = db.Mae_Documento.Find(idDoc)
-
-        Dim idPadreReal As Long = If(docBase.IdDocumentoPadre.HasValue, docBase.IdDocumentoPadre.Value, docBase.IdDocumento)
-        Dim docPadre = db.Mae_Documento.Find(idPadreReal)
-        Dim guidFamilia = docPadre.IdHiloConversacion
-        Dim idOficinaRemota As Integer = docPadre.IdOficinaActual
-        Dim nombreOficinaRemota As String = docPadre.Cat_Oficina.Nombre
-
-        Dim docsA_Recibir = db.Mae_Documento.Where(Function(d) d.IdHiloConversacion = guidFamilia And d.IdOficinaActual = idOficinaRemota).ToList()
-        Dim totalDocs As Integer = docsA_Recibir.Count
-
-        If totalDocs = 0 Then
-            MessageBox.Show("El documento ya no está disponible.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            CargarGrilla()
-            Return
-        End If
-
-        Dim sb As New StringBuilder()
-        sb.AppendLine("¿Confirma la recepción del siguiente PAQUETE?")
-        sb.AppendLine("📦 EXPEDIENTE: " & docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial)
-        sb.AppendLine("📌 ASUNTO: " & docPadre.Asunto)
-        If totalDocs > 1 Then
-            sb.AppendLine("⚠️ ATENCIÓN: Contiene " & (totalDocs - 1) & " adjunto(s). Total: " & totalDocs)
-        Else
-            sb.AppendLine("📄 Contenido: Documento único.")
-        End If
-        sb.AppendLine("📍 ORIGEN: " & nombreOficinaRemota.ToUpper())
-
-        If MessageBox.Show(sb.ToString(), "Recibir / Recuperar Paquete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            Try
-                For Each d In docsA_Recibir
-                    d.IdOficinaActual = SesionGlobal.OficinaID
-                    d.IdEstadoActual = 1
-                    Dim mov As New Tra_Movimiento() With {
-                        .IdDocumento = d.IdDocumento, .FechaMovimiento = DateTime.Now,
-                        .IdOficinaOrigen = idOficinaRemota, .IdOficinaDestino = SesionGlobal.OficinaID,
-                        .IdUsuarioResponsable = SesionGlobal.UsuarioID, .ObservacionPase = "RECUPERADO DESDE RADAR",
-                        .IdEstadoEnEseMomento = 1
-                    }
-                    d.Tra_Movimiento.Add(mov)
-                Next
-                db.SaveChanges()
-                CargarGrilla()
-            Catch ex As Exception
-                MessageBox.Show("Error al recibir: " & ex.Message)
-                Return
-            End Try
-
-            If MessageBox.Show("✅ Recibido. ¿Desea cargar una ACTUACIÓN FÍSICA de " & nombreOficinaRemota & " ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto, idOficinaRemota)
-                fRespuesta.ShowDialog()
-                CargarGrilla()
-            End If
-        End If
     End Sub
 
     Private Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
@@ -493,10 +431,104 @@ Public Class frmBandeja
         End If
     End Sub
 
+    ' ACCIÓN: NUEVO
     Private Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
         Dim fNuevo As New frmMesaEntrada()
         fNuevo.ShowDialog()
         CargarGrilla()
+    End Sub
+    ' Encapsula la apertura de un nuevo registro
+    Private Sub AbrirNuevoIngreso()
+        Dim fNuevo As New frmMesaEntrada()
+        fNuevo.ShowDialog()
+        CargarGrilla()
+    End Sub
+
+    ' Encapsula la lógica de recepción que ya tienes (con el Reload de BD)
+    Private Sub EjecutarRecibirDocumento()
+        If dgvPendientes.SelectedRows.Count = 0 Then Return
+
+        Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
+
+        Try
+            ' 1. OBTENER Y REFRESCAR EL DOCUMENTO SELECCIONADO
+            ' Forzamos a Entity Framework a traer los datos más recientes del servidor
+            Dim docBase = db.Mae_Documento.Find(idDoc)
+            If docBase Is Nothing Then Return
+            db.Entry(docBase).Reload()
+
+            ' 2. IDENTIFICAR Y REFRESCAR AL PADRE (EXPEDIENTE PRINCIPAL)
+            Dim idPadreReal As Long = If(docBase.IdDocumentoPadre.HasValue, docBase.IdDocumentoPadre.Value, docBase.IdDocumento)
+            Dim docPadre = db.Mae_Documento.Find(idPadreReal)
+            If docPadre Is Nothing Then Return
+            db.Entry(docPadre).Reload()
+
+            ' 3. DEFINIR LA UBICACIÓN REAL ACTUAL
+            Dim guidFamilia = docPadre.IdHiloConversacion
+            Dim idOficinaDondeEstaRealmente = docPadre.IdOficinaActual
+            Dim nombreOficinaRemota As String = docPadre.Cat_Oficina.Nombre
+
+            ' 4. BUSCAR TODO EL PAQUETE EN LA UBICACIÓN REAL
+            ' Buscamos todos los documentos del mismo hilo que estén en esa oficina específica
+            Dim docsA_Recibir = db.Mae_Documento.Where(Function(d) d.IdHiloConversacion = guidFamilia And d.IdOficinaActual = idOficinaDondeEstaRealmente).ToList()
+            Dim totalDocs As Integer = docsA_Recibir.Count
+
+            ' VALIDACIÓN DE DISPONIBILIDAD FRESCA
+            If totalDocs = 0 Then
+                MessageBox.Show("El documento ya no está disponible en la ubicación indicada (es posible que haya sido movido o recibido por otra oficina).", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                CargarGrilla()
+                Return
+            End If
+
+            ' 5. PREPARAR EL RESUMEN PARA EL USUARIO
+            Dim sb As New StringBuilder()
+            sb.AppendLine("¿Confirma la recepción del siguiente PAQUETE?")
+            sb.AppendLine("📦 EXPEDIENTE: " & docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial)
+            sb.AppendLine("📌 ASUNTO: " & docPadre.Asunto)
+
+            If totalDocs > 1 Then
+                sb.AppendLine("⚠️ ATENCIÓN: Contiene " & (totalDocs - 1) & " adjunto(s). Total: " & totalDocs)
+            Else
+                sb.AppendLine("📄 Contenido: Documento único.")
+            End If
+            sb.AppendLine("📍 ORIGEN: " & nombreOficinaRemota.ToUpper())
+
+            ' 6. EJECUTAR RECEPCIÓN
+            If MessageBox.Show(sb.ToString(), "Recibir / Recuperar Paquete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                For Each d In docsA_Recibir
+                    ' Actualizamos ubicación y estado del documento
+                    d.IdOficinaActual = SesionGlobal.OficinaID
+                    d.IdEstadoActual = 1 ' Estado: Recibido / En Oficina
+
+                    ' Registramos el movimiento en el historial
+                    Dim mov As New Tra_Movimiento() With {
+                    .IdDocumento = d.IdDocumento,
+                    .FechaMovimiento = DateTime.Now,
+                    .IdOficinaOrigen = idOficinaDondeEstaRealmente,
+                    .IdOficinaDestino = SesionGlobal.OficinaID,
+                    .IdUsuarioResponsable = SesionGlobal.UsuarioID,
+                    .ObservacionPase = "RECUPERADO DESDE RADAR (SINCRONIZADO)",
+                    .IdEstadoEnEseMomento = 1
+                }
+                    d.Tra_Movimiento.Add(mov)
+                Next
+
+                db.SaveChanges()
+                CargarGrilla()
+
+                ' 7. OPCIÓN DE DIGITALIZACIÓN INMEDIATA
+                If MessageBox.Show("✅ Recibido con éxito." & vbCrLf & vbCrLf & "¿Desea cargar una ACTUACIÓN FÍSICA de " & nombreOficinaRemota & " ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    ' Abrimos Mesa de Entrada en modo "Respuesta"
+                    Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto, idOficinaDondeEstaRealmente)
+                    fRespuesta.ShowDialog()
+                    CargarGrilla()
+                End If
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("Error crítico al intentar recibir: " & ex.Message, "Error de Sistema")
+            CargarGrilla()
+        End Try
     End Sub
 
     Private Sub btnHistorial_Click(sender As Object, e As EventArgs) Handles btnHistorial.Click
@@ -513,6 +545,108 @@ Public Class frmBandeja
     Private Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
         txtBuscar.Clear()
         CargarGrilla()
+    End Sub
+
+    Private Sub btnRecibir_Click(sender As Object, e As EventArgs) Handles btnRecibir.Click
+        ' 1. Verificación de seguridad: ¿Hay una fila seleccionada?
+        If dgvPendientes.SelectedRows.Count = 0 Then Return
+
+        Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
+
+        Try
+            ' 2. SINCRONIZACIÓN FRESCA CON LA BASE DE DATOS
+            Dim docBase = db.Mae_Documento.Find(idDoc)
+            If docBase Is Nothing Then Return
+            db.Entry(docBase).Reload()
+
+            ' 3. IDENTIFICAR AL PADRE (EXPEDIENTE PRINCIPAL)
+            Dim idPadreReal As Long = If(docBase.IdDocumentoPadre.HasValue, docBase.IdDocumentoPadre.Value, docBase.IdDocumento)
+            Dim docPadre = db.Mae_Documento.Find(idPadreReal)
+            If docPadre Is Nothing Then Return
+            db.Entry(docPadre).Reload()
+
+            ' (Opcional pero recomendado si LazyLoading está apagado)
+            'db.Entry(docPadre).Reference(Function(x) x.Cat_Oficina).Load()
+            'db.Entry(docPadre).Reference(Function(x) x.Cat_TipoDocumento).Load()
+
+            ' 4. DEFINIR UBICACIÓN REAL Y FAMILIA (PAQUETE)
+            Dim guidFamilia = docPadre.IdHiloConversacion
+            Dim idOficinaOrigen = docPadre.IdOficinaActual
+            Dim nombreOficinaRemota As String = docPadre.Cat_Oficina.Nombre
+
+            ' ✅ VALIDACIÓN CLAVE: si ya está en MI oficina, no hay nada que recibir
+            If idOficinaOrigen = SesionGlobal.OficinaID Then
+                MessageBox.Show("Este documento/paquete ya está en tu oficina. No hay nada para recibir.",
+                                "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                CargarGrilla()
+                Return
+            End If
+
+            ' 5. BUSCAR EL PAQUETE COMPLETO EN LA UBICACIÓN REAL
+            Dim docsA_Recibir = db.Mae_Documento.
+                Where(Function(d) d.IdHiloConversacion = guidFamilia And d.IdOficinaActual = idOficinaOrigen).
+                ToList()
+
+            Dim totalDocs As Integer = docsA_Recibir.Count
+
+            If totalDocs = 0 Then
+                MessageBox.Show("El documento ya no está disponible en la oficina indicada (posiblemente ya fue recibido).",
+                                "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                CargarGrilla()
+                Return
+            End If
+
+            ' 6. RESUMEN Y CONFIRMACIÓN
+            Dim sb As New StringBuilder()
+            sb.AppendLine("¿Confirma la recepción del siguiente PAQUETE?")
+            sb.AppendLine("📦 EXPEDIENTE: " & docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial)
+            sb.AppendLine("📌 ASUNTO: " & docPadre.Asunto)
+
+            If totalDocs > 1 Then
+                sb.AppendLine("⚠️ ATENCIÓN: Contiene " & (totalDocs - 1) & " adjunto(s). Total: " & totalDocs)
+            Else
+                sb.AppendLine("📄 Contenido: Documento único.")
+            End If
+
+            sb.AppendLine("📍 ORIGEN: " & nombreOficinaRemota.ToUpper())
+
+            ' 7. EJECUCIÓN
+            If MessageBox.Show(sb.ToString(), "Recibir / Recuperar Paquete",
+                               MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+
+                For Each d In docsA_Recibir
+                    d.IdOficinaActual = SesionGlobal.OficinaID
+                    d.IdEstadoActual = 1
+
+                    Dim mov As New Tra_Movimiento() With {
+                        .IdDocumento = d.IdDocumento,
+                        .FechaMovimiento = DateTime.Now,
+                        .IdOficinaOrigen = idOficinaOrigen,
+                        .IdOficinaDestino = SesionGlobal.OficinaID,
+                        .IdUsuarioResponsable = SesionGlobal.UsuarioID,
+                        .ObservacionPase = "RECUPERADO DESDE RADAR (SINCRONIZADO)",
+                        .IdEstadoEnEseMomento = 1
+                    }
+                    d.Tra_Movimiento.Add(mov)
+                Next
+
+                db.SaveChanges()
+                CargarGrilla()
+
+                ' 8. DIGITALIZACIÓN
+                If MessageBox.Show("✅ Recibido con éxito." & vbCrLf & vbCrLf & "¿Desea cargar una ACTUACIÓN FÍSICA ahora?",
+                                   "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+
+                    Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto, idOficinaOrigen)
+                    fRespuesta.ShowDialog()
+                    CargarGrilla()
+                End If
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("Error crítico al recibir: " & ex.Message, "Error de Sistema")
+            CargarGrilla()
+        End Try
     End Sub
 
 End Class

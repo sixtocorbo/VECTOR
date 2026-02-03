@@ -361,6 +361,7 @@ Partial Class frmMesaEntrada
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.AutoScroll = True ' --- CAMBIO CLAVE: Activa el Scroll automático ---
         Me.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ClientSize = New System.Drawing.Size(886, 900)
         Me.Controls.Add(Me.btnCancelar)
@@ -369,9 +370,9 @@ Partial Class frmMesaEntrada
         Me.Controls.Add(Me.grpContenido)
         Me.Controls.Add(Me.grpDetalles)
         Me.Controls.Add(Me.grpOrigen)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable ' --- CAMBIO: Permite cambiar tamaño para probar scroll ---
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.MaximizeBox = False
+        Me.MaximizeBox = True
         Me.Name = "frmMesaEntrada"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "VECTOR - Mesa de Entrada"

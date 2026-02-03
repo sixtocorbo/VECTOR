@@ -4,9 +4,9 @@
 
 Imports System.IO
 Imports System.Configuration
-Imports System.Data.EntityClient
 Imports System.Data.SqlClient
 Imports System.Xml.Serialization
+Imports System.Data.Entity.Core.EntityClient
 
 Public Class AttachmentInfo
     Public Property DisplayName As String

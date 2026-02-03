@@ -22,16 +22,16 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso = New System.Windows.Forms.Button()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.btnDarPase = New System.Windows.Forms.Button()
         Me.PanelInferior = New System.Windows.Forms.Panel()
         Me.btnEditar = New System.Windows.Forms.Button()
         Me.lblContador = New System.Windows.Forms.Label()
         Me.btnEliminar = New System.Windows.Forms.Button()
         Me.btnVincular = New System.Windows.Forms.Button()
         Me.btnHistorial = New System.Windows.Forms.Button()
-        Me.btnRecibir = New System.Windows.Forms.Button()
-        Me.btnDarPase = New System.Windows.Forms.Button()
         Me.btnRefrescar = New System.Windows.Forms.Button()
         Me.dgvPendientes = New System.Windows.Forms.DataGridView()
+        Me.btnRecibir = New System.Windows.Forms.Button()
         Me.PanelSuperior.SuspendLayout()
         Me.PanelInferior.SuspendLayout()
         CType(Me.dgvPendientes, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -40,10 +40,12 @@ Partial Class frmBandeja
         'PanelSuperior
         '
         Me.PanelSuperior.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.PanelSuperior.Controls.Add(Me.btnRecibir)
         Me.PanelSuperior.Controls.Add(Me.chkVerDerivados)
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
         Me.PanelSuperior.Controls.Add(Me.Label1)
+        Me.PanelSuperior.Controls.Add(Me.btnDarPase)
         Me.PanelSuperior.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelSuperior.Location = New System.Drawing.Point(0, 0)
         Me.PanelSuperior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -68,10 +70,10 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso.BackColor = System.Drawing.Color.SeaGreen
         Me.btnNuevoIngreso.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnNuevoIngreso.ForeColor = System.Drawing.Color.White
-        Me.btnNuevoIngreso.Location = New System.Drawing.Point(1594, 29)
+        Me.btnNuevoIngreso.Location = New System.Drawing.Point(832, 38)
         Me.btnNuevoIngreso.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnNuevoIngreso.Name = "btnNuevoIngreso"
-        Me.btnNuevoIngreso.Size = New System.Drawing.Size(188, 46)
+        Me.btnNuevoIngreso.Size = New System.Drawing.Size(276, 46)
         Me.btnNuevoIngreso.TabIndex = 3
         Me.btnNuevoIngreso.Text = "+ NUEVO INGRESO"
         Me.btnNuevoIngreso.UseVisualStyleBackColor = False
@@ -94,6 +96,21 @@ Partial Class frmBandeja
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Buscar:"
         '
+        'btnDarPase
+        '
+        Me.btnDarPase.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnDarPase.BackColor = System.Drawing.Color.ForestGreen
+        Me.btnDarPase.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDarPase.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnDarPase.ForeColor = System.Drawing.Color.White
+        Me.btnDarPase.Location = New System.Drawing.Point(1116, 38)
+        Me.btnDarPase.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnDarPase.Name = "btnDarPase"
+        Me.btnDarPase.Size = New System.Drawing.Size(276, 46)
+        Me.btnDarPase.TabIndex = 1
+        Me.btnDarPase.Text = "DAR PASE"
+        Me.btnDarPase.UseVisualStyleBackColor = False
+        '
         'PanelInferior
         '
         Me.PanelInferior.BackColor = System.Drawing.Color.WhiteSmoke
@@ -102,8 +119,6 @@ Partial Class frmBandeja
         Me.PanelInferior.Controls.Add(Me.btnEliminar)
         Me.PanelInferior.Controls.Add(Me.btnVincular)
         Me.PanelInferior.Controls.Add(Me.btnHistorial)
-        Me.PanelInferior.Controls.Add(Me.btnRecibir)
-        Me.PanelInferior.Controls.Add(Me.btnDarPase)
         Me.PanelInferior.Controls.Add(Me.btnRefrescar)
         Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.PanelInferior.Location = New System.Drawing.Point(0, 771)
@@ -179,36 +194,6 @@ Partial Class frmBandeja
         Me.btnHistorial.Text = "Ver Historial"
         Me.btnHistorial.UseVisualStyleBackColor = False
         '
-        'btnRecibir
-        '
-        Me.btnRecibir.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnRecibir.BackColor = System.Drawing.Color.DarkCyan
-        Me.btnRecibir.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnRecibir.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnRecibir.ForeColor = System.Drawing.Color.White
-        Me.btnRecibir.Location = New System.Drawing.Point(1233, 18)
-        Me.btnRecibir.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnRecibir.Name = "btnRecibir"
-        Me.btnRecibir.Size = New System.Drawing.Size(244, 55)
-        Me.btnRecibir.TabIndex = 2
-        Me.btnRecibir.Text = "RECIBIR / RECUPERAR"
-        Me.btnRecibir.UseVisualStyleBackColor = False
-        '
-        'btnDarPase
-        '
-        Me.btnDarPase.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnDarPase.BackColor = System.Drawing.Color.ForestGreen
-        Me.btnDarPase.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnDarPase.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnDarPase.ForeColor = System.Drawing.Color.White
-        Me.btnDarPase.Location = New System.Drawing.Point(1532, 18)
-        Me.btnDarPase.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnDarPase.Name = "btnDarPase"
-        Me.btnDarPase.Size = New System.Drawing.Size(249, 55)
-        Me.btnDarPase.TabIndex = 1
-        Me.btnDarPase.Text = "DAR PASE (Salida)"
-        Me.btnDarPase.UseVisualStyleBackColor = False
-        '
         'btnRefrescar
         '
         Me.btnRefrescar.Location = New System.Drawing.Point(18, 20)
@@ -240,6 +225,21 @@ Partial Class frmBandeja
         Me.dgvPendientes.Size = New System.Drawing.Size(1800, 663)
         Me.dgvPendientes.TabIndex = 2
         '
+        'btnRecibir
+        '
+        Me.btnRecibir.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnRecibir.BackColor = System.Drawing.Color.ForestGreen
+        Me.btnRecibir.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnRecibir.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnRecibir.ForeColor = System.Drawing.Color.White
+        Me.btnRecibir.Location = New System.Drawing.Point(1400, 38)
+        Me.btnRecibir.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnRecibir.Name = "btnRecibir"
+        Me.btnRecibir.Size = New System.Drawing.Size(276, 46)
+        Me.btnRecibir.TabIndex = 6
+        Me.btnRecibir.Text = "RECIBIR"
+        Me.btnRecibir.UseVisualStyleBackColor = False
+        '
         'frmBandeja
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -268,7 +268,6 @@ Partial Class frmBandeja
     Friend WithEvents btnDarPase As Button
     Friend WithEvents btnRefrescar As Button
     Friend WithEvents dgvPendientes As DataGridView
-    Friend WithEvents btnRecibir As Button
     Friend WithEvents btnNuevoIngreso As Button
     Friend WithEvents btnEditar As Button ' <--- NUEVO BOTÓN
     Friend WithEvents btnHistorial As Button
@@ -276,4 +275,5 @@ Partial Class frmBandeja
     Friend WithEvents btnEliminar As Button
     Friend WithEvents chkVerDerivados As CheckBox
     Friend WithEvents lblContador As Label
+    Friend WithEvents btnRecibir As Button
 End Class

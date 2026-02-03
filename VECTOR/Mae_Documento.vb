@@ -33,5 +33,6 @@ Partial Public Class Mae_Documento
     Public Overridable Property Mae_Documento1 As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
     Public Overridable Property Mae_Documento2 As Mae_Documento
     Public Overridable Property Tra_Movimiento As ICollection(Of Tra_Movimiento) = New HashSet(Of Tra_Movimiento)
+    Public Overridable Property Tra_AdjuntoDocumento As ICollection(Of Tra_AdjuntoDocumento) = New HashSet(Of Tra_AdjuntoDocumento)
 
 End Class

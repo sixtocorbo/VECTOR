@@ -59,7 +59,7 @@ Public Class frmUnificarOficinas
             End Using
 
         Catch ex As Exception
-            MessageBox.Show("Error al cargar oficinas: " & ex.Message)
+            Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 
@@ -73,7 +73,7 @@ Public Class frmUnificarOficinas
 
         ' Validaciones básicas
         If String.IsNullOrWhiteSpace(txtNombreOficial.Text) Then
-            MessageBox.Show("Por favor, escribe el NOMBRE OFICIAL (Destino).", "Falta Nombre", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Por favor, escribe el NOMBRE OFICIAL (Destino).", ToastType.Warning)
             txtNombreOficial.Focus()
             Return
         End If
@@ -94,7 +94,7 @@ Public Class frmUnificarOficinas
         Next
 
         If idsParaBorrar.Count = 0 Then
-            MessageBox.Show("Selecciona al menos una oficina para unificar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Selecciona al menos una oficina para unificar.", ToastType.Warning)
             Return
         End If
 
@@ -127,20 +127,20 @@ Public Class frmUnificarOficinas
                 If resultado IsNot Nothing Then
                     If resultado.Resultado = 1 Then
                         AuditoriaSistema.RegistrarEvento($"Unificación de {listaIds.Count} oficina(s) en '{nombreDestino}'.", "OFICINAS")
-                        MessageBox.Show(resultado.Mensaje & " 🚀", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        Toast.Show(Me, resultado.Mensaje & " 🚀", ToastType.Success)
 
                         ' Limpiar todo
                         txtBuscar.Text = ""
                         txtNombreOficial.Text = ""
                         CargarOficinas("")
                     Else
-                        MessageBox.Show("Error SQL: " & resultado.Mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Toast.Show(Me, "Error SQL: " & resultado.Mensaje, ToastType.Error)
                     End If
                 End If
             End Using
 
         Catch ex As Exception
-            MessageBox.Show("Error crítico: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Toast.Show(Me, "Error crítico: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 

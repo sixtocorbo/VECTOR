@@ -149,12 +149,26 @@ Public Class frmAuditoria
             Return
         End If
 
-        dgvAuditoria.Columns("IdEvento").Visible = False
-        dgvAuditoria.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-        dgvAuditoria.Columns("Fecha").Width = 140
-        dgvAuditoria.Columns("Usuario").Width = 160
-        dgvAuditoria.Columns("Modulo").Width = 120
-        dgvAuditoria.Columns("Descripcion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        If dgvAuditoria.Columns.Contains("IdEvento") Then
+            dgvAuditoria.Columns("IdEvento").Visible = False
+        End If
+
+        If dgvAuditoria.Columns.Contains("Fecha") Then
+            dgvAuditoria.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvAuditoria.Columns("Fecha").Width = 140
+        End If
+
+        If dgvAuditoria.Columns.Contains("Usuario") Then
+            dgvAuditoria.Columns("Usuario").Width = 160
+        End If
+
+        If dgvAuditoria.Columns.Contains("Modulo") Then
+            dgvAuditoria.Columns("Modulo").Width = 120
+        End If
+
+        If dgvAuditoria.Columns.Contains("Descripcion") Then
+            dgvAuditoria.Columns("Descripcion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
         dgvAuditoria.ClearSelection()
     End Sub
 
@@ -163,15 +177,38 @@ Public Class frmAuditoria
             Return
         End If
 
-        dgvTransacciones.Columns("IdMovimiento").Visible = False
-        dgvTransacciones.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-        dgvTransacciones.Columns("Fecha").Width = 140
-        dgvTransacciones.Columns("Documento").Width = 160
-        dgvTransacciones.Columns("Origen").Width = 160
-        dgvTransacciones.Columns("Destino").Width = 160
-        dgvTransacciones.Columns("Estado").Width = 120
-        dgvTransacciones.Columns("Responsable").Width = 120
-        dgvTransacciones.Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        If dgvTransacciones.Columns.Contains("IdMovimiento") Then
+            dgvTransacciones.Columns("IdMovimiento").Visible = False
+        End If
+
+        If dgvTransacciones.Columns.Contains("Fecha") Then
+            dgvTransacciones.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+            dgvTransacciones.Columns("Fecha").Width = 140
+        End If
+
+        If dgvTransacciones.Columns.Contains("Documento") Then
+            dgvTransacciones.Columns("Documento").Width = 160
+        End If
+
+        If dgvTransacciones.Columns.Contains("Origen") Then
+            dgvTransacciones.Columns("Origen").Width = 160
+        End If
+
+        If dgvTransacciones.Columns.Contains("Destino") Then
+            dgvTransacciones.Columns("Destino").Width = 160
+        End If
+
+        If dgvTransacciones.Columns.Contains("Estado") Then
+            dgvTransacciones.Columns("Estado").Width = 120
+        End If
+
+        If dgvTransacciones.Columns.Contains("Responsable") Then
+            dgvTransacciones.Columns("Responsable").Width = 120
+        End If
+
+        If dgvTransacciones.Columns.Contains("Observacion") Then
+            dgvTransacciones.Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
         dgvTransacciones.ClearSelection()
     End Sub
 

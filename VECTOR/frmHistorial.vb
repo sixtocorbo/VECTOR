@@ -1,10 +1,13 @@
 ﻿Imports System.Data.Entity
+Imports System.Drawing.Printing
 Imports System.Linq ' Aseguramos que LINQ esté disponible para las listas
 
 Public Class frmHistorial
 
     Private db As New SecretariaDBEntities()
     Private _idDocumento As Long
+    Private _printBitmap As Bitmap
+    Private WithEvents _printDocument As New PrintDocument()
 
     ' Constructor que obliga a pasar el ID
     Public Sub New(idDoc As Long)
@@ -113,6 +116,36 @@ Public Class frmHistorial
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
+    End Sub
+
+    Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
+        Using dialog As New PrintDialog()
+            dialog.Document = _printDocument
+            If dialog.ShowDialog(Me) = DialogResult.OK Then
+                _printBitmap = New Bitmap(Me.ClientSize.Width, Me.ClientSize.Height)
+                Me.DrawToBitmap(_printBitmap, New Rectangle(Point.Empty, Me.ClientSize))
+                _printDocument.DocumentName = $"Historial - {lblNumero.Text}"
+                _printDocument.DefaultPageSettings.Landscape = Me.ClientSize.Width > Me.ClientSize.Height
+                _printDocument.Print()
+            End If
+        End Using
+    End Sub
+
+    Private Sub PrintDocument_PrintPage(sender As Object, e As PrintPageEventArgs) Handles _printDocument.PrintPage
+        If _printBitmap Is Nothing Then
+            e.HasMorePages = False
+            Return
+        End If
+
+        Dim marginBounds = e.MarginBounds
+        Dim scale = Math.Min(marginBounds.Width / _printBitmap.Width, marginBounds.Height / _printBitmap.Height)
+        Dim drawWidth = CInt(_printBitmap.Width * scale)
+        Dim drawHeight = CInt(_printBitmap.Height * scale)
+        Dim drawX = marginBounds.X + CInt((marginBounds.Width - drawWidth) / 2)
+        Dim drawY = marginBounds.Y + CInt((marginBounds.Height - drawHeight) / 2)
+
+        e.Graphics.DrawImage(_printBitmap, New Rectangle(drawX, drawY, drawWidth, drawHeight))
+        e.HasMorePages = False
     End Sub
 
 End Class

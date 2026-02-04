@@ -252,7 +252,7 @@ Partial Class frmBandeja
     Friend WithEvents btnRefrescar As Button
     Friend WithEvents dgvPendientes As DataGridView
     Friend WithEvents btnNuevoIngreso As Button
-    Friend WithEvents btnEditar As Button ' <--- NUEVO BOTÓN
+    Friend WithEvents btnEditar As Button
     Friend WithEvents btnHistorial As Button
     Friend WithEvents btnVincular As Button
     Friend WithEvents btnEliminar As Button

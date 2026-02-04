@@ -246,6 +246,9 @@
     <EmbeddedResource Include="frmBuscadorReclusos.resx">
       <DependentUpon>frmBuscadorReclusos.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmHistorial.resx">
+      <DependentUpon>frmHistorial.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMesaEntrada.resx">
       <DependentUpon>frmMesaEntrada.vb</DependentUpon>
     </EmbeddedResource>

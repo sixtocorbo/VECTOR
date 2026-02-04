@@ -24,6 +24,7 @@ Partial Class frmBandeja
         Me.Label1 = New System.Windows.Forms.Label()
         Me.btnDarPase = New System.Windows.Forms.Button()
         Me.PanelInferior = New System.Windows.Forms.Panel()
+        Me.btnDesvincular = New System.Windows.Forms.Button()
         Me.btnEditar = New System.Windows.Forms.Button()
         Me.lblContador = New System.Windows.Forms.Label()
         Me.btnEliminar = New System.Windows.Forms.Button()
@@ -31,7 +32,6 @@ Partial Class frmBandeja
         Me.btnHistorial = New System.Windows.Forms.Button()
         Me.btnRefrescar = New System.Windows.Forms.Button()
         Me.dgvPendientes = New System.Windows.Forms.DataGridView()
-        Me.btnDesvincular = New System.Windows.Forms.Button()
         Me.PanelSuperior.SuspendLayout()
         Me.PanelInferior.SuspendLayout()
         CType(Me.dgvPendientes, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -55,7 +55,7 @@ Partial Class frmBandeja
         'chkVerDerivados
         '
         Me.chkVerDerivados.AutoSize = True
-        Me.chkVerDerivados.Location = New System.Drawing.Point(528, 38)
+        Me.chkVerDerivados.Location = New System.Drawing.Point(93, 5)
         Me.chkVerDerivados.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkVerDerivados.Name = "chkVerDerivados"
         Me.chkVerDerivados.Size = New System.Drawing.Size(195, 24)
@@ -126,6 +126,20 @@ Partial Class frmBandeja
         Me.PanelInferior.Name = "PanelInferior"
         Me.PanelInferior.Size = New System.Drawing.Size(1800, 92)
         Me.PanelInferior.TabIndex = 1
+        '
+        'btnDesvincular
+        '
+        Me.btnDesvincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDesvincular.ForeColor = System.Drawing.Color.White
+        Me.btnDesvincular.Location = New System.Drawing.Point(321, 17)
+        Me.btnDesvincular.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnDesvincular.Name = "btnDesvincular"
+        Me.btnDesvincular.Size = New System.Drawing.Size(175, 55)
+        Me.btnDesvincular.TabIndex = 8
+        Me.btnDesvincular.Text = "🔗 DESVINCULAR"
+        Me.btnDesvincular.UseVisualStyleBackColor = False
         '
         'btnEditar
         '
@@ -224,20 +238,6 @@ Partial Class frmBandeja
         Me.dgvPendientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvPendientes.Size = New System.Drawing.Size(1800, 663)
         Me.dgvPendientes.TabIndex = 2
-        '
-        'btnDesvincular
-        '
-        Me.btnDesvincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
-        Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnDesvincular.ForeColor = System.Drawing.Color.White
-        Me.btnDesvincular.Location = New System.Drawing.Point(321, 17)
-        Me.btnDesvincular.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnDesvincular.Name = "btnDesvincular"
-        Me.btnDesvincular.Size = New System.Drawing.Size(175, 55)
-        Me.btnDesvincular.TabIndex = 8
-        Me.btnDesvincular.Text = "🔗 DESVINCULAR"
-        Me.btnDesvincular.UseVisualStyleBackColor = False
         '
         'frmBandeja
         '

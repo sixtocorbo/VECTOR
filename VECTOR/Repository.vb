@@ -91,9 +91,9 @@ Public Class Repository(Of T As Class)
     End Sub
 
     Public Sub UpdateRange(entities As IEnumerable(Of T)) Implements IRepository(Of T).UpdateRange
-        For Each entity In entities
-            _dbSet.Attach(entity)
-            _context.Entry(entity).State = EntityState.Modified
+        For Each _entity In entities
+            _dbSet.Attach(_entity)
+            _context.Entry(_entity).State = EntityState.Modified
         Next
     End Sub
 

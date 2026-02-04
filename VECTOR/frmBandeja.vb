@@ -74,20 +74,21 @@ Public Class frmBandeja
                 consulta = consulta.OrderByDescending(Function(d) d.FechaCreacion)
 
                 ' B. PROYECCIÓN DE DATOS PUROS
+                ' B. PROYECCIÓN DE DATOS PUROS
                 Dim listaDatos = Await consulta.Select(Function(d) New With {
-                    .ID = d.IdDocumento,
-                    .Tipo = d.Cat_TipoDocumento.Codigo,
-                    .Referencia = d.NumeroOficial,
-                    .Remitente = d.Tra_Movimiento.OrderByDescending(Function(m) m.IdMovimiento).Select(Function(m) m.Cat_Oficina.Nombre).FirstOrDefault(),
-                    .Asunto = d.Asunto,
-                    .Ubicacion = d.Cat_Oficina.Nombre,
-                    .Fecha = d.FechaRecepcion,
-                    .Estado = d.Cat_Estado.Nombre,
-                    .IdOficinaActual = d.IdOficinaActual,
-                .Cant_Respuestas = repo.GetQueryable().Where(Function(h) h.IdDocumentoPadre = d.IdDocumento And h.IdEstadoActual <> 5).Count(),
-                    .EsHijo = d.IdDocumentoPadre.HasValue,
-                   .RefPadre = If(d.IdDocumentoPadre.HasValue, repo.GetQueryable().Where(Function(p) p.IdDocumento = d.IdDocumentoPadre).Select(Function(p) p.Cat_TipoDocumento.Codigo & " " & p.NumeroOficial).FirstOrDefault(), "")
-                }).ToListAsync()
+    .ID = d.IdDocumento,
+    .Tipo = d.Cat_TipoDocumento.Codigo,
+    .Referencia = d.NumeroOficial,
+    .Remitente = d.Tra_Movimiento.OrderByDescending(Function(m) m.IdMovimiento).Select(Function(m) m.Cat_Oficina.Nombre).FirstOrDefault(),
+    .Asunto = d.Asunto,
+    .Ubicacion = d.Cat_Oficina.Nombre,
+    .Fecha = d.FechaRecepcion,
+    .Estado = d.Cat_Estado.Nombre,
+    .IdOficinaActual = d.IdOficinaActual,
+                .Cant_Respuestas = d.Mae_Documento1.Where(Function(h) h.IdEstadoActual <> 5).Count(),
+    .EsHijo = d.IdDocumentoPadre.HasValue,
+    .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Codigo & " " & d.Mae_Documento2.NumeroOficial, "")
+}).ToListAsync()
 
                 ' C. AJUSTES FINALES Y FORMATEO DE TEXTO (La Lógica que pediste)
                 Dim listaFinal = listaDatos.Select(Function(x) New With {
@@ -701,6 +702,10 @@ Public Class frmBandeja
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
+        ' VARIABLES PARA MANEJO DE ERROR FUERA DEL CATCH
+        Dim huboError As Boolean = False
+        Dim mensajeError As String = ""
+
         Try
             Dim idPadreReal As Long
             Dim idOficinaOrigen As Integer
@@ -768,8 +773,10 @@ Public Class frmBandeja
                 End If
             End Using
 
+            ' ✅ ÉXITO: Cargamos grilla dentro del flujo normal
             Await CargarGrillaAsync()
 
+            ' Pregunta post-operación
             If MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
                 fRespuesta.ShowDialog()
@@ -777,9 +784,17 @@ Public Class frmBandeja
             End If
 
         Catch ex As Exception
-            Toast.Show("Error crítico al intentar recibir: " & ex.Message, ToastType.Error)
-            Await CargarGrillaAsync()
+            ' ⚡ CAPTURA: No usamos Await aquí dentro para evitar el error del compilador
+            huboError = True
+            mensajeError = ex.Message
         End Try
+
+        ' 🔄 RECUPERACIÓN: Ejecutamos el Await fuera del bloque Catch
+        If huboError Then
+            Toast.Show("Error crítico al intentar recibir: " & mensajeError, ToastType.Error)
+            Await CargarGrillaAsync()
+        End If
+
     End Function
 
     Private Sub btnHistorial_Click(sender As Object, e As EventArgs) Handles btnHistorial.Click

@@ -19,6 +19,7 @@ Partial Class frmHistorial
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.PanelHeader = New System.Windows.Forms.Panel()
+        Me.btnPrint = New System.Windows.Forms.Button()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.lblAsunto = New System.Windows.Forms.Label()
         Me.lblNumero = New System.Windows.Forms.Label()
@@ -30,6 +31,7 @@ Partial Class frmHistorial
         'PanelHeader
         '
         Me.PanelHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.PanelHeader.Controls.Add(Me.btnPrint)
         Me.PanelHeader.Controls.Add(Me.btnClose)
         Me.PanelHeader.Controls.Add(Me.lblAsunto)
         Me.PanelHeader.Controls.Add(Me.lblNumero)
@@ -39,6 +41,20 @@ Partial Class frmHistorial
         Me.PanelHeader.Name = "PanelHeader"
         Me.PanelHeader.Size = New System.Drawing.Size(1200, 123)
         Me.PanelHeader.TabIndex = 0
+        '
+        'btnPrint
+        '
+        Me.btnPrint.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnPrint.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnPrint.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnPrint.ForeColor = System.Drawing.Color.White
+        Me.btnPrint.Location = New System.Drawing.Point(1027, 18)
+        Me.btnPrint.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnPrint.Name = "btnPrint"
+        Me.btnPrint.Size = New System.Drawing.Size(95, 35)
+        Me.btnPrint.TabIndex = 3
+        Me.btnPrint.Text = "Imprimir"
+        Me.btnPrint.UseVisualStyleBackColor = False
         '
         'btnClose
         '
@@ -130,4 +146,5 @@ Partial Class frmHistorial
     Friend WithEvents lblNumero As Label
     Friend WithEvents dgvHistoria As DataGridView
     Friend WithEvents btnClose As Button
+    Friend WithEvents btnPrint As Button
 End Class

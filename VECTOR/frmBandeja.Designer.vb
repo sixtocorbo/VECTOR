@@ -31,6 +31,7 @@ Partial Class frmBandeja
         Me.btnHistorial = New System.Windows.Forms.Button()
         Me.btnRefrescar = New System.Windows.Forms.Button()
         Me.dgvPendientes = New System.Windows.Forms.DataGridView()
+        Me.btnDesvincular = New System.Windows.Forms.Button()
         Me.PanelSuperior.SuspendLayout()
         Me.PanelInferior.SuspendLayout()
         CType(Me.dgvPendientes, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -112,6 +113,7 @@ Partial Class frmBandeja
         'PanelInferior
         '
         Me.PanelInferior.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.PanelInferior.Controls.Add(Me.btnDesvincular)
         Me.PanelInferior.Controls.Add(Me.btnEditar)
         Me.PanelInferior.Controls.Add(Me.lblContador)
         Me.PanelInferior.Controls.Add(Me.btnEliminar)
@@ -223,6 +225,20 @@ Partial Class frmBandeja
         Me.dgvPendientes.Size = New System.Drawing.Size(1800, 663)
         Me.dgvPendientes.TabIndex = 2
         '
+        'btnDesvincular
+        '
+        Me.btnDesvincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDesvincular.ForeColor = System.Drawing.Color.White
+        Me.btnDesvincular.Location = New System.Drawing.Point(321, 17)
+        Me.btnDesvincular.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnDesvincular.Name = "btnDesvincular"
+        Me.btnDesvincular.Size = New System.Drawing.Size(175, 55)
+        Me.btnDesvincular.TabIndex = 8
+        Me.btnDesvincular.Text = "🔗 DESVINCULAR"
+        Me.btnDesvincular.UseVisualStyleBackColor = False
+        '
         'frmBandeja
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -258,4 +274,5 @@ Partial Class frmBandeja
     Friend WithEvents btnEliminar As Button
     Friend WithEvents chkVerDerivados As CheckBox
     Friend WithEvents lblContador As Label
+    Friend WithEvents btnDesvincular As Button
 End Class

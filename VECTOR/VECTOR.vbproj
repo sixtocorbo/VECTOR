@@ -86,6 +86,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppTheme.vb" />
     <Compile Include="AttachmentStore.vb" />
     <Compile Include="AuditoriaSistema.vb" />
     <Compile Include="Cat_Estado.vb">
@@ -219,6 +220,12 @@
     <Compile Include="sp_UnificarOficinas_Result.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Toast.Designer.vb">
+      <DependentUpon>Toast.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Toast.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Tra_AdjuntoDocumento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -250,6 +257,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Toast.resx">
+      <DependentUpon>Toast.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

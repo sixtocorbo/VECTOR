@@ -22,6 +22,7 @@ Public Class frmBandeja
     ' =======================================================
     Private Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            AppTheme.Aplicar(Me)
             ' --- TRUCO PRO: DOBLE BUFFER ---
             Dim typeDGV As Type = dgvPendientes.GetType()
             Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
@@ -699,7 +700,7 @@ Public Class frmBandeja
                 Dim totalDocs As Integer = docsA_Recibir.Count
 
                 If totalDocs = 0 Then
-                    MessageBox.Show("El documento ya no está disponible.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Toast.Show("El documento ya no está disponible", ToastType.Warning)
                     Return
                 End If
 
@@ -743,7 +744,7 @@ Public Class frmBandeja
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error crítico al intentar recibir: " & ex.Message, "Error de Sistema")
+            Toast.Show("Error crítico al intentar recibir: " & ex.Message, ToastType.Error)
             CargarGrilla()
         End Try
     End Sub
@@ -766,7 +767,7 @@ Public Class frmBandeja
     Private Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click
         ' 1. VALIDACIÓN: ¿HAY ALGO SELECCIONADO?
         If dgvPendientes.SelectedRows.Count = 0 Then
-            MessageBox.Show("Seleccione el documento a desvincular (sacar de la familia).", "Atención")
+            Toast.Show("Seleccione el documento a desvincular (sacar de la familia).", ToastType.Warning)
             Return
         End If
 
@@ -777,8 +778,8 @@ Public Class frmBandeja
 
             ' 2. VALIDACIÓN: ¿REALMENTE ES UN HIJO?
             If Not doc.IdDocumentoPadre.HasValue Then
-                MessageBox.Show("Este documento YA es independiente (no tiene padre)." & vbCrLf &
-                                "No se puede desvincular.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Toast.Show("Este documento YA es independiente (no tiene padre)." & vbCrLf &
+                                "No se puede desvincular.", ToastType.Warning)
                 Return
             End If
 
@@ -810,7 +811,7 @@ Public Class frmBandeja
                 db.SaveChanges()
 
                 AuditoriaSistema.RegistrarEvento($"Documento {doc.NumeroOficial} independizado del exp {nombrePadre}.", "DESVINCULACION")
-                MessageBox.Show("✅ Documento independizado correctamente.", "Vector")
+                Toast.Show("✅ Documento independizado correctamente.", ToastType.Success)
 
                 CargarGrilla()
             End If

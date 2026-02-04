@@ -111,11 +111,11 @@ Public Class frmGestionRangos
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         ' A. VALIDACIONES DE INTERFAZ
         If cmbTipo.SelectedIndex = -1 Then
-            MessageBox.Show("Seleccione el Tipo de Documento.")
+            Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
             Return
         End If
         If String.IsNullOrWhiteSpace(txtNombre.Text) Then
-            MessageBox.Show("Falta el nombre del rango (Ej: 'Resoluciones 2026').")
+            Toast.Show(Me, "Falta el nombre del rango (Ej: 'Resoluciones 2026').", ToastType.Warning)
             Return
         End If
 
@@ -125,11 +125,11 @@ Public Class frmGestionRangos
         Integer.TryParse(txtUltimo.Text, ult)
 
         If ini >= fin Then
-            MessageBox.Show("El número de Inicio debe ser menor al número Fin.")
+            Toast.Show(Me, "El número de Inicio debe ser menor al número Fin.", ToastType.Warning)
             Return
         End If
         If ult < (ini - 1) Or ult > fin Then
-            MessageBox.Show("El 'Último Utilizado' es incoherente con el rango Inicio-Fin.")
+            Toast.Show(Me, "El 'Último Utilizado' es incoherente con el rango Inicio-Fin.", ToastType.Warning)
             Return
         End If
 
@@ -174,7 +174,7 @@ Public Class frmGestionRangos
 
                 Dim accion As String = If(esNuevo, "Creación", "Edición")
                 AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Activo: {rango.Activo}.", "RANGOS")
-                MessageBox.Show("Rango guardado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Toast.Show(Me, "Rango guardado correctamente.", ToastType.Success)
 
                 ModoEdicion(False)
                 CargarGrilla()
@@ -188,10 +188,10 @@ Public Class frmGestionRangos
                     mensaje &= "- " & validationError.ErrorMessage & vbCrLf
                 Next
             Next
-            MessageBox.Show("Error de validación de datos:" & vbCrLf & mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Error de validación de datos:" & vbCrLf & mensaje, ToastType.Warning)
 
         Catch ex As Exception
-            MessageBox.Show("Ocurrió un error inesperado: " & ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Toast.Show(Me, "Ocurrió un error inesperado: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 

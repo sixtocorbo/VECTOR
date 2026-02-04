@@ -36,7 +36,7 @@ Public Class frmPase
             cboDestino.ValueMember = "IdOficina"
             cboDestino.SelectedIndex = -1
         Catch ex As Exception
-            MessageBox.Show("Error al cargar oficinas: " & ex.Message)
+            Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 
@@ -110,11 +110,11 @@ Public Class frmPase
     Private Sub btnConfirmar_Click(sender As Object, e As EventArgs) Handles btnConfirmar.Click
         ' Validaciones
         If cboDestino.SelectedIndex = -1 Then
-            MessageBox.Show("Seleccione Oficina de Destino.", "Falta Dato")
+            Toast.Show(Me, "Seleccione Oficina de Destino.", ToastType.Warning)
             Return
         End If
         If String.IsNullOrWhiteSpace(txtObservacion.Text) Then
-            MessageBox.Show("La observación es obligatoria.", "Falta Dato")
+            Toast.Show(Me, "La observación es obligatoria.", ToastType.Warning)
             Return
         End If
 
@@ -154,14 +154,14 @@ Public Class frmPase
             db.SaveChanges()
 
             AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {cboDestino.Text}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE")
-            MessageBox.Show("✅ PASE EXITOSO." & vbCrLf & vbCrLf &
-                            "Se han enviado " & count & " documento(s) a " & cboDestino.Text & ".", "Vector")
+            Toast.Show(Me, "✅ PASE EXITOSO." & vbCrLf & vbCrLf &
+                            "Se han enviado " & count & " documento(s) a " & cboDestino.Text & ".", ToastType.Success)
 
             Me.DialogResult = DialogResult.OK
             Me.Close()
 
         Catch ex As Exception
-            MessageBox.Show("Error al guardar: " & ex.Message)
+            Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 

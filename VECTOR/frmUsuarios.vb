@@ -5,7 +5,7 @@ Public Class frmUsuarios
     Private Sub frmUsuarios_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Verificamos si es Admin usando tu clase de sesión
         If Not SesionGlobal.EsAdmin Then
-            MessageBox.Show("Acceso Denegado. Solo Administradores.", "Seguridad", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+            Toast.Show(Me, "Acceso Denegado. Solo Administradores.", ToastType.Error)
             Me.Close()
             Return
         End If
@@ -29,7 +29,7 @@ Public Class frmUsuarios
 
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If String.IsNullOrWhiteSpace(txtNombre.Text) Or String.IsNullOrWhiteSpace(txtClave.Text) Then
-            MessageBox.Show("Complete todos los campos.")
+            Toast.Show(Me, "Complete todos los campos.", ToastType.Warning)
             Return
         End If
 
@@ -38,7 +38,7 @@ Public Class frmUsuarios
 
             ' Verificamos que no exista el login
             If db.Cat_Usuario.Any(Function(u) u.UsuarioLogin = login) Then
-                MessageBox.Show("El usuario (login) ya existe.")
+                Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
                 Return
             End If
 
@@ -57,7 +57,7 @@ Public Class frmUsuarios
             db.SaveChanges()
 
             AuditoriaSistema.RegistrarEvento($"Alta de usuario {nuevo.UsuarioLogin} en Mesa de Entrada (ID 13).", "USUARIOS")
-            MessageBox.Show("Usuario creado correctamente.")
+            Toast.Show(Me, "Usuario creado correctamente.", ToastType.Success)
 
             CargarUsuarios()
             Limpiar()
@@ -71,7 +71,7 @@ Public Class frmUsuarios
 
         ' Protección para no borrarse a uno mismo
         If idUser = SesionGlobal.UsuarioID Then
-            MessageBox.Show("No puedes eliminar tu propio usuario.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "No puedes eliminar tu propio usuario.", ToastType.Warning)
             Return
         End If
 
@@ -85,7 +85,7 @@ Public Class frmUsuarios
                         u.Activo = False
                         db.SaveChanges()
                         AuditoriaSistema.RegistrarEvento($"Usuario desactivado: {u.UsuarioLogin}.", "USUARIOS")
-                        MessageBox.Show("Usuario desactivado.")
+                        Toast.Show(Me, "Usuario desactivado.", ToastType.Success)
                     End If
                 Else
                     ' Si es nuevo y no hizo nada, lo borramos del todo
@@ -95,7 +95,7 @@ Public Class frmUsuarios
                     db.Cat_Usuario.Remove(u)
                     db.SaveChanges()
                     AuditoriaSistema.RegistrarEvento($"Usuario eliminado: {u.UsuarioLogin}.", "USUARIOS")
-                    MessageBox.Show("Usuario eliminado.")
+                    Toast.Show(Me, "Usuario eliminado.", ToastType.Success)
                 End If
 
                 CargarUsuarios()

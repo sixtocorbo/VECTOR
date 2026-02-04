@@ -281,7 +281,7 @@ Public Class frmMesaEntrada
         End If
 
         If String.IsNullOrWhiteSpace(ruta) OrElse Not File.Exists(ruta) Then
-            MessageBox.Show("El archivo no está disponible en el sistema.", "Adjuntos", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "El archivo no está disponible en el sistema.", ToastType.Warning)
             Return
         End If
 
@@ -295,13 +295,13 @@ Public Class frmMesaEntrada
 
         ' 1. Validaciones básicas
         If cboTipo.SelectedIndex = -1 Then
-            MessageBox.Show("Seleccione el TIPO de documento.", "Falta Dato", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Seleccione el TIPO de documento.", ToastType.Warning)
             Return
         End If
 
         ' Si es manual, validamos que haya escrito algo
         If Not _generacionAutomatica AndAlso String.IsNullOrWhiteSpace(txtNumeroRef.Text) Then
-            MessageBox.Show("Ingrese la Referencia/Número.", "Falta Dato", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Ingrese la Referencia/Número.", ToastType.Warning)
             Return
         End If
 
@@ -325,7 +325,7 @@ Public Class frmMesaEntrada
                 db.SaveChanges()
                 GuardarAdjuntos(doc.IdDocumento)
                 AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
-                MessageBox.Show("✅ Documento corregido exitosamente.", "Edición")
+                Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
 
             Else
                 ' =================================================
@@ -341,13 +341,13 @@ Public Class frmMesaEntrada
                     Dim rango = db.Mae_NumeracionRangos.FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
 
                     If rango Is Nothing Then
-                        MessageBox.Show("El rango de numeración se desactivó o no existe. Guarde manualmente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Toast.Show(Me, "El rango de numeración se desactivó o no existe. Guarde manualmente.", ToastType.Error)
                         HabilitarEscrituraManual()
                         Return
                     End If
 
                     If rango.UltimoUtilizado >= rango.NumeroFin Then
-                        MessageBox.Show("¡SE AGOTÓ LA NUMERACIÓN PARA ESTE TIPO!" & vbCrLf & "Contacte al administrador.", "Rango Agotado", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                        Toast.Show(Me, "¡SE AGOTÓ LA NUMERACIÓN PARA ESTE TIPO!" & vbCrLf & "Contacte al administrador.", ToastType.Error)
                         Return
                     End If
 
@@ -424,14 +424,14 @@ Public Class frmMesaEntrada
                 sb.AppendLine()
                 sb.AppendLine("El expediente ya se encuentra disponible en su Bandeja.")
 
-                MessageBox.Show(sb.ToString(), "Registro Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Toast.Show(Me, sb.ToString(), ToastType.Success)
                 ' ------------------------------------------
             End If
 
             Me.Close()
 
         Catch ex As Exception
-            MessageBox.Show("Error al guardar: " & ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 
@@ -439,7 +439,7 @@ Public Class frmMesaEntrada
         Try
             AttachmentStore.SaveAttachments(idDocumento, _adjuntos)
         Catch ex As Exception
-            MessageBox.Show("El documento se guardó, pero falló el almacenamiento de adjuntos: " & ex.Message, "Adjuntos", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "El documento se guardó, pero falló el almacenamiento de adjuntos: " & ex.Message, ToastType.Warning)
         End Try
     End Sub
 

@@ -8,7 +8,7 @@ Public Class frmLogin
 
         ' Validación de campos vacíos
         If String.IsNullOrEmpty(u) OrElse String.IsNullOrEmpty(p) Then
-            MessageBox.Show("Por favor, ingrese su usuario y contraseña.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Por favor, ingrese su usuario y contraseña.", ToastType.Warning)
             Return
         End If
 
@@ -36,11 +36,11 @@ Public Class frmLogin
                     principal.Show()
                     Me.Hide()
                 Else
-                    MessageBox.Show("Credenciales incorrectas o usuario desactivado.", "Error de Acceso", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Toast.Show(Me, "Credenciales incorrectas o usuario desactivado.", ToastType.Error)
                 End If
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error al conectar con la base de datos: " & ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Toast.Show(Me, "Error al conectar con la base de datos: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 

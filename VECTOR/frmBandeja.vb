@@ -113,7 +113,7 @@ Public Class frmBandeja
             AplicarFiltroRapido()
 
         Catch ex As Exception
-            MessageBox.Show("Error al cargar datos: " & ex.Message)
+            Toast.Show(Me, "Error al cargar datos: " & ex.Message, ToastType.Error)
         End Try
     End Sub
     'Private Sub CargarGrilla()
@@ -345,13 +345,13 @@ Public Class frmBandeja
         Using db As New SecretariaDBEntities()
             Dim doc = db.Mae_Documento.Find(idDoc)
             If doc.IdOficinaActual <> SesionGlobal.OficinaID Then
-                MessageBox.Show("⛔ No puedes editar documentos que no están en tu oficina.", "Error")
+                Toast.Show(Me, "⛔ No puedes editar documentos que no están en tu oficina.", ToastType.Error)
                 Return
             End If
 
             Dim tieneRespuestas As Boolean = db.Mae_Documento.Any(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5)
             If tieneRespuestas Then
-                MessageBox.Show("⛔ EDICIÓN BLOQUEADA." & vbCrLf & "Este documento ya tiene respuestas oficiales.", "Integridad", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                Toast.Show(Me, "⛔ EDICIÓN BLOQUEADA." & vbCrLf & "Este documento ya tiene respuestas oficiales.", ToastType.Error)
                 Return
             End If
         End Using
@@ -363,7 +363,7 @@ Public Class frmBandeja
 
     Private Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
         If dgvPendientes.SelectedRows.Count = 0 Then
-            MessageBox.Show("Seleccione el documento.", "Atención")
+            Toast.Show(Me, "Seleccione el documento.", ToastType.Warning)
             Return
         End If
 
@@ -412,7 +412,7 @@ Public Class frmBandeja
     Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
         ' 1. VALIDACIÓN BÁSICA DE SELECCIÓN
         If dgvPendientes.SelectedRows.Count = 0 Then
-            MessageBox.Show("Seleccione el documento a vincular.", "Atención")
+            Toast.Show(Me, "Seleccione el documento a vincular.", ToastType.Warning)
             Return
         End If
 
@@ -433,11 +433,10 @@ Public Class frmBandeja
                     infoPadre = docPadreActual.Cat_TipoDocumento.Codigo & " " & docPadreActual.NumeroOficial
                 End If
 
-                MessageBox.Show("⛔ ACCIÓN BLOQUEADA" & vbCrLf & vbCrLf &
+                Toast.Show(Me, "⛔ ACCIÓN BLOQUEADA" & vbCrLf & vbCrLf &
                                 "Este documento NO ES LIBRE. Actualmente es un anexo del expediente:" & vbCrLf &
                                 "📂 " & infoPadre & vbCrLf & vbCrLf &
-                                "Para moverlo, primero debe desvincularlo de su padre actual.",
-                                "Integridad", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                "Para moverlo, primero debe desvincularlo de su padre actual.", ToastType.Warning)
                 Return
             End If
 
@@ -452,7 +451,7 @@ Public Class frmBandeja
 
             Dim docNuevoPadre = db.Mae_Documento.Find(idNuevoPadre)
             If docNuevoPadre Is Nothing Then
-                MessageBox.Show("El Nuevo Padre no existe.", "Error")
+                Toast.Show(Me, "El Nuevo Padre no existe.", ToastType.Error)
                 Return
             End If
 
@@ -507,7 +506,7 @@ Public Class frmBandeja
 
             ' Verificación final anti-bucle (por si acaso)
             If docNuevoPadre.IdDocumento = docAMover.IdDocumento Then
-                MessageBox.Show("⛔ ERROR: Referencia circular directa.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Toast.Show(Me, "⛔ ERROR: Referencia circular directa.", ToastType.Error)
                 Return
             End If
 
@@ -551,7 +550,7 @@ Public Class frmBandeja
                 db.SaveChanges()
 
                 AuditoriaSistema.RegistrarEvento($"Vinculación de {docAMover.NumeroOficial} a {docNuevoPadre.NumeroOficial}.", "DOCUMENTOS")
-                MessageBox.Show("✅ Operación exitosa.", "Vector")
+                Toast.Show(Me, "✅ Operación exitosa.", ToastType.Success)
             End If
         End Using
 
@@ -635,7 +634,7 @@ Public Class frmBandeja
             Dim doc = db.Mae_Documento.Find(idDoc)
 
             If db.Mae_Documento.Any(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5) Then
-                MessageBox.Show("Tiene hijos activos. No se puede eliminar.", "Error")
+                Toast.Show(Me, "Tiene hijos activos. No se puede eliminar.", ToastType.Error)
                 Return
             End If
 
@@ -692,7 +691,7 @@ Public Class frmBandeja
                 docPadreNumero = docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial
 
                 If idOficinaOrigen = SesionGlobal.OficinaID Then
-                    MessageBox.Show("Este documento/paquete ya está en tu oficina.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Toast.Show(Me, "Este documento/paquete ya está en tu oficina.", ToastType.Info)
                     Return
                 End If
 

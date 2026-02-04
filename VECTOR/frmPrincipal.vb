@@ -74,7 +74,7 @@
 
     Private Sub GestionUsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionUsuariosToolStripMenuItem.Click
         If Not PuedeGestionarUsuarios() Then
-            MessageBox.Show("Solo los usuarios con rol Administrador pueden gestionar usuarios.", "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Toast.Show(Me, "Solo los usuarios con rol Administrador pueden gestionar usuarios.", ToastType.Warning)
             Return
         End If
 

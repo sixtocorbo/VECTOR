@@ -59,7 +59,12 @@ Public Class frmAuditoria
             Using db As New SecretariaDBEntities()
                 Dim desde = dtpAuditoriaDesde.Value.Date
                 Dim hasta = dtpAuditoriaHasta.Value.Date.AddDays(1).AddTicks(-1)
-                Dim usuarioId As Integer = Convert.ToInt32(cmbAuditoriaUsuario.SelectedValue)
+
+                ' --- CORRECCIÓN: Conversión segura de ID ---
+                Dim usuarioId As Integer = 0
+                Integer.TryParse(Convert.ToString(cmbAuditoriaUsuario.SelectedValue), usuarioId)
+                ' -------------------------------------------
+
                 Dim modulo As String = If(cmbAuditoriaModulo.SelectedItem Is Nothing, "Todos", cmbAuditoriaModulo.SelectedItem.ToString())
                 Dim texto = txtAuditoriaBuscar.Text.Trim()
 
@@ -100,9 +105,18 @@ Public Class frmAuditoria
             Using db As New SecretariaDBEntities()
                 Dim desde = dtpTransaccionesDesde.Value.Date
                 Dim hasta = dtpTransaccionesHasta.Value.Date.AddDays(1).AddTicks(-1)
-                Dim usuarioId As Integer = Convert.ToInt32(cmbTransaccionesUsuario.SelectedValue)
-                Dim origenId As Integer = Convert.ToInt32(cmbTransaccionesOrigen.SelectedValue)
-                Dim destinoId As Integer = Convert.ToInt32(cmbTransaccionesDestino.SelectedValue)
+
+                ' --- CORRECCIÓN: Conversión segura de IDs ---
+                Dim usuarioId As Integer = 0
+                Integer.TryParse(Convert.ToString(cmbTransaccionesUsuario.SelectedValue), usuarioId)
+
+                Dim origenId As Integer = 0
+                Integer.TryParse(Convert.ToString(cmbTransaccionesOrigen.SelectedValue), origenId)
+
+                Dim destinoId As Integer = 0
+                Integer.TryParse(Convert.ToString(cmbTransaccionesDestino.SelectedValue), destinoId)
+                ' -------------------------------------------
+
                 Dim texto = txtTransaccionesBuscar.Text.Trim()
 
                 Dim query = db.Tra_Movimiento.Include("Mae_Documento.Cat_TipoDocumento").Include("Cat_Oficina").Include("Cat_Oficina1").Include("Cat_Usuario").Include("Cat_Estado").AsQueryable()
@@ -173,43 +187,58 @@ Public Class frmAuditoria
     End Sub
 
     Private Sub ConfigurarGridTransacciones()
-        If dgvTransacciones.Columns.Count = 0 Then
+        ' 1. Validación inicial de seguridad
+        If dgvTransacciones Is Nothing OrElse dgvTransacciones.Columns.Count = 0 Then
             Return
         End If
 
-        If dgvTransacciones.Columns.Contains("IdMovimiento") Then
-            dgvTransacciones.Columns("IdMovimiento").Visible = False
-        End If
+        Try
+            ' --- CORRECCIÓN: Columna ID ---
+            If dgvTransacciones.Columns.Contains("IdMovimiento") Then
+                dgvTransacciones.Columns("IdMovimiento").Visible = False
+            End If
 
-        If dgvTransacciones.Columns.Contains("Fecha") Then
-            dgvTransacciones.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-            dgvTransacciones.Columns("Fecha").Width = 140
-        End If
+            ' --- CORRECCIÓN CRÍTICA: Columna Fecha ---
+            If dgvTransacciones.Columns.Contains("Fecha") Then
+                Dim colFecha = dgvTransacciones.Columns("Fecha")
+                ' IMPORTANTE: Primero desactivar AutoSize antes de cambiar el Width para evitar el crash
+                colFecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                colFecha.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
+                colFecha.Width = 140
+            End If
 
-        If dgvTransacciones.Columns.Contains("Documento") Then
-            dgvTransacciones.Columns("Documento").Width = 160
-        End If
+            ' --- Resto de columnas ---
+            If dgvTransacciones.Columns.Contains("Documento") Then
+                dgvTransacciones.Columns("Documento").Width = 160
+            End If
 
-        If dgvTransacciones.Columns.Contains("Origen") Then
-            dgvTransacciones.Columns("Origen").Width = 160
-        End If
+            If dgvTransacciones.Columns.Contains("Origen") Then
+                dgvTransacciones.Columns("Origen").Width = 160
+            End If
 
-        If dgvTransacciones.Columns.Contains("Destino") Then
-            dgvTransacciones.Columns("Destino").Width = 160
-        End If
+            If dgvTransacciones.Columns.Contains("Destino") Then
+                dgvTransacciones.Columns("Destino").Width = 160
+            End If
 
-        If dgvTransacciones.Columns.Contains("Estado") Then
-            dgvTransacciones.Columns("Estado").Width = 120
-        End If
+            If dgvTransacciones.Columns.Contains("Estado") Then
+                dgvTransacciones.Columns("Estado").Width = 120
+            End If
 
-        If dgvTransacciones.Columns.Contains("Responsable") Then
-            dgvTransacciones.Columns("Responsable").Width = 120
-        End If
+            If dgvTransacciones.Columns.Contains("Responsable") Then
+                dgvTransacciones.Columns("Responsable").Width = 120
+            End If
 
-        If dgvTransacciones.Columns.Contains("Observacion") Then
-            dgvTransacciones.Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        End If
-        dgvTransacciones.ClearSelection()
+            ' La columna de Observación SI puede ser Fill, pero no le asignes Width fijo después
+            If dgvTransacciones.Columns.Contains("Observacion") Then
+                dgvTransacciones.Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            End If
+
+            dgvTransacciones.ClearSelection()
+
+        Catch ex As Exception
+            ' Este Try-Catch evita que un error visual detenga toda la aplicación
+            Console.WriteLine("Error configurando grid: " & ex.Message)
+        End Try
     End Sub
 
     Private Sub btnAuditoriaBuscar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaBuscar.Click

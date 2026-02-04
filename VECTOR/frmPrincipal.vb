@@ -81,6 +81,10 @@
         AbrirFormularioHijo(Of frmUsuarios)()
     End Sub
 
+    Private Sub AuditoriaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoriaToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmAuditoria)()
+    End Sub
+
     ' --- NUEVO: EVENTO PARA LA HERRAMIENTA DE UNIFICAR ---
     Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmUnificarOficinas)()

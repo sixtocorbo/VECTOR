@@ -194,13 +194,14 @@ Public Class frmAuditoria
 
         Try
             ' --- CORRECCIÓN: Columna ID ---
-            If dgvTransacciones.Columns.Contains("IdMovimiento") Then
-                dgvTransacciones.Columns("IdMovimiento").Visible = False
+            Dim colId = ObtenerColumnaTransaccion("IdMovimiento")
+            If colId IsNot Nothing Then
+                colId.Visible = False
             End If
 
             ' --- CORRECCIÓN CRÍTICA: Columna Fecha ---
-            If dgvTransacciones.Columns.Contains("Fecha") Then
-                Dim colFecha = dgvTransacciones.Columns("Fecha")
+            Dim colFecha = ObtenerColumnaTransaccion("Fecha")
+            If colFecha IsNot Nothing Then
                 ' IMPORTANTE: Primero desactivar AutoSize antes de cambiar el Width para evitar el crash
                 colFecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                 colFecha.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
@@ -208,29 +209,35 @@ Public Class frmAuditoria
             End If
 
             ' --- Resto de columnas ---
-            If dgvTransacciones.Columns.Contains("Documento") Then
-                dgvTransacciones.Columns("Documento").Width = 160
+            Dim colDocumento = ObtenerColumnaTransaccion("Documento")
+            If colDocumento IsNot Nothing Then
+                colDocumento.Width = 160
             End If
 
-            If dgvTransacciones.Columns.Contains("Origen") Then
-                dgvTransacciones.Columns("Origen").Width = 160
+            Dim colOrigen = ObtenerColumnaTransaccion("Origen")
+            If colOrigen IsNot Nothing Then
+                colOrigen.Width = 160
             End If
 
-            If dgvTransacciones.Columns.Contains("Destino") Then
-                dgvTransacciones.Columns("Destino").Width = 160
+            Dim colDestino = ObtenerColumnaTransaccion("Destino")
+            If colDestino IsNot Nothing Then
+                colDestino.Width = 160
             End If
 
-            If dgvTransacciones.Columns.Contains("Estado") Then
-                dgvTransacciones.Columns("Estado").Width = 120
+            Dim colEstado = ObtenerColumnaTransaccion("Estado")
+            If colEstado IsNot Nothing Then
+                colEstado.Width = 120
             End If
 
-            If dgvTransacciones.Columns.Contains("Responsable") Then
-                dgvTransacciones.Columns("Responsable").Width = 120
+            Dim colResponsable = ObtenerColumnaTransaccion("Responsable")
+            If colResponsable IsNot Nothing Then
+                colResponsable.Width = 120
             End If
 
             ' La columna de Observación SI puede ser Fill, pero no le asignes Width fijo después
-            If dgvTransacciones.Columns.Contains("Observacion") Then
-                dgvTransacciones.Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            Dim colObservacion = ObtenerColumnaTransaccion("Observacion")
+            If colObservacion IsNot Nothing Then
+                colObservacion.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             End If
 
             dgvTransacciones.ClearSelection()
@@ -240,6 +247,17 @@ Public Class frmAuditoria
             Console.WriteLine("Error configurando grid: " & ex.Message)
         End Try
     End Sub
+
+    Private Function ObtenerColumnaTransaccion(nombre As String) As DataGridViewColumn
+        For Each columna As DataGridViewColumn In dgvTransacciones.Columns
+            If String.Equals(columna.Name, nombre, StringComparison.OrdinalIgnoreCase) OrElse
+               String.Equals(columna.DataPropertyName, nombre, StringComparison.OrdinalIgnoreCase) Then
+                Return columna
+            End If
+        Next
+
+        Return Nothing
+    End Function
 
     Private Sub btnAuditoriaBuscar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaBuscar.Click
         CargarAuditoria()

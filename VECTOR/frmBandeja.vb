@@ -2,6 +2,7 @@
 Imports System.Drawing
 Imports System.Text
 Imports System.Reflection ' Necesario para el Doble Buffer
+Imports System.Threading.Tasks
 
 Public Class frmBandeja
 
@@ -20,7 +21,7 @@ Public Class frmBandeja
     ' =======================================================
     ' CARGA INICIAL
     ' =======================================================
-    Private Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Async Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             AppTheme.Aplicar(Me)
             ' --- TRUCO PRO: DOBLE BUFFER ---
@@ -38,7 +39,7 @@ Public Class frmBandeja
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
 
             ConfigurarBotones(False, False, False)
-            CargarGrilla()
+            Await CargarGrillaAsync()
         Catch ex As Exception
             Me.Text = "VECTOR - Sistema de Gestión"
             ConfigurarBotones(False, False, False)
@@ -55,12 +56,13 @@ Public Class frmBandeja
     ' =======================================================
     ' 1. CARGA DESDE BASE DE DATOS (Unit of Work + Tu Diseño)
     ' =======================================================
-    Private Sub CargarGrilla()
+    Private Async Function CargarGrillaAsync() As Task
         Try
-            Using db As New SecretariaDBEntities()
-                db.Configuration.LazyLoadingEnabled = False
+            Using uow As New UnitOfWork()
+                uow.Context.Configuration.LazyLoadingEnabled = False
 
-                Dim consulta = db.Mae_Documento.AsQueryable()
+                Dim repo = uow.Repository(Of Mae_Documento)()
+                Dim consulta = repo.GetQueryable()
 
                 ' A. FILTROS BD
                 consulta = consulta.Where(Function(d) d.IdEstadoActual <> 5)
@@ -72,7 +74,7 @@ Public Class frmBandeja
                 consulta = consulta.OrderByDescending(Function(d) d.FechaCreacion)
 
                 ' B. PROYECCIÓN DE DATOS PUROS
-                Dim listaDatos = consulta.Select(Function(d) New With {
+                Dim listaDatos = Await consulta.Select(Function(d) New With {
                     .ID = d.IdDocumento,
                     .Tipo = d.Cat_TipoDocumento.Codigo,
                     .Referencia = d.NumeroOficial,
@@ -82,10 +84,10 @@ Public Class frmBandeja
                     .Fecha = d.FechaRecepcion,
                     .Estado = d.Cat_Estado.Nombre,
                     .IdOficinaActual = d.IdOficinaActual,
-                .Cant_Respuestas = db.Mae_Documento.Where(Function(h) h.IdDocumentoPadre = d.IdDocumento And h.IdEstadoActual <> 5).Count(),
+                .Cant_Respuestas = repo.GetQueryable().Where(Function(h) h.IdDocumentoPadre = d.IdDocumento And h.IdEstadoActual <> 5).Count(),
                     .EsHijo = d.IdDocumentoPadre.HasValue,
-                   .RefPadre = If(d.IdDocumentoPadre.HasValue, db.Mae_Documento.Where(Function(p) p.IdDocumento = d.IdDocumentoPadre).Select(Function(p) p.Cat_TipoDocumento.Codigo & " " & p.NumeroOficial).FirstOrDefault(), "")
-                }).ToList()
+                   .RefPadre = If(d.IdDocumentoPadre.HasValue, repo.GetQueryable().Where(Function(p) p.IdDocumento = d.IdDocumentoPadre).Select(Function(p) p.Cat_TipoDocumento.Codigo & " " & p.NumeroOficial).FirstOrDefault(), "")
+                }).ToListAsync()
 
                 ' C. AJUSTES FINALES Y FORMATEO DE TEXTO (La Lógica que pediste)
                 Dim listaFinal = listaDatos.Select(Function(x) New With {
@@ -115,7 +117,7 @@ Public Class frmBandeja
         Catch ex As Exception
             Toast.Show(Me, "Error al cargar datos: " & ex.Message, ToastType.Error)
         End Try
-    End Sub
+    End Function
     'Private Sub CargarGrilla()
     '    Try
     '        ' ✅ USAR Y TIRAR: Conexión segura y optimizada
@@ -338,18 +340,23 @@ Public Class frmBandeja
     ' 5. ACCIONES (CRUD - CON Unit of Work)
     ' =======================================================
 
-    Private Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
+    Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim doc = db.Mae_Documento.Find(idDoc)
+        Using uow As New UnitOfWork()
+            Dim docRepo = uow.Repository(Of Mae_Documento)()
+            Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
+            If doc Is Nothing Then
+                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Return
+            End If
             If doc.IdOficinaActual <> SesionGlobal.OficinaID Then
                 Toast.Show(Me, "⛔ No puedes editar documentos que no están en tu oficina.", ToastType.Error)
                 Return
             End If
 
-            Dim tieneRespuestas As Boolean = db.Mae_Documento.Any(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5)
+            Dim tieneRespuestas As Boolean = Await docRepo.AnyAsync(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5)
             If tieneRespuestas Then
                 Toast.Show(Me, "⛔ EDICIÓN BLOQUEADA." & vbCrLf & "Este documento ya tiene respuestas oficiales.", ToastType.Error)
                 Return
@@ -358,10 +365,10 @@ Public Class frmBandeja
 
         Dim fEdicion As New frmMesaEntrada(idDoc)
         fEdicion.ShowDialog()
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
 
-    Private Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
+    Private Async Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
         If dgvPendientes.SelectedRows.Count = 0 Then
             Toast.Show(Me, "Seleccione el documento.", ToastType.Warning)
             Return
@@ -369,19 +376,28 @@ Public Class frmBandeja
 
         Dim idOficinaDoc As Integer = CInt(dgvPendientes.SelectedRows(0).Cells("IdOficinaActual").Value)
         If idOficinaDoc <> IdBandejaEntrada Then
-            EjecutarRecibirDocumento()
+            Await EjecutarRecibirDocumentoAsync()
             Return
         End If
 
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim docSeleccionado = db.Mae_Documento.Find(idDoc)
+        Using uow As New UnitOfWork()
+            Dim docRepo = uow.Repository(Of Mae_Documento)()
+            Dim docSeleccionado = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
+            If docSeleccionado Is Nothing Then
+                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Return
+            End If
             Dim idPadreReal As Long = If(docSeleccionado.IdDocumentoPadre.HasValue, docSeleccionado.IdDocumentoPadre.Value, docSeleccionado.IdDocumento)
-            Dim docPadre = db.Mae_Documento.Find(idPadreReal)
+            Dim docPadre = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idPadreReal)
+            If docPadre Is Nothing Then
+                Toast.Show(Me, "Documento padre no encontrado.", ToastType.Error)
+                Return
+            End If
             Dim hilo = docPadre.IdHiloConversacion
 
-            Dim ultimoHijo = db.Mae_Documento.Where(Function(d) d.IdHiloConversacion = hilo And d.IdDocumento <> docPadre.IdDocumento And d.IdEstadoActual <> 5).OrderByDescending(Function(d) d.FechaCreacion).FirstOrDefault()
+            Dim ultimoHijo = Await docRepo.GetQueryable().Where(Function(d) d.IdHiloConversacion = hilo And d.IdDocumento <> docPadre.IdDocumento And d.IdEstadoActual <> 5).OrderByDescending(Function(d) d.FechaCreacion).FirstOrDefaultAsync()
 
             Dim sb As New StringBuilder()
             sb.AppendLine("Vas a iniciar el trámite de PASE (Salida).")
@@ -407,9 +423,9 @@ Public Class frmBandeja
             End If
         End Using
 
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
-    Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
+    Private Async Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
         ' 1. VALIDACIÓN BÁSICA DE SELECCIÓN
         If dgvPendientes.SelectedRows.Count = 0 Then
             Toast.Show(Me, "Seleccione el documento a vincular.", ToastType.Warning)
@@ -418,15 +434,20 @@ Public Class frmBandeja
 
         Dim idDocSeleccionado As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim docAMover = db.Mae_Documento.Find(idDocSeleccionado)
+        Using uow As New UnitOfWork()
+            Dim docRepo = uow.Repository(Of Mae_Documento)()
+            Dim docAMover = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDocSeleccionado)
+            If docAMover Is Nothing Then
+                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Return
+            End If
 
             ' =========================================================================
             ' 🛡️ NIVEL 1: BLOQUEO SI YA ES HIJO (INTEGRIDAD)
             ' =========================================================================
             If docAMover.IdDocumentoPadre.HasValue Then
                 Dim idPadreActual = docAMover.IdDocumentoPadre.Value
-                Dim docPadreActual = db.Mae_Documento.Find(idPadreActual)
+                Dim docPadreActual = Await docRepo.GetQueryable().FirstOrDefaultAsync(Function(d) d.IdDocumento = idPadreActual)
                 Dim infoPadre As String = "ID: " & idPadreActual
 
                 If docPadreActual IsNot Nothing Then
@@ -449,7 +470,7 @@ Public Class frmBandeja
             Dim idNuevoPadre As Long = CLng(input)
             If idNuevoPadre = idDocSeleccionado Then Return ' No vincularse a sí mismo
 
-            Dim docNuevoPadre = db.Mae_Documento.Find(idNuevoPadre)
+            Dim docNuevoPadre = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idNuevoPadre)
             If docNuevoPadre Is Nothing Then
                 Toast.Show(Me, "El Nuevo Padre no existe.", ToastType.Error)
                 Return
@@ -474,7 +495,10 @@ Public Class frmBandeja
                         esDescendiente = True
                         Exit While
                     End If
-                    tempDoc = db.Mae_Documento.Find(tempDoc.IdDocumentoPadre.Value)
+                    tempDoc = Await docRepo.GetQueryable().FirstOrDefaultAsync(Function(d) d.IdDocumento = tempDoc.IdDocumentoPadre.Value)
+                    If tempDoc Is Nothing Then
+                        Exit While
+                    End If
                 End While
             End If
 
@@ -495,12 +519,16 @@ Public Class frmBandeja
                 ' Opcional: Si quieres que el nuevo jefe herede el hilo del viejo padre para mantener continuidad
                 ' docNuevoPadre.IdHiloConversacion = docAMover.IdHiloConversacion 
 
-                db.SaveChanges()
+                Await uow.CommitAsync()
             Else
                 ' 🟢 SI NO ES UN ENROQUE, AHORA SÍ APLICAMOS LA LÓGICA DEL ABUELO
                 ' Si el destino es un hijo cualquiera (no mío), apuntamos a su verdadero jefe
                 If docNuevoPadre.IdDocumentoPadre.HasValue Then
-                    docNuevoPadre = db.Mae_Documento.Find(docNuevoPadre.IdDocumentoPadre.Value)
+                    docNuevoPadre = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = docNuevoPadre.IdDocumentoPadre.Value)
+                    If docNuevoPadre Is Nothing Then
+                        Toast.Show(Me, "Padre real no encontrado.", ToastType.Error)
+                        Return
+                    End If
                 End If
             End If
 
@@ -524,7 +552,7 @@ Public Class frmBandeja
             If MessageBox.Show("¿Vincular " & docAMover.NumeroOficial & " al expediente " & docNuevoPadre.NumeroOficial & "?",
                                "Confirmar", MessageBoxButtons.YesNo) = DialogResult.Yes Then
 
-                Dim hijosHuerfanos = db.Mae_Documento.Where(Function(h) h.IdDocumentoPadre.HasValue AndAlso h.IdDocumentoPadre.Value = idDocSeleccionado).ToList()
+                Dim hijosHuerfanos = Await docRepo.GetQueryable(tracking:=True).Where(Function(h) h.IdDocumentoPadre.HasValue AndAlso h.IdDocumentoPadre.Value = idDocSeleccionado).ToListAsync()
                 Dim cantidadHijos As Integer = hijosHuerfanos.Count
 
                 If cantidadHijos > 0 Then
@@ -547,14 +575,14 @@ Public Class frmBandeja
                 docAMover.IdDocumentoPadre = docNuevoPadre.IdDocumento
                 docAMover.IdHiloConversacion = docNuevoPadre.IdHiloConversacion
 
-                db.SaveChanges()
+                Await uow.CommitAsync()
 
                 AuditoriaSistema.RegistrarEvento($"Vinculación de {docAMover.NumeroOficial} a {docNuevoPadre.NumeroOficial}.", "DOCUMENTOS")
                 Toast.Show(Me, "✅ Operación exitosa.", ToastType.Success)
             End If
         End Using
 
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
     'Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
     '    If dgvPendientes.SelectedRows.Count = 0 Then
@@ -626,23 +654,28 @@ Public Class frmBandeja
     '    CargarGrilla()
     'End Sub
 
-    Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
+    Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim doc = db.Mae_Documento.Find(idDoc)
+        Using uow As New UnitOfWork()
+            Dim docRepo = uow.Repository(Of Mae_Documento)()
+            Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
+            If doc Is Nothing Then
+                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Return
+            End If
 
-            If db.Mae_Documento.Any(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5) Then
+            If Await docRepo.AnyAsync(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5) Then
                 Toast.Show(Me, "Tiene hijos activos. No se puede eliminar.", ToastType.Error)
                 Return
             End If
 
             If doc.Tra_Movimiento.Count <= 1 Then
                 If MessageBox.Show("¿Borrar definitivamente?", "Eliminar", MessageBoxButtons.YesNo) = DialogResult.Yes Then
-                    db.Tra_Movimiento.RemoveRange(doc.Tra_Movimiento)
-                    db.Mae_Documento.Remove(doc)
-                    db.SaveChanges()
+                    uow.Context.Set(Of Tra_Movimiento)().RemoveRange(doc.Tra_Movimiento)
+                    uow.Context.Set(Of Mae_Documento)().Remove(doc)
+                    Await uow.CommitAsync()
                     AuditoriaSistema.RegistrarEvento($"Eliminación definitiva de documento {doc.NumeroOficial}.", "DOCUMENTOS")
                 End If
             Else
@@ -650,21 +683,21 @@ Public Class frmBandeja
                     doc.IdEstadoActual = 5
                     Dim mov As New Tra_Movimiento() With {.IdDocumento = idDoc, .FechaMovimiento = DateTime.Now, .IdOficinaOrigen = SesionGlobal.OficinaID, .IdOficinaDestino = SesionGlobal.OficinaID, .IdUsuarioResponsable = SesionGlobal.UsuarioID, .ObservacionPase = "ANULADO", .IdEstadoEnEseMomento = 5}
                     doc.Tra_Movimiento.Add(mov)
-                    db.SaveChanges()
+                    Await uow.CommitAsync()
                     AuditoriaSistema.RegistrarEvento($"Anulación de documento {doc.NumeroOficial}.", "DOCUMENTOS")
                 End If
             End If
         End Using
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
 
-    Private Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
+    Private Async Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
         Dim fNuevo As New frmMesaEntrada()
         fNuevo.ShowDialog()
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
 
-    Private Sub EjecutarRecibirDocumento()
+    Private Async Function EjecutarRecibirDocumentoAsync() As Task
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
@@ -676,12 +709,13 @@ Public Class frmBandeja
             Dim docPadreNumero As String = ""
             Dim docPadreHilo As Guid
 
-            Using db As New SecretariaDBEntities()
-                Dim docBase = db.Mae_Documento.Find(idDoc)
+            Using uow As New UnitOfWork()
+                Dim docRepo = uow.Repository(Of Mae_Documento)()
+                Dim docBase = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
                 If docBase Is Nothing Then Return
 
                 idPadreReal = If(docBase.IdDocumentoPadre.HasValue, docBase.IdDocumentoPadre.Value, docBase.IdDocumento)
-                Dim docPadre = db.Mae_Documento.Find(idPadreReal)
+                Dim docPadre = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idPadreReal)
                 If docPadre Is Nothing Then Return
 
                 docPadreHilo = docPadre.IdHiloConversacion
@@ -695,7 +729,7 @@ Public Class frmBandeja
                     Return
                 End If
 
-                Dim docsA_Recibir = db.Mae_Documento.Where(Function(d) d.IdHiloConversacion = docPadreHilo And d.IdOficinaActual = idOficinaOrigen).ToList()
+                Dim docsA_Recibir = Await docRepo.GetQueryable(tracking:=True).Where(Function(d) d.IdHiloConversacion = docPadreHilo And d.IdOficinaActual = idOficinaOrigen).ToListAsync()
                 Dim totalDocs As Integer = docsA_Recibir.Count
 
                 If totalDocs = 0 Then
@@ -729,24 +763,24 @@ Public Class frmBandeja
                         }
                         d.Tra_Movimiento.Add(mov)
                     Next
-                    db.SaveChanges()
+                    Await uow.CommitAsync()
                     AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Docs: {totalDocs}. Exp: {docPadreNumero}.", "RECEPCION")
                 End If
             End Using
 
-            CargarGrilla()
+            Await CargarGrillaAsync()
 
             If MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
                 fRespuesta.ShowDialog()
-                CargarGrilla()
+                Await CargarGrillaAsync()
             End If
 
         Catch ex As Exception
             Toast.Show("Error crítico al intentar recibir: " & ex.Message, ToastType.Error)
-            CargarGrilla()
+            Await CargarGrillaAsync()
         End Try
-    End Sub
+    End Function
 
     Private Sub btnHistorial_Click(sender As Object, e As EventArgs) Handles btnHistorial.Click
         If dgvPendientes.SelectedRows.Count = 0 Then Return
@@ -755,15 +789,15 @@ Public Class frmBandeja
         fHist.ShowDialog()
     End Sub
 
-    Private Sub chkVerDerivados_CheckedChanged(sender As Object, e As EventArgs) Handles chkVerDerivados.CheckedChanged
-        CargarGrilla()
+    Private Async Sub chkVerDerivados_CheckedChanged(sender As Object, e As EventArgs) Handles chkVerDerivados.CheckedChanged
+        Await CargarGrillaAsync()
     End Sub
-    Private Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
+    Private Async Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
         txtBuscar.Clear()
-        CargarGrilla()
+        Await CargarGrillaAsync()
     End Sub
 
-    Private Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click
+    Private Async Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click
         ' 1. VALIDACIÓN: ¿HAY ALGO SELECCIONADO?
         If dgvPendientes.SelectedRows.Count = 0 Then
             Toast.Show("Seleccione el documento a desvincular (sacar de la familia).", ToastType.Warning)
@@ -772,8 +806,13 @@ Public Class frmBandeja
 
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim doc = db.Mae_Documento.Find(idDoc)
+        Using uow As New UnitOfWork()
+            Dim docRepo = uow.Repository(Of Mae_Documento)()
+            Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
+            If doc Is Nothing Then
+                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Return
+            End If
 
             ' 2. VALIDACIÓN: ¿REALMENTE ES UN HIJO?
             If Not doc.IdDocumentoPadre.HasValue Then
@@ -783,7 +822,7 @@ Public Class frmBandeja
             End If
 
             ' Obtenemos datos del padre para el mensaje
-            Dim padre = db.Mae_Documento.Find(doc.IdDocumentoPadre.Value)
+            Dim padre = Await docRepo.GetQueryable().FirstOrDefaultAsync(Function(d) d.IdDocumento = doc.IdDocumentoPadre.Value)
             Dim nombrePadre As String = If(padre IsNot Nothing, padre.NumeroOficial, "Desconocido")
 
             ' 3. CONFIRMACIÓN DE SEGURIDAD
@@ -802,17 +841,17 @@ Public Class frmBandeja
 
                 ' 5. GESTIÓN DE ARRASTRE (Si este hijo tenía sus propios sub-adjuntos, se los lleva con él)
                 ' Aunque con el "Aplanamiento" esto es raro, es mejor prevenir y actualizar a sus descendientes
-                Dim susHijos = db.Mae_Documento.Where(Function(h) h.IdDocumentoPadre = doc.IdDocumento).ToList()
+                Dim susHijos = Await docRepo.GetQueryable(tracking:=True).Where(Function(h) h.IdDocumentoPadre = doc.IdDocumento).ToListAsync()
                 For Each hijo In susHijos
                     hijo.IdHiloConversacion = nuevoHilo
                 Next
 
-                db.SaveChanges()
+                Await uow.CommitAsync()
 
                 AuditoriaSistema.RegistrarEvento($"Documento {doc.NumeroOficial} independizado del exp {nombrePadre}.", "DESVINCULACION")
                 Toast.Show("✅ Documento independizado correctamente.", ToastType.Success)
 
-                CargarGrilla()
+                Await CargarGrillaAsync()
             End If
         End Using
     End Sub

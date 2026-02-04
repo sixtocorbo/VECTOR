@@ -19,6 +19,7 @@ Partial Class frmHistorial
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.PanelHeader = New System.Windows.Forms.Panel()
+        Me.btnPrint = New System.Windows.Forms.Button()
         Me.lblAsunto = New System.Windows.Forms.Label()
         Me.lblNumero = New System.Windows.Forms.Label()
         Me.dgvHistoria = New System.Windows.Forms.DataGridView()
@@ -31,6 +32,7 @@ Partial Class frmHistorial
         '
         Me.PanelHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.PanelHeader.Controls.Add(Me.btnClose)
+        Me.PanelHeader.Controls.Add(Me.btnPrint)
         Me.PanelHeader.Controls.Add(Me.lblAsunto)
         Me.PanelHeader.Controls.Add(Me.lblNumero)
         Me.PanelHeader.Dock = System.Windows.Forms.DockStyle.Top
@@ -38,6 +40,19 @@ Partial Class frmHistorial
         Me.PanelHeader.Name = "PanelHeader"
         Me.PanelHeader.Size = New System.Drawing.Size(800, 80)
         Me.PanelHeader.TabIndex = 0
+        '
+        'btnPrint
+        '
+        Me.btnPrint.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnPrint.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnPrint.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnPrint.ForeColor = System.Drawing.Color.White
+        Me.btnPrint.Location = New System.Drawing.Point(662, 12)
+        Me.btnPrint.Name = "btnPrint"
+        Me.btnPrint.Size = New System.Drawing.Size(85, 23)
+        Me.btnPrint.TabIndex = 3
+        Me.btnPrint.Text = "Imprimir"
+        Me.btnPrint.UseVisualStyleBackColor = False
         '
         'lblAsunto
         '
@@ -121,4 +136,5 @@ Partial Class frmHistorial
     Friend WithEvents lblNumero As Label
     Friend WithEvents dgvHistoria As DataGridView
     Friend WithEvents btnClose As Button
+    Friend WithEvents btnPrint As Button
 End Class

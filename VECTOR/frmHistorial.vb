@@ -1,15 +1,22 @@
 ﻿Imports System.Data.Entity
+Imports System.Drawing
 Imports System.Linq ' Aseguramos que LINQ esté disponible para las listas
 
 Public Class frmHistorial
 
     Private db As New SecretariaDBEntities()
     Private _idDocumento As Long
+    Private WithEvents printDoc As New Printing.PrintDocument()
+    Private printDialog As New PrintDialog()
+    Private printBitmap As Bitmap
 
     ' Constructor que obliga a pasar el ID
     Public Sub New(idDoc As Long)
         InitializeComponent()
         _idDocumento = idDoc
+        printDialog.Document = printDoc
+        AddHandler printDoc.PrintPage, AddressOf printDoc_PrintPage
+        AddHandler printDoc.EndPrint, AddressOf printDoc_EndPrint
     End Sub
 
     Private Sub frmHistorial_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -113,6 +120,45 @@ Public Class frmHistorial
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
+    End Sub
+
+    Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
+        Try
+            Using bmp As New Bitmap(Me.ClientSize.Width, Me.ClientSize.Height)
+                Me.DrawToBitmap(bmp, New Rectangle(Point.Empty, bmp.Size))
+                printBitmap = CType(bmp.Clone(), Bitmap)
+            End Using
+
+            If printDialog.ShowDialog(Me) = DialogResult.OK Then
+                printDoc.Print()
+            End If
+        Catch ex As Exception
+            Toast.Show(Me, "Error al imprimir el historial: " & ex.Message, ToastType.Error)
+        End Try
+    End Sub
+
+    Private Sub printDoc_PrintPage(sender As Object, e As Printing.PrintPageEventArgs)
+        If printBitmap Is Nothing Then
+            e.HasMorePages = False
+            Return
+        End If
+
+        Dim marginBounds = e.MarginBounds
+        Dim scale As Single = Math.Min(marginBounds.Width / printBitmap.Width, marginBounds.Height / printBitmap.Height)
+        Dim scaledWidth = CInt(printBitmap.Width * scale)
+        Dim scaledHeight = CInt(printBitmap.Height * scale)
+        Dim x = marginBounds.Left + (marginBounds.Width - scaledWidth) \ 2
+        Dim y = marginBounds.Top
+
+        e.Graphics.DrawImage(printBitmap, New Rectangle(x, y, scaledWidth, scaledHeight))
+        e.HasMorePages = False
+    End Sub
+
+    Private Sub printDoc_EndPrint(sender As Object, e As Printing.PrintEventArgs)
+        If printBitmap IsNot Nothing Then
+            printBitmap.Dispose()
+            printBitmap = Nothing
+        End If
     End Sub
 
 End Class

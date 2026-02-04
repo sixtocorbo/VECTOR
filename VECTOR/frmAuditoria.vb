@@ -24,7 +24,7 @@ Public Class frmAuditoria
                 .Nombre = u.UsuarioLogin & " - " & u.NombreCompleto
             }).ToList()
 
-            usuarios.Insert(0, New With {Key .Id = 0, Key .Nombre = "Todos"})
+            usuarios.Insert(0, New With {.Id = 0, .Nombre = "Todos"})
 
             cmbAuditoriaUsuario.DisplayMember = "Nombre"
             cmbAuditoriaUsuario.ValueMember = "Id"
@@ -42,7 +42,7 @@ Public Class frmAuditoria
                 .Id = o.IdOficina,
                 .Nombre = o.Nombre
             }).ToList()
-            oficinas.Insert(0, New With {Key .Id = 0, Key .Nombre = "Todas"})
+            oficinas.Insert(0, New With {.Id = 0, .Nombre = "Todas"})
 
             cmbTransaccionesOrigen.DisplayMember = "Nombre"
             cmbTransaccionesOrigen.ValueMember = "Id"

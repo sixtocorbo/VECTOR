@@ -2,11 +2,21 @@
 
 Public Class frmAuditoria
 
+    ' --- TEMPORIZADORES PARA EVITAR QUE SE TRABE AL ESCRIBIR (DEBOUNCE) ---
+    Private WithEvents tmrBusquedaAuditoria As New Timer With {.Interval = 500}
+    Private WithEvents tmrBusquedaTransacciones As New Timer With {.Interval = 500}
+    Private _cargandoCombos As Boolean = False
+
     Private Sub frmAuditoria_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         InicializarFechas()
         CargarCombos()
+
+        ' Cargar datos iniciales
         CargarAuditoria()
         CargarTransacciones()
+
+        ' Suscribir eventos manuales para Combos (para evitar disparos durante la carga)
+        SuscribirEventosCambio()
     End Sub
 
     Private Sub InicializarFechas()
@@ -18,52 +28,103 @@ Public Class frmAuditoria
     End Sub
 
     Private Sub CargarCombos()
-        Using db As New SecretariaDBEntities()
-            Dim usuarios = db.Cat_Usuario.OrderBy(Function(u) u.UsuarioLogin).Select(Function(u) New With {
-                .Id = u.IdUsuario,
-                .Nombre = u.UsuarioLogin & " - " & u.NombreCompleto
-            }).ToList()
+        _cargandoCombos = True ' Bloqueamos eventos mientras cargamos
+        Try
+            Using db As New SecretariaDBEntities()
+                Dim usuarios = db.Cat_Usuario.OrderBy(Function(u) u.UsuarioLogin).Select(Function(u) New With {
+                    .Id = u.IdUsuario,
+                    .Nombre = u.UsuarioLogin & " - " & u.NombreCompleto
+                }).ToList()
 
-            usuarios.Insert(0, New With {.Id = 0, .Nombre = "Todos"})
+                usuarios.Insert(0, New With {.Id = 0, .Nombre = "Todos"})
 
-            cmbAuditoriaUsuario.DisplayMember = "Nombre"
-            cmbAuditoriaUsuario.ValueMember = "Id"
-            cmbAuditoriaUsuario.DataSource = usuarios.ToList()
+                cmbAuditoriaUsuario.DisplayMember = "Nombre"
+                cmbAuditoriaUsuario.ValueMember = "Id"
+                cmbAuditoriaUsuario.DataSource = usuarios.ToList()
 
-            cmbTransaccionesUsuario.DisplayMember = "Nombre"
-            cmbTransaccionesUsuario.ValueMember = "Id"
-            cmbTransaccionesUsuario.DataSource = usuarios.ToList()
+                cmbTransaccionesUsuario.DisplayMember = "Nombre"
+                cmbTransaccionesUsuario.ValueMember = "Id"
+                cmbTransaccionesUsuario.DataSource = usuarios.ToList()
 
-            Dim modulos = db.EventosSistema.Select(Function(e) e.Modulo).Distinct().OrderBy(Function(m) m).ToList()
-            modulos.Insert(0, "Todos")
-            cmbAuditoriaModulo.DataSource = modulos
+                Dim modulos = db.EventosSistema.Select(Function(e) e.Modulo).Distinct().OrderBy(Function(m) m).ToList()
+                modulos.Insert(0, "Todos")
+                cmbAuditoriaModulo.DataSource = modulos
 
-            Dim oficinas = db.Cat_Oficina.OrderBy(Function(o) o.Nombre).Select(Function(o) New With {
-                .Id = o.IdOficina,
-                .Nombre = o.Nombre
-            }).ToList()
-            oficinas.Insert(0, New With {.Id = 0, .Nombre = "Todas"})
+                Dim oficinas = db.Cat_Oficina.OrderBy(Function(o) o.Nombre).Select(Function(o) New With {
+                    .Id = o.IdOficina,
+                    .Nombre = o.Nombre
+                }).ToList()
+                oficinas.Insert(0, New With {.Id = 0, .Nombre = "Todas"})
 
-            cmbTransaccionesOrigen.DisplayMember = "Nombre"
-            cmbTransaccionesOrigen.ValueMember = "Id"
-            cmbTransaccionesOrigen.DataSource = oficinas.ToList()
+                cmbTransaccionesOrigen.DisplayMember = "Nombre"
+                cmbTransaccionesOrigen.ValueMember = "Id"
+                cmbTransaccionesOrigen.DataSource = oficinas.ToList()
 
-            cmbTransaccionesDestino.DisplayMember = "Nombre"
-            cmbTransaccionesDestino.ValueMember = "Id"
-            cmbTransaccionesDestino.DataSource = oficinas.ToList()
-        End Using
+                cmbTransaccionesDestino.DisplayMember = "Nombre"
+                cmbTransaccionesDestino.ValueMember = "Id"
+                cmbTransaccionesDestino.DataSource = oficinas.ToList()
+            End Using
+        Finally
+            _cargandoCombos = False ' Liberamos eventos
+        End Try
     End Sub
 
+    Private Sub SuscribirEventosCambio()
+        ' Eventos para disparar búsqueda al cambiar selección
+        AddHandler cmbAuditoriaUsuario.SelectedIndexChanged, AddressOf FiltroAuditoriaCambiado
+        AddHandler cmbAuditoriaModulo.SelectedIndexChanged, AddressOf FiltroAuditoriaCambiado
+        AddHandler dtpAuditoriaDesde.ValueChanged, AddressOf FiltroAuditoriaCambiado
+        AddHandler dtpAuditoriaHasta.ValueChanged, AddressOf FiltroAuditoriaCambiado
+
+        AddHandler cmbTransaccionesUsuario.SelectedIndexChanged, AddressOf FiltroTransaccionesCambiado
+        AddHandler cmbTransaccionesOrigen.SelectedIndexChanged, AddressOf FiltroTransaccionesCambiado
+        AddHandler cmbTransaccionesDestino.SelectedIndexChanged, AddressOf FiltroTransaccionesCambiado
+        AddHandler dtpTransaccionesDesde.ValueChanged, AddressOf FiltroTransaccionesCambiado
+        AddHandler dtpTransaccionesHasta.ValueChanged, AddressOf FiltroTransaccionesCambiado
+    End Sub
+
+    ' --- EVENTOS DE TEXTO (LÓGICA ANTI-CONGELAMIENTO) ---
+    Private Sub txtAuditoriaBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtAuditoriaBuscar.TextChanged
+        ' Reiniciar el timer. La búsqueda se hará cuando el usuario deje de escribir por 500ms
+        tmrBusquedaAuditoria.Stop()
+        tmrBusquedaAuditoria.Start()
+    End Sub
+
+    Private Sub tmrBusquedaAuditoria_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaAuditoria.Tick
+        tmrBusquedaAuditoria.Stop()
+        CargarAuditoria() ' Ejecuta la búsqueda real
+    End Sub
+
+    Private Sub txtTransaccionesBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtTransaccionesBuscar.TextChanged
+        tmrBusquedaTransacciones.Stop()
+        tmrBusquedaTransacciones.Start()
+    End Sub
+
+    Private Sub tmrBusquedaTransacciones_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaTransacciones.Tick
+        tmrBusquedaTransacciones.Stop()
+        CargarTransacciones() ' Ejecuta la búsqueda real
+    End Sub
+
+    ' --- MANEJADORES DE FILTROS INMEDIATOS ---
+    Private Sub FiltroAuditoriaCambiado(sender As Object, e As EventArgs)
+        If _cargandoCombos Then Return
+        CargarAuditoria()
+    End Sub
+
+    Private Sub FiltroTransaccionesCambiado(sender As Object, e As EventArgs)
+        If _cargandoCombos Then Return
+        CargarTransacciones()
+    End Sub
+
+    ' --- CARGA DE DATOS (CON BÚSQUEDA INTELIGENTE) ---
     Private Sub CargarAuditoria()
         Try
             Using db As New SecretariaDBEntities()
                 Dim desde = dtpAuditoriaDesde.Value.Date
                 Dim hasta = dtpAuditoriaHasta.Value.Date.AddDays(1).AddTicks(-1)
 
-                ' --- CORRECCIÓN: Conversión segura de ID ---
                 Dim usuarioId As Integer = 0
                 Integer.TryParse(Convert.ToString(cmbAuditoriaUsuario.SelectedValue), usuarioId)
-                ' -------------------------------------------
 
                 Dim modulo As String = If(cmbAuditoriaModulo.SelectedItem Is Nothing, "Todos", cmbAuditoriaModulo.SelectedItem.ToString())
                 Dim texto = txtAuditoriaBuscar.Text.Trim()
@@ -79,9 +140,18 @@ Public Class frmAuditoria
                     query = query.Where(Function(e) e.Modulo = modulo)
                 End If
 
-                If texto <> String.Empty Then
-                    query = query.Where(Function(e) e.Descripcion.Contains(texto))
+                ' --- BÚSQUEDA INTELIGENTE (PALABRAS SUELTAS) ---
+                If Not String.IsNullOrWhiteSpace(texto) Then
+                    Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+                    For Each palabra In palabras
+                        Dim p = palabra ' Variable local para lambda
+                        ' Busca que la palabra exista en Descripcion O Usuario O Modulo
+                        query = query.Where(Function(e) e.Descripcion.Contains(p) OrElse
+                                                        e.Cat_Usuario.UsuarioLogin.Contains(p) OrElse
+                                                        e.Modulo.Contains(p))
+                    Next
                 End If
+                ' ------------------------------------------------
 
                 Dim datos = query.OrderByDescending(Function(e) e.FechaEvento).Select(Function(e) New With {
                     .IdEvento = e.IdEvento,
@@ -96,7 +166,8 @@ Public Class frmAuditoria
                 MostrarDetalleAuditoria()
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error al cargar la auditoría: " & ex.Message, "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            ' Evitar msgbox molestos si se está escribiendo rápido, escribir a consola mejor
+            Console.WriteLine("Error búsqueda auditoría: " & ex.Message)
         End Try
     End Sub
 
@@ -106,7 +177,6 @@ Public Class frmAuditoria
                 Dim desde = dtpTransaccionesDesde.Value.Date
                 Dim hasta = dtpTransaccionesHasta.Value.Date.AddDays(1).AddTicks(-1)
 
-                ' --- CORRECCIÓN: Conversión segura de IDs ---
                 Dim usuarioId As Integer = 0
                 Integer.TryParse(Convert.ToString(cmbTransaccionesUsuario.SelectedValue), usuarioId)
 
@@ -115,7 +185,6 @@ Public Class frmAuditoria
 
                 Dim destinoId As Integer = 0
                 Integer.TryParse(Convert.ToString(cmbTransaccionesDestino.SelectedValue), destinoId)
-                ' -------------------------------------------
 
                 Dim texto = txtTransaccionesBuscar.Text.Trim()
 
@@ -134,9 +203,22 @@ Public Class frmAuditoria
                     query = query.Where(Function(m) m.IdOficinaDestino = destinoId)
                 End If
 
-                If texto <> String.Empty Then
-                    query = query.Where(Function(m) m.Mae_Documento.NumeroOficial.Contains(texto) OrElse m.Mae_Documento.NumeroInterno.Contains(texto) OrElse m.Mae_Documento.Asunto.Contains(texto))
+                ' --- BÚSQUEDA INTELIGENTE AMPLIA (PALABRAS SUELTAS) ---
+                If Not String.IsNullOrWhiteSpace(texto) Then
+                    Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+                    For Each palabra In palabras
+                        Dim p = palabra
+                        ' La palabra debe estar en ALGUNO de estos campos.
+                        ' Al iterar con "Where", forzamos a que CADA palabra del buscador coincida con algo.
+                        query = query.Where(Function(m) m.Mae_Documento.NumeroOficial.Contains(p) OrElse
+                                                        m.Mae_Documento.NumeroInterno.Contains(p) OrElse
+                                                        m.Mae_Documento.Asunto.Contains(p) OrElse
+                                                        m.ObservacionPase.Contains(p) OrElse
+                                                        m.Cat_Oficina.Nombre.Contains(p) OrElse
+                                                        m.Cat_Oficina1.Nombre.Contains(p))
+                    Next
                 End If
+                ' --------------------------------------------------------
 
                 Dim datos = query.OrderByDescending(Function(m) m.FechaMovimiento).Select(Function(m) New With {
                     .IdMovimiento = m.IdMovimiento,
@@ -150,102 +232,67 @@ Public Class frmAuditoria
                 }).ToList()
 
                 dgvTransacciones.DataSource = datos
-                ConfigurarGridTransacciones()
+                ' ConfigurarGridTransacciones se llama en DataBindingComplete
                 MostrarDetalleTransaccion()
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error al cargar transacciones: " & ex.Message, "Transacciones", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Console.WriteLine("Error búsqueda transacciones: " & ex.Message)
         End Try
     End Sub
 
+    ' --- RESTO DE MÉTODOS DE VISUALIZACIÓN (IGUAL QUE ANTES) ---
+
+    Private Sub dgvTransacciones_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvTransacciones.DataBindingComplete
+        ConfigurarGridTransacciones()
+    End Sub
+
     Private Sub ConfigurarGridAuditoria()
-        If dgvAuditoria.Columns.Count = 0 Then
-            Return
-        End If
-
-        If dgvAuditoria.Columns.Contains("IdEvento") Then
-            dgvAuditoria.Columns("IdEvento").Visible = False
-        End If
-
+        If dgvAuditoria.Columns.Count = 0 Then Return
+        If dgvAuditoria.Columns.Contains("IdEvento") Then dgvAuditoria.Columns("IdEvento").Visible = False
         If dgvAuditoria.Columns.Contains("Fecha") Then
             dgvAuditoria.Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
             dgvAuditoria.Columns("Fecha").Width = 140
         End If
-
-        If dgvAuditoria.Columns.Contains("Usuario") Then
-            dgvAuditoria.Columns("Usuario").Width = 160
-        End If
-
-        If dgvAuditoria.Columns.Contains("Modulo") Then
-            dgvAuditoria.Columns("Modulo").Width = 120
-        End If
-
-        If dgvAuditoria.Columns.Contains("Descripcion") Then
-            dgvAuditoria.Columns("Descripcion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        End If
+        If dgvAuditoria.Columns.Contains("Usuario") Then dgvAuditoria.Columns("Usuario").Width = 160
+        If dgvAuditoria.Columns.Contains("Modulo") Then dgvAuditoria.Columns("Modulo").Width = 120
+        If dgvAuditoria.Columns.Contains("Descripcion") Then dgvAuditoria.Columns("Descripcion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         dgvAuditoria.ClearSelection()
     End Sub
 
     Private Sub ConfigurarGridTransacciones()
-        ' 1. Validación inicial de seguridad
-        If dgvTransacciones Is Nothing OrElse dgvTransacciones.Columns.Count = 0 Then
-            Return
-        End If
-
+        If dgvTransacciones Is Nothing OrElse dgvTransacciones.Columns.Count = 0 Then Return
         Try
-            ' --- CORRECCIÓN: Columna ID ---
-            Dim colId = ObtenerColumnaTransaccion("IdMovimiento")
-            If colId IsNot Nothing Then
-                colId.Visible = False
-            End If
-
-            ' --- CORRECCIÓN CRÍTICA: Columna Fecha ---
-            Dim colFecha = ObtenerColumnaTransaccion("Fecha")
-            If colFecha IsNot Nothing Then
-                ' IMPORTANTE: Primero desactivar AutoSize antes de cambiar el Width para evitar el crash
-                colFecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                colFecha.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
-                colFecha.Width = 140
-            End If
-
-            ' --- Resto de columnas ---
-            Dim colDocumento = ObtenerColumnaTransaccion("Documento")
-            If colDocumento IsNot Nothing Then
-                colDocumento.Width = 160
-            End If
-
-            Dim colOrigen = ObtenerColumnaTransaccion("Origen")
-            If colOrigen IsNot Nothing Then
-                colOrigen.Width = 160
-            End If
-
-            Dim colDestino = ObtenerColumnaTransaccion("Destino")
-            If colDestino IsNot Nothing Then
-                colDestino.Width = 160
-            End If
-
-            Dim colEstado = ObtenerColumnaTransaccion("Estado")
-            If colEstado IsNot Nothing Then
-                colEstado.Width = 120
-            End If
-
-            Dim colResponsable = ObtenerColumnaTransaccion("Responsable")
-            If colResponsable IsNot Nothing Then
-                colResponsable.Width = 120
-            End If
-
-            ' La columna de Observación SI puede ser Fill, pero no le asignes Width fijo después
-            Dim colObservacion = ObtenerColumnaTransaccion("Observacion")
-            If colObservacion IsNot Nothing Then
-                colObservacion.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            End If
-
+            dgvTransacciones.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+            AjustarColumna("IdMovimiento", visible:=False)
+            AjustarColumna("Fecha", width:=140, formato:="dd/MM/yyyy HH:mm")
+            AjustarColumna("Documento", width:=160)
+            AjustarColumna("Origen", width:=160)
+            AjustarColumna("Destino", width:=160)
+            AjustarColumna("Estado", width:=120)
+            AjustarColumna("Responsable", width:=120)
+            AjustarColumnaFill("Observacion")
             dgvTransacciones.ClearSelection()
-
         Catch ex As Exception
-            ' Este Try-Catch evita que un error visual detenga toda la aplicación
             Console.WriteLine("Error configurando grid: " & ex.Message)
         End Try
+    End Sub
+
+    Private Sub AjustarColumna(nombre As String, Optional width As Integer? = Nothing, Optional formato As String = Nothing, Optional visible As Boolean? = Nothing)
+        Dim col = ObtenerColumnaTransaccion(nombre)
+        If col Is Nothing OrElse col.DataGridView Is Nothing Then Exit Sub
+        If visible.HasValue Then col.Visible = visible.Value
+        If width.HasValue Then
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+            col.Width = width.Value
+        End If
+        If Not String.IsNullOrEmpty(formato) Then col.DefaultCellStyle.Format = formato
+    End Sub
+
+    Private Sub AjustarColumnaFill(nombre As String)
+        Dim col = ObtenerColumnaTransaccion(nombre)
+        If col IsNot Nothing AndAlso col.DataGridView IsNot Nothing Then
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        End If
     End Sub
 
     Private Function ObtenerColumnaTransaccion(nombre As String) As DataGridViewColumn
@@ -255,8 +302,14 @@ Public Class frmAuditoria
                 Return columna
             End If
         Next
-
         Return Nothing
+    End Function
+
+    Private Function ObtenerValorCelda(row As DataGridViewRow, nombreColumna As String) As String
+        Dim col = ObtenerColumnaTransaccion(nombreColumna)
+        If col Is Nothing Then Return String.Empty
+        Dim valor = row.Cells(col.Index).Value
+        Return If(valor Is Nothing, String.Empty, Convert.ToString(valor))
     End Function
 
     Private Sub btnAuditoriaBuscar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaBuscar.Click
@@ -300,7 +353,6 @@ Public Class frmAuditoria
             txtDetalleAuditoriaDescripcion.Text = String.Empty
             Return
         End If
-
         Dim fila = dgvAuditoria.CurrentRow
         lblDetalleAuditoriaFecha.Text = "Fecha: " & Convert.ToDateTime(fila.Cells("Fecha").Value).ToString("dd/MM/yyyy HH:mm")
         lblDetalleAuditoriaUsuario.Text = "Usuario: " & Convert.ToString(fila.Cells("Usuario").Value)
@@ -319,15 +371,20 @@ Public Class frmAuditoria
             txtDetalleTransaccionObservacion.Text = String.Empty
             Return
         End If
-
         Dim fila = dgvTransacciones.CurrentRow
-        lblDetalleTransaccionFecha.Text = "Fecha: " & Convert.ToDateTime(fila.Cells("Fecha").Value).ToString("dd/MM/yyyy HH:mm")
-        lblDetalleTransaccionDocumento.Text = "Documento: " & Convert.ToString(fila.Cells("Documento").Value)
-        lblDetalleTransaccionOrigen.Text = "Origen: " & Convert.ToString(fila.Cells("Origen").Value)
-        lblDetalleTransaccionDestino.Text = "Destino: " & Convert.ToString(fila.Cells("Destino").Value)
-        lblDetalleTransaccionEstado.Text = "Estado: " & Convert.ToString(fila.Cells("Estado").Value)
-        lblDetalleTransaccionResponsable.Text = "Responsable: " & Convert.ToString(fila.Cells("Responsable").Value)
-        txtDetalleTransaccionObservacion.Text = Convert.ToString(fila.Cells("Observacion").Value)
+        Dim fechaStr = ObtenerValorCelda(fila, "Fecha")
+        Dim fecha As DateTime
+        If DateTime.TryParse(fechaStr, fecha) Then
+            lblDetalleTransaccionFecha.Text = "Fecha: " & fecha.ToString("dd/MM/yyyy HH:mm")
+        Else
+            lblDetalleTransaccionFecha.Text = "Fecha: " & fechaStr
+        End If
+        lblDetalleTransaccionDocumento.Text = "Documento: " & ObtenerValorCelda(fila, "Documento")
+        lblDetalleTransaccionOrigen.Text = "Origen: " & ObtenerValorCelda(fila, "Origen")
+        lblDetalleTransaccionDestino.Text = "Destino: " & ObtenerValorCelda(fila, "Destino")
+        lblDetalleTransaccionEstado.Text = "Estado: " & ObtenerValorCelda(fila, "Estado")
+        lblDetalleTransaccionResponsable.Text = "Responsable: " & ObtenerValorCelda(fila, "Responsable")
+        txtDetalleTransaccionObservacion.Text = ObtenerValorCelda(fila, "Observacion")
     End Sub
 
 End Class

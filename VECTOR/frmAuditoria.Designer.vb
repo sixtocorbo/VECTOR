@@ -129,6 +129,8 @@ Partial Class frmAuditoria
         '
         Me.dgvAuditoria.AllowUserToAddRows = False
         Me.dgvAuditoria.AllowUserToDeleteRows = False
+        Me.dgvAuditoria.AllowUserToResizeColumns = False
+        Me.dgvAuditoria.AllowUserToResizeRows = False
         Me.dgvAuditoria.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvAuditoria.BackgroundColor = System.Drawing.Color.White
         Me.dgvAuditoria.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
@@ -138,6 +140,7 @@ Partial Class frmAuditoria
         Me.dgvAuditoria.Name = "dgvAuditoria"
         Me.dgvAuditoria.ReadOnly = True
         Me.dgvAuditoria.RowHeadersVisible = False
+        Me.dgvAuditoria.RowHeadersWidth = 62
         Me.dgvAuditoria.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvAuditoria.Size = New System.Drawing.Size(1186, 380)
         Me.dgvAuditoria.TabIndex = 0
@@ -174,7 +177,7 @@ Partial Class frmAuditoria
         Me.lblDetalleAuditoriaModulo.AutoSize = True
         Me.lblDetalleAuditoriaModulo.Location = New System.Drawing.Point(12, 50)
         Me.lblDetalleAuditoriaModulo.Name = "lblDetalleAuditoriaModulo"
-        Me.lblDetalleAuditoriaModulo.Size = New System.Drawing.Size(61, 20)
+        Me.lblDetalleAuditoriaModulo.Size = New System.Drawing.Size(65, 20)
         Me.lblDetalleAuditoriaModulo.TabIndex = 2
         Me.lblDetalleAuditoriaModulo.Text = "Módulo:"
         '
@@ -183,7 +186,7 @@ Partial Class frmAuditoria
         Me.lblDetalleAuditoriaUsuario.AutoSize = True
         Me.lblDetalleAuditoriaUsuario.Location = New System.Drawing.Point(270, 25)
         Me.lblDetalleAuditoriaUsuario.Name = "lblDetalleAuditoriaUsuario"
-        Me.lblDetalleAuditoriaUsuario.Size = New System.Drawing.Size(63, 20)
+        Me.lblDetalleAuditoriaUsuario.Size = New System.Drawing.Size(68, 20)
         Me.lblDetalleAuditoriaUsuario.TabIndex = 1
         Me.lblDetalleAuditoriaUsuario.Text = "Usuario:"
         '
@@ -192,7 +195,7 @@ Partial Class frmAuditoria
         Me.lblDetalleAuditoriaFecha.AutoSize = True
         Me.lblDetalleAuditoriaFecha.Location = New System.Drawing.Point(12, 25)
         Me.lblDetalleAuditoriaFecha.Name = "lblDetalleAuditoriaFecha"
-        Me.lblDetalleAuditoriaFecha.Size = New System.Drawing.Size(50, 20)
+        Me.lblDetalleAuditoriaFecha.Size = New System.Drawing.Size(58, 20)
         Me.lblDetalleAuditoriaFecha.TabIndex = 0
         Me.lblDetalleAuditoriaFecha.Text = "Fecha:"
         '
@@ -248,7 +251,7 @@ Partial Class frmAuditoria
         Me.lblAuditoriaBuscar.AutoSize = True
         Me.lblAuditoriaBuscar.Location = New System.Drawing.Point(426, 53)
         Me.lblAuditoriaBuscar.Name = "lblAuditoriaBuscar"
-        Me.lblAuditoriaBuscar.Size = New System.Drawing.Size(55, 20)
+        Me.lblAuditoriaBuscar.Size = New System.Drawing.Size(63, 20)
         Me.lblAuditoriaBuscar.TabIndex = 8
         Me.lblAuditoriaBuscar.Text = "Buscar:"
         '
@@ -266,7 +269,7 @@ Partial Class frmAuditoria
         Me.lblAuditoriaModulo.AutoSize = True
         Me.lblAuditoriaModulo.Location = New System.Drawing.Point(426, 16)
         Me.lblAuditoriaModulo.Name = "lblAuditoriaModulo"
-        Me.lblAuditoriaModulo.Size = New System.Drawing.Size(61, 20)
+        Me.lblAuditoriaModulo.Size = New System.Drawing.Size(65, 20)
         Me.lblAuditoriaModulo.TabIndex = 6
         Me.lblAuditoriaModulo.Text = "Módulo:"
         '
@@ -284,7 +287,7 @@ Partial Class frmAuditoria
         Me.lblAuditoriaUsuario.AutoSize = True
         Me.lblAuditoriaUsuario.Location = New System.Drawing.Point(12, 53)
         Me.lblAuditoriaUsuario.Name = "lblAuditoriaUsuario"
-        Me.lblAuditoriaUsuario.Size = New System.Drawing.Size(63, 20)
+        Me.lblAuditoriaUsuario.Size = New System.Drawing.Size(68, 20)
         Me.lblAuditoriaUsuario.TabIndex = 4
         Me.lblAuditoriaUsuario.Text = "Usuario:"
         '
@@ -301,7 +304,7 @@ Partial Class frmAuditoria
         Me.lblAuditoriaHasta.AutoSize = True
         Me.lblAuditoriaHasta.Location = New System.Drawing.Point(220, 16)
         Me.lblAuditoriaHasta.Name = "lblAuditoriaHasta"
-        Me.lblAuditoriaHasta.Size = New System.Drawing.Size(48, 20)
+        Me.lblAuditoriaHasta.Size = New System.Drawing.Size(56, 20)
         Me.lblAuditoriaHasta.TabIndex = 2
         Me.lblAuditoriaHasta.Text = "Hasta:"
         '
@@ -318,7 +321,7 @@ Partial Class frmAuditoria
         Me.lblAuditoriaDesde.AutoSize = True
         Me.lblAuditoriaDesde.Location = New System.Drawing.Point(12, 16)
         Me.lblAuditoriaDesde.Name = "lblAuditoriaDesde"
-        Me.lblAuditoriaDesde.Size = New System.Drawing.Size(53, 20)
+        Me.lblAuditoriaDesde.Size = New System.Drawing.Size(60, 20)
         Me.lblAuditoriaDesde.TabIndex = 0
         Me.lblAuditoriaDesde.Text = "Desde:"
         '
@@ -356,6 +359,8 @@ Partial Class frmAuditoria
         '
         Me.dgvTransacciones.AllowUserToAddRows = False
         Me.dgvTransacciones.AllowUserToDeleteRows = False
+        Me.dgvTransacciones.AllowUserToResizeColumns = False
+        Me.dgvTransacciones.AllowUserToResizeRows = False
         Me.dgvTransacciones.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTransacciones.BackgroundColor = System.Drawing.Color.White
         Me.dgvTransacciones.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
@@ -365,6 +370,7 @@ Partial Class frmAuditoria
         Me.dgvTransacciones.Name = "dgvTransacciones"
         Me.dgvTransacciones.ReadOnly = True
         Me.dgvTransacciones.RowHeadersVisible = False
+        Me.dgvTransacciones.RowHeadersWidth = 62
         Me.dgvTransacciones.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTransacciones.Size = New System.Drawing.Size(1186, 380)
         Me.dgvTransacciones.TabIndex = 0
@@ -404,7 +410,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionResponsable.AutoSize = True
         Me.lblDetalleTransaccionResponsable.Location = New System.Drawing.Point(270, 55)
         Me.lblDetalleTransaccionResponsable.Name = "lblDetalleTransaccionResponsable"
-        Me.lblDetalleTransaccionResponsable.Size = New System.Drawing.Size(96, 20)
+        Me.lblDetalleTransaccionResponsable.Size = New System.Drawing.Size(107, 20)
         Me.lblDetalleTransaccionResponsable.TabIndex = 5
         Me.lblDetalleTransaccionResponsable.Text = "Responsable:"
         '
@@ -413,7 +419,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionEstado.AutoSize = True
         Me.lblDetalleTransaccionEstado.Location = New System.Drawing.Point(12, 55)
         Me.lblDetalleTransaccionEstado.Name = "lblDetalleTransaccionEstado"
-        Me.lblDetalleTransaccionEstado.Size = New System.Drawing.Size(54, 20)
+        Me.lblDetalleTransaccionEstado.Size = New System.Drawing.Size(64, 20)
         Me.lblDetalleTransaccionEstado.TabIndex = 4
         Me.lblDetalleTransaccionEstado.Text = "Estado:"
         '
@@ -422,7 +428,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionDestino.AutoSize = True
         Me.lblDetalleTransaccionDestino.Location = New System.Drawing.Point(690, 25)
         Me.lblDetalleTransaccionDestino.Name = "lblDetalleTransaccionDestino"
-        Me.lblDetalleTransaccionDestino.Size = New System.Drawing.Size(60, 20)
+        Me.lblDetalleTransaccionDestino.Size = New System.Drawing.Size(68, 20)
         Me.lblDetalleTransaccionDestino.TabIndex = 3
         Me.lblDetalleTransaccionDestino.Text = "Destino:"
         '
@@ -431,7 +437,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionOrigen.AutoSize = True
         Me.lblDetalleTransaccionOrigen.Location = New System.Drawing.Point(460, 25)
         Me.lblDetalleTransaccionOrigen.Name = "lblDetalleTransaccionOrigen"
-        Me.lblDetalleTransaccionOrigen.Size = New System.Drawing.Size(52, 20)
+        Me.lblDetalleTransaccionOrigen.Size = New System.Drawing.Size(60, 20)
         Me.lblDetalleTransaccionOrigen.TabIndex = 2
         Me.lblDetalleTransaccionOrigen.Text = "Origen:"
         '
@@ -440,7 +446,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionDocumento.AutoSize = True
         Me.lblDetalleTransaccionDocumento.Location = New System.Drawing.Point(270, 25)
         Me.lblDetalleTransaccionDocumento.Name = "lblDetalleTransaccionDocumento"
-        Me.lblDetalleTransaccionDocumento.Size = New System.Drawing.Size(87, 20)
+        Me.lblDetalleTransaccionDocumento.Size = New System.Drawing.Size(96, 20)
         Me.lblDetalleTransaccionDocumento.TabIndex = 1
         Me.lblDetalleTransaccionDocumento.Text = "Documento:"
         '
@@ -449,7 +455,7 @@ Partial Class frmAuditoria
         Me.lblDetalleTransaccionFecha.AutoSize = True
         Me.lblDetalleTransaccionFecha.Location = New System.Drawing.Point(12, 25)
         Me.lblDetalleTransaccionFecha.Name = "lblDetalleTransaccionFecha"
-        Me.lblDetalleTransaccionFecha.Size = New System.Drawing.Size(50, 20)
+        Me.lblDetalleTransaccionFecha.Size = New System.Drawing.Size(58, 20)
         Me.lblDetalleTransaccionFecha.TabIndex = 0
         Me.lblDetalleTransaccionFecha.Text = "Fecha:"
         '
@@ -507,7 +513,7 @@ Partial Class frmAuditoria
         Me.lblTransaccionesBuscar.AutoSize = True
         Me.lblTransaccionesBuscar.Location = New System.Drawing.Point(426, 53)
         Me.lblTransaccionesBuscar.Name = "lblTransaccionesBuscar"
-        Me.lblTransaccionesBuscar.Size = New System.Drawing.Size(55, 20)
+        Me.lblTransaccionesBuscar.Size = New System.Drawing.Size(63, 20)
         Me.lblTransaccionesBuscar.TabIndex = 10
         Me.lblTransaccionesBuscar.Text = "Buscar:"
         '
@@ -525,7 +531,7 @@ Partial Class frmAuditoria
         Me.lblTransaccionesDestino.AutoSize = True
         Me.lblTransaccionesDestino.Location = New System.Drawing.Point(426, 16)
         Me.lblTransaccionesDestino.Name = "lblTransaccionesDestino"
-        Me.lblTransaccionesDestino.Size = New System.Drawing.Size(60, 20)
+        Me.lblTransaccionesDestino.Size = New System.Drawing.Size(68, 20)
         Me.lblTransaccionesDestino.TabIndex = 8
         Me.lblTransaccionesDestino.Text = "Destino:"
         '
@@ -543,7 +549,7 @@ Partial Class frmAuditoria
         Me.lblTransaccionesOrigen.AutoSize = True
         Me.lblTransaccionesOrigen.Location = New System.Drawing.Point(12, 53)
         Me.lblTransaccionesOrigen.Name = "lblTransaccionesOrigen"
-        Me.lblTransaccionesOrigen.Size = New System.Drawing.Size(52, 20)
+        Me.lblTransaccionesOrigen.Size = New System.Drawing.Size(60, 20)
         Me.lblTransaccionesOrigen.TabIndex = 6
         Me.lblTransaccionesOrigen.Text = "Origen:"
         '
@@ -561,7 +567,7 @@ Partial Class frmAuditoria
         Me.lblTransaccionesUsuario.AutoSize = True
         Me.lblTransaccionesUsuario.Location = New System.Drawing.Point(12, 16)
         Me.lblTransaccionesUsuario.Name = "lblTransaccionesUsuario"
-        Me.lblTransaccionesUsuario.Size = New System.Drawing.Size(63, 20)
+        Me.lblTransaccionesUsuario.Size = New System.Drawing.Size(68, 20)
         Me.lblTransaccionesUsuario.TabIndex = 4
         Me.lblTransaccionesUsuario.Text = "Usuario:"
         '
@@ -572,17 +578,15 @@ Partial Class frmAuditoria
         Me.dtpTransaccionesHasta.Name = "dtpTransaccionesHasta"
         Me.dtpTransaccionesHasta.Size = New System.Drawing.Size(124, 26)
         Me.dtpTransaccionesHasta.TabIndex = 3
-        Me.dtpTransaccionesHasta.Visible = True
         '
         'lblTransaccionesHasta
         '
         Me.lblTransaccionesHasta.AutoSize = True
         Me.lblTransaccionesHasta.Location = New System.Drawing.Point(824, 53)
         Me.lblTransaccionesHasta.Name = "lblTransaccionesHasta"
-        Me.lblTransaccionesHasta.Size = New System.Drawing.Size(48, 20)
+        Me.lblTransaccionesHasta.Size = New System.Drawing.Size(56, 20)
         Me.lblTransaccionesHasta.TabIndex = 2
         Me.lblTransaccionesHasta.Text = "Hasta:"
-        Me.lblTransaccionesHasta.Visible = True
         '
         'dtpTransaccionesDesde
         '
@@ -591,17 +595,15 @@ Partial Class frmAuditoria
         Me.dtpTransaccionesDesde.Name = "dtpTransaccionesDesde"
         Me.dtpTransaccionesDesde.Size = New System.Drawing.Size(124, 26)
         Me.dtpTransaccionesDesde.TabIndex = 1
-        Me.dtpTransaccionesDesde.Visible = True
         '
         'lblTransaccionesDesde
         '
         Me.lblTransaccionesDesde.AutoSize = True
         Me.lblTransaccionesDesde.Location = New System.Drawing.Point(824, 16)
         Me.lblTransaccionesDesde.Name = "lblTransaccionesDesde"
-        Me.lblTransaccionesDesde.Size = New System.Drawing.Size(53, 20)
+        Me.lblTransaccionesDesde.Size = New System.Drawing.Size(60, 20)
         Me.lblTransaccionesDesde.TabIndex = 0
         Me.lblTransaccionesDesde.Text = "Desde:"
-        Me.lblTransaccionesDesde.Visible = True
         '
         'frmAuditoria
         '

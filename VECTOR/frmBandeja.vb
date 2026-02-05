@@ -581,6 +581,7 @@ Public Class frmBandeja
             Dim docPadreAsunto As String = ""
             Dim docPadreNumero As String = ""
             Dim docPadreHilo As Guid
+            Dim docPadreCreadoPorMi As Boolean = False
 
             Using uow As New UnitOfWork()
                 Dim docRepo = uow.Repository(Of Mae_Documento)()
@@ -596,6 +597,7 @@ Public Class frmBandeja
                 nombreOficinaRemota = docPadre.Cat_Oficina.Nombre
                 docPadreAsunto = docPadre.Asunto
                 docPadreNumero = docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial
+                docPadreCreadoPorMi = docPadre.IdUsuarioCreador.HasValue AndAlso docPadre.IdUsuarioCreador.Value = SesionGlobal.UsuarioID
 
                 If idOficinaOrigen = SesionGlobal.OficinaID Then
                     Toast.Show(Me, "Este documento/paquete ya está en tu oficina.", ToastType.Info)
@@ -646,8 +648,9 @@ Public Class frmBandeja
             ' ✅ ÉXITO: Cargamos grilla dentro del flujo normal
             Await CargarGrillaAsync()
 
-            ' Pregunta post-operación
-            If MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            ' Pregunta post-operación:
+            ' Si el documento principal fue creado por el usuario actual, no mostramos el prompt.
+            If Not docPadreCreadoPorMi AndAlso MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
                 fRespuesta.ShowDialog()
                 Await CargarGrillaAsync()

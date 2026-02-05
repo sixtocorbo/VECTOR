@@ -327,8 +327,10 @@ Public Class frmMesaEntrada
                 doc.FechaRecepcion = dtpFechaRecepcion.Value
 
                 _unitOfWork.Commit()
+
                 GuardarAdjuntos(doc.IdDocumento)
-                AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
+                AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
+                _unitOfWork.Commit()
                 Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
 
             Else
@@ -415,9 +417,30 @@ Public Class frmMesaEntrada
 
                 ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
                 _unitOfWork.Commit()
-                GuardarAdjuntos(doc.IdDocumento)
+
+                Try
+                    GuardarAdjuntos(doc.IdDocumento)
+                Catch exAdjuntos As Exception
+                    Try
+                        AttachmentStore.DeleteAttachments(doc.IdDocumento)
+                    Catch
+                    End Try
+
+                    Try
+                        Dim docPersistido = _unitOfWork.Context.Set(Of Mae_Documento)().Find(doc.IdDocumento)
+                        If docPersistido IsNot Nothing Then
+                            _unitOfWork.Context.Set(Of Mae_Documento)().Remove(docPersistido)
+                            _unitOfWork.Commit()
+                        End If
+                    Catch
+                    End Try
+
+                    Throw New Exception("No se pudo completar el guardado del documento con sus adjuntos.", exAdjuntos)
+                End Try
+
                 Dim tipoCarga As String = If(_modoRespuesta, "Respuesta/Actuación", "Ingreso")
-                AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
+                AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
+                _unitOfWork.Commit()
 
                 ' --- MENSAJE PROFESIONAL (NUEVO BLOQUE) ---
                 Dim sb As New System.Text.StringBuilder()
@@ -440,11 +463,7 @@ Public Class frmMesaEntrada
     End Sub
 
     Private Sub GuardarAdjuntos(idDocumento As Long)
-        Try
-            AttachmentStore.SaveAttachments(idDocumento, _adjuntos)
-        Catch ex As Exception
-            Toast.Show(Me, "El documento se guardó, pero falló el almacenamiento de adjuntos: " & ex.Message, ToastType.Warning)
-        End Try
+        AttachmentStore.SaveAttachments(idDocumento, _adjuntos)
     End Sub
 
     Private Sub LimpiarControles()

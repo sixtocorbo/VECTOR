@@ -14,9 +14,9 @@ Public Class frmGestionRangos
 
     ' 1. CARGA EL COMBO DE TIPOS DE DOCUMENTO (Desde Cat_TipoDocumento)
     Private Async Function CargarTiposAsync() As Task
-        Using db As New SecretariaDBEntities()
-            ' Filtramos para no numerar cosas raras si es necesario
-            cmbTipo.DataSource = Await db.Cat_TipoDocumento.OrderBy(Function(t) t.Nombre).ToListAsync()
+        Using uow As New UnitOfWork()
+            Dim repoTipos = uow.Repository(Of Cat_TipoDocumento)()
+            cmbTipo.DataSource = Await repoTipos.GetQueryable().OrderBy(Function(t) t.Nombre).ToListAsync()
             cmbTipo.DisplayMember = "Nombre"
             cmbTipo.ValueMember = "IdTipo"
         End Using
@@ -24,9 +24,9 @@ Public Class frmGestionRangos
 
     ' 2. CARGA LA GRILLA DE RANGOS (Desde Mae_NumeracionRangos)
     Private Async Function CargarGrillaAsync() As Task
-        Using db As New SecretariaDBEntities()
-            ' Hacemos un Select anónimo para mostrar nombres bonitos en la grilla
-            Dim lista = Await db.Mae_NumeracionRangos.Include("Cat_TipoDocumento") _
+        Using uow As New UnitOfWork()
+            Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
+            Dim lista = Await repoRangos.GetQueryable("Cat_TipoDocumento") _
                           .Select(Function(r) New With {
                               .Id = r.IdRango,
                               .Tipo = r.Cat_TipoDocumento.Codigo & " - " & r.Cat_TipoDocumento.Nombre,
@@ -86,8 +86,9 @@ Public Class frmGestionRangos
 
         _idEdicion = Convert.ToInt32(dgvRangos.SelectedRows(0).Cells("Id").Value)
 
-        Using db As New SecretariaDBEntities()
-            Dim r = Await db.Mae_NumeracionRangos.FindAsync(_idEdicion)
+        Using uow As New UnitOfWork()
+            Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
+            Dim r = Await repoRangos.GetByIdAsync(_idEdicion)
             If r IsNot Nothing Then
                 cmbTipo.SelectedValue = r.IdTipo
                 txtNombre.Text = r.NombreRango
@@ -135,16 +136,16 @@ Public Class frmGestionRangos
 
         ' B. GUARDADO EN BASE DE DATOS
         Try
-            Using db As New SecretariaDBEntities()
+            Using uow As New UnitOfWork()
+                Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
                 Dim rango As Mae_NumeracionRangos
                 Dim esNuevo As Boolean = (_idEdicion = 0)
 
-                ' Determinar si es Nuevo o Edición
                 If esNuevo Then
                     rango = New Mae_NumeracionRangos()
-                    db.Mae_NumeracionRangos.Add(rango)
+                    repoRangos.Add(rango)
                 Else
-                    rango = Await db.Mae_NumeracionRangos.FindAsync(_idEdicion)
+                    rango = Await repoRangos.GetByIdAsync(_idEdicion)
                 End If
 
                 If rango Is Nothing Then
@@ -167,7 +168,7 @@ Public Class frmGestionRangos
                 ' Si activo este rango, debo desactivar cualquier otro rango ACTIVO del mismo tipo
                 ' para que el sistema no se confunda sobre cuál usar.
                 If rango.Activo Then
-                    Dim otros = Await db.Mae_NumeracionRangos.Where(Function(x) x.IdTipo = rango.IdTipo And
+                    Dim otros = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And
                                                                           x.IdRango <> rango.IdRango And
                                                                           x.Activo = True).ToListAsync()
                     For Each o In otros
@@ -175,7 +176,7 @@ Public Class frmGestionRangos
                     Next
                 End If
 
-                Await db.SaveChangesAsync()
+                Await uow.CommitAsync()
 
                 Dim accion As String = If(esNuevo, "Creación", "Edición")
                 AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Activo: {rango.Activo}.", "RANGOS")

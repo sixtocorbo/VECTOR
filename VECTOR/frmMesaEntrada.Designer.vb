@@ -25,6 +25,7 @@ Partial Class frmMesaEntrada
         Me.grpOrigen = New System.Windows.Forms.GroupBox()
         Me.dtpFechaRecepcion = New System.Windows.Forms.DateTimePicker()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.txtBuscarOrigen = New System.Windows.Forms.TextBox()
         Me.cboOrigen = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.grpDetalles = New System.Windows.Forms.GroupBox()
@@ -59,6 +60,7 @@ Partial Class frmMesaEntrada
         '
         Me.grpOrigen.Controls.Add(Me.dtpFechaRecepcion)
         Me.grpOrigen.Controls.Add(Me.Label2)
+        Me.grpOrigen.Controls.Add(Me.txtBuscarOrigen)
         Me.grpOrigen.Controls.Add(Me.cboOrigen)
         Me.grpOrigen.Controls.Add(Me.Label1)
         Me.grpOrigen.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -90,6 +92,14 @@ Partial Class frmMesaEntrada
         Me.Label2.TabIndex = 2
         Me.Label2.Text = "Fecha Recepción:"
         '
+        'txtBuscarOrigen
+        '
+        Me.txtBuscarOrigen.Location = New System.Drawing.Point(28, 69)
+        Me.txtBuscarOrigen.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.txtBuscarOrigen.Name = "txtBuscarOrigen"
+        Me.txtBuscarOrigen.Size = New System.Drawing.Size(550, 31)
+        Me.txtBuscarOrigen.TabIndex = 1
+        '
         'cboOrigen
         '
         Me.cboOrigen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
@@ -98,7 +108,8 @@ Partial Class frmMesaEntrada
         Me.cboOrigen.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cboOrigen.Name = "cboOrigen"
         Me.cboOrigen.Size = New System.Drawing.Size(550, 33)
-        Me.cboOrigen.TabIndex = 1
+        Me.cboOrigen.TabIndex = 99
+        Me.cboOrigen.Visible = False
         '
         'Label1
         '
@@ -392,6 +403,7 @@ Partial Class frmMesaEntrada
     Friend WithEvents grpOrigen As GroupBox
     Friend WithEvents dtpFechaRecepcion As DateTimePicker
     Friend WithEvents Label2 As Label
+    Friend WithEvents txtBuscarOrigen As TextBox
     Friend WithEvents cboOrigen As ComboBox
     Friend WithEvents Label1 As Label
     Friend WithEvents grpDetalles As GroupBox

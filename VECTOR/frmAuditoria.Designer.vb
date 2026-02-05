@@ -110,6 +110,7 @@ Partial Class frmAuditoria
         'SplitAuditoria
         '
         Me.SplitAuditoria.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SplitAuditoria.FixedPanel = System.Windows.Forms.FixedPanel.Panel2
         Me.SplitAuditoria.Location = New System.Drawing.Point(3, 95)
         Me.SplitAuditoria.Name = "SplitAuditoria"
         Me.SplitAuditoria.Orientation = System.Windows.Forms.Orientation.Horizontal
@@ -120,7 +121,9 @@ Partial Class frmAuditoria
         '
         'SplitAuditoria.Panel2
         '
+        Me.SplitAuditoria.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitAuditoria.Panel2.Controls.Add(Me.grpDetalleAuditoria)
+        Me.SplitAuditoria.Panel2MinSize = 185
         Me.SplitAuditoria.Size = New System.Drawing.Size(1186, 569)
         Me.SplitAuditoria.SplitterDistance = 380
         Me.SplitAuditoria.TabIndex = 1
@@ -340,6 +343,7 @@ Partial Class frmAuditoria
         'SplitTransacciones
         '
         Me.SplitTransacciones.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SplitTransacciones.FixedPanel = System.Windows.Forms.FixedPanel.Panel2
         Me.SplitTransacciones.Location = New System.Drawing.Point(3, 95)
         Me.SplitTransacciones.Name = "SplitTransacciones"
         Me.SplitTransacciones.Orientation = System.Windows.Forms.Orientation.Horizontal
@@ -350,7 +354,9 @@ Partial Class frmAuditoria
         '
         'SplitTransacciones.Panel2
         '
+        Me.SplitTransacciones.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitTransacciones.Panel2.Controls.Add(Me.grpDetalleTransaccion)
+        Me.SplitTransacciones.Panel2MinSize = 185
         Me.SplitTransacciones.Size = New System.Drawing.Size(1186, 569)
         Me.SplitTransacciones.SplitterDistance = 380
         Me.SplitTransacciones.TabIndex = 1

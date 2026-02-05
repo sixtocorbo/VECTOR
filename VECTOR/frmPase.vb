@@ -21,7 +21,8 @@ Public Class frmPase
 
     ' Cache para búsqueda rápida
     Private _todasLasOficinas As List(Of Cat_Oficina)
-    Private _filtroCts As CancellationTokenSource
+    Private _filtroVersion As Integer = 0
+    Private _cerrandoFormulario As Boolean = False
     Private _oficinaSeleccionada As Cat_Oficina
     Private ReadOnly _lstSugerencias As New ListBox()
 
@@ -123,20 +124,14 @@ Public Class frmPase
     End Sub
 
     Private Async Function FiltrarOficinasAsync(texto As String) As Task
-        ' 1. Cancelar la búsqueda anterior si existe
-        If _filtroCts IsNot Nothing Then
-            _filtroCts.Cancel()
-            _filtroCts.Dispose()
-        End If
-
-        _filtroCts = New CancellationTokenSource()
-        Dim token = _filtroCts.Token
+        ' Versión incremental para invalidar búsquedas anteriores sin cancelar tareas (evita excepciones en depuración).
+        Dim versionActual = Interlocked.Increment(_filtroVersion)
 
         Try
-            ' 2. Delay aumentado a 300ms para reducir carga y falsos positivos
-            Await Task.Delay(300, token)
+            ' Delay tipo debounce para reducir carga y falsos positivos al tipear.
+            Await Task.Delay(300)
 
-            If token.IsCancellationRequested Then Return
+            If _cerrandoFormulario OrElse versionActual <> _filtroVersion Then Return
 
             Dim textoNormalizado = texto.Trim()
             Dim listaFiltrada As List(Of Cat_Oficina)
@@ -144,27 +139,20 @@ Public Class frmPase
             If String.IsNullOrWhiteSpace(textoNormalizado) Then
                 listaFiltrada = New List(Of Cat_Oficina)()
             Else
-                ' 3. Búsqueda en hilo secundario con validaciones de seguridad
+                ' Búsqueda en hilo secundario con validaciones de seguridad.
                 listaFiltrada = Await Task.Run(Function()
                                                    Dim terminos = textoNormalizado.ToUpper().Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
 
-                                                   ' Filtramos nulos para evitar NullReferenceException
                                                    Return _todasLasOficinas.
                                                        Where(Function(o) Not String.IsNullOrWhiteSpace(o.Nombre) AndAlso terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).
                                                        Take(30).
                                                        ToList()
-                                               End Function, token)
+                                               End Function)
             End If
 
-            ' 4. Actualizar UI solo si no se ha cancelado
-            If Not token.IsCancellationRequested Then
-                MostrarSugerencias(listaFiltrada)
-            End If
+            If _cerrandoFormulario OrElse versionActual <> _filtroVersion Then Return
+            MostrarSugerencias(listaFiltrada)
 
-        Catch ex As TaskCanceledException
-            ' SILENCIO ABSOLUTO: No hacer nada para evitar lag en el IDE
-        Catch ex As OperationCanceledException
-            ' SILENCIO ABSOLUTO
         Catch ex As Exception
             Debug.WriteLine("Error en búsqueda: " & ex.Message)
         End Try
@@ -248,10 +236,8 @@ Public Class frmPase
         Dim oficina = TryCast(_lstSugerencias.SelectedItem, Cat_Oficina)
         If oficina Is Nothing Then Return
 
-        ' 1. Cancelamos cualquier búsqueda asíncrona pendiente
-        If _filtroCts IsNot Nothing Then
-            _filtroCts.Cancel()
-        End If
+        ' Invalidamos cualquier búsqueda asíncrona pendiente.
+        Interlocked.Increment(_filtroVersion)
 
         _oficinaSeleccionada = oficina
 
@@ -428,11 +414,8 @@ Public Class frmPase
     End Sub
 
     Private Sub frmPase_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If _filtroCts IsNot Nothing Then
-            _filtroCts.Cancel()
-            _filtroCts.Dispose()
-            _filtroCts = Nothing
-        End If
+        _cerrandoFormulario = True
+        Interlocked.Increment(_filtroVersion)
 
         ' Liberación de recursos de base de datos
         If db IsNot Nothing Then

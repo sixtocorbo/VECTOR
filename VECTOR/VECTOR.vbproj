@@ -89,6 +89,12 @@
     <Compile Include="AppTheme.vb" />
     <Compile Include="AttachmentStore.vb" />
     <Compile Include="AuditoriaSistema.vb" />
+    <Compile Include="frmVincular.Designer.vb">
+      <DependentUpon>frmVincular.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmVincular.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="IRepository.vb" />
     <Compile Include="IUnitOfWork.vb" />
     <Compile Include="Cat_Estado.vb">

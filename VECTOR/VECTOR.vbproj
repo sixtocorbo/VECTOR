@@ -235,6 +235,7 @@
     <Compile Include="Tra_Movimiento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="UIUtils.vb" />
     <Compile Include="UnitOfWork.vb" />
     <Compile Include="Usuarios.vb">
       <DependentUpon>Model1.tt</DependentUpon>

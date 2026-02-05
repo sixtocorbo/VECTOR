@@ -19,6 +19,7 @@ Partial Class frmPase
     Private Sub InitializeComponent()
         Me.lblTitulo = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.cboDestino = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -49,21 +50,30 @@ Partial Class frmPase
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.txtBuscar)
         Me.GroupBox1.Controls.Add(Me.cboDestino)
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 185)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(560, 80)
+        Me.GroupBox1.Size = New System.Drawing.Size(560, 106)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Destino"
+        '
+        'txtBuscar
+        '
+        Me.txtBuscar.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtBuscar.Location = New System.Drawing.Point(20, 43)
+        Me.txtBuscar.Name = "txtBuscar"
+        Me.txtBuscar.Size = New System.Drawing.Size(520, 23)
+        Me.txtBuscar.TabIndex = 0
         '
         'cboDestino
         '
         Me.cboDestino.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboDestino.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.cboDestino.FormattingEnabled = True
-        Me.cboDestino.Location = New System.Drawing.Point(20, 40)
+        Me.cboDestino.Location = New System.Drawing.Point(20, 72)
         Me.cboDestino.Name = "cboDestino"
         Me.cboDestino.Size = New System.Drawing.Size(520, 25)
         Me.cboDestino.TabIndex = 1
@@ -84,7 +94,7 @@ Partial Class frmPase
         Me.GroupBox2.Controls.Add(Me.Label3)
         Me.GroupBox2.Controls.Add(Me.txtObservacion)
         Me.GroupBox2.Controls.Add(Me.Label2)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 271)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 300)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(560, 150)
         Me.GroupBox2.TabIndex = 2
@@ -131,7 +141,7 @@ Partial Class frmPase
         Me.btnConfirmar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnConfirmar.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnConfirmar.ForeColor = System.Drawing.Color.White
-        Me.btnConfirmar.Location = New System.Drawing.Point(392, 437)
+        Me.btnConfirmar.Location = New System.Drawing.Point(392, 460)
         Me.btnConfirmar.Name = "btnConfirmar"
         Me.btnConfirmar.Size = New System.Drawing.Size(180, 40)
         Me.btnConfirmar.TabIndex = 3
@@ -140,7 +150,7 @@ Partial Class frmPase
         '
         'btnCancelar
         '
-        Me.btnCancelar.Location = New System.Drawing.Point(266, 437)
+        Me.btnCancelar.Location = New System.Drawing.Point(266, 460)
         Me.btnCancelar.Name = "btnCancelar"
         Me.btnCancelar.Size = New System.Drawing.Size(110, 40)
         Me.btnCancelar.TabIndex = 4
@@ -165,7 +175,7 @@ Partial Class frmPase
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ClientSize = New System.Drawing.Size(584, 491)
+        Me.ClientSize = New System.Drawing.Size(584, 515)
         Me.Controls.Add(Me.txtResumen)
         Me.Controls.Add(Me.btnCancelar)
         Me.Controls.Add(Me.btnConfirmar)
@@ -191,6 +201,7 @@ Partial Class frmPase
 
     Friend WithEvents lblTitulo As Label
     Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents txtBuscar As TextBox
     Friend WithEvents cboDestino As ComboBox
     Friend WithEvents Label1 As Label
     Friend WithEvents GroupBox2 As GroupBox

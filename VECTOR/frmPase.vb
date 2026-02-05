@@ -1,5 +1,7 @@
 ﻿Imports System.Data.Entity
 Imports System.Text ' Necesario para StringBuilder
+Imports System.Collections.Generic
+Imports System.Linq
 
 Public Class frmPase
 
@@ -12,6 +14,9 @@ Public Class frmPase
     Private _documentosAEnviar As List(Of Mae_Documento)
     Private _docPadre As Mae_Documento = Nothing
 
+    ' --- NUEVO: Cache para búsqueda rápida ---
+    Private _todasLasOficinas As List(Of Cat_Oficina)
+
     ' =============================================================
     ' CONSTRUCTOR
     ' =============================================================
@@ -22,23 +27,79 @@ Public Class frmPase
 
     Private Sub frmPase_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+
+        ' 1. Cargar datos
         CargarDatosIniciales()
+
+        ' 2. Analizar el expediente
         AnalizarPaquete()
+
+        ' 3. AUTOMATIZACIÓN
+        txtObservacion.Text = "Se remite para su conocimiento, consideración y fines pertinentes."
+
+        ' --- AQUI AGREGAMOS EL PLACEHOLDER CORRECTAMENTE ---
+        UIUtils.SetPlaceholder(txtBuscar, "Escriba para buscar oficina...")
+        ' ---------------------------------------------------
+
+        ' Ponemos el foco en el buscador
+        If txtBuscar IsNot Nothing Then
+            txtBuscar.Focus()
+        End If
     End Sub
 
     ' 1. Carga los combos (Destinos)
     Private Sub CargarDatosIniciales()
         Try
-            ' Cargamos destinos (Todas las oficinas MENOS la mía)
-            Dim oficinas = db.Cat_Oficina.Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).OrderBy(Function(o) o.Nombre).ToList()
+            ' Guardamos TODAS las oficinas (menos la mía) en memoria
+            ' Esto evita ir a la base de datos cada vez que escribes una letra
+            _todasLasOficinas = db.Cat_Oficina.Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).OrderBy(Function(o) o.Nombre).ToList()
 
-            cboDestino.DataSource = oficinas
-            cboDestino.DisplayMember = "Nombre"
-            cboDestino.ValueMember = "IdOficina"
-            cboDestino.SelectedIndex = -1
+            ' Llenamos el combo inicialmente con todo
+            ActualizarComboDestinos(_todasLasOficinas)
+
         Catch ex As Exception
             Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
         End Try
+    End Sub
+
+    ' --- LÓGICA DE BÚSQUEDA INTELIGENTE ---
+    Private Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
+        FiltrarOficinas(txtBuscar.Text)
+    End Sub
+
+    Private Sub FiltrarOficinas(texto As String)
+        ' Protección por si la lista aún no cargó
+        If _todasLasOficinas Is Nothing Then Return
+
+        Dim listaFiltrada As List(Of Cat_Oficina)
+
+        If String.IsNullOrWhiteSpace(texto) Then
+            listaFiltrada = _todasLasOficinas
+        Else
+            ' CORRECCIÓN 1: Usamos 'New Char() {" "c}' para que Split acepte las opciones
+            Dim terminos = texto.ToUpper().Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+
+            ' CORRECCIÓN 2: Simplificamos a una sola línea para evitar el error de "Falta End Function"
+            ' La lógica es: Para cada oficina (o), verificamos que SU nombre contenga TODOS los términos buscados.
+            listaFiltrada = _todasLasOficinas.Where(Function(o) terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).ToList()
+        End If
+
+        ActualizarComboDestinos(listaFiltrada)
+    End Sub
+
+    Private Sub ActualizarComboDestinos(lista As List(Of Cat_Oficina))
+        cboDestino.DataSource = Nothing
+        cboDestino.DataSource = lista
+        cboDestino.DisplayMember = "Nombre"
+        cboDestino.ValueMember = "IdOficina"
+
+        ' Si hay resultados y el usuario escribió algo, seleccionamos el primero y desplegamos
+        If lista.Count > 0 AndAlso Not String.IsNullOrWhiteSpace(txtBuscar.Text) Then
+            cboDestino.SelectedIndex = 0
+            cboDestino.DroppedDown = True
+        Else
+            cboDestino.SelectedIndex = -1
+        End If
     End Sub
 
     ' 2. LÓGICA INTELIGENTE: Detecta qué se está enviando realmente
@@ -54,9 +115,9 @@ Public Class frmPase
             ' TRAEMOS A TODA LA FAMILIA QUE ESTÁ CONMIGO
             ' Filtros: Mismo GUID, están en MI oficina, y NO están anulados (ID 5)
             _documentosAEnviar = db.Mae_Documento.Where(Function(d) _
-                                             d.IdHiloConversacion = guidFamilia And
-                                             d.IdOficinaActual = miOficina And
-                                             d.IdEstadoActual <> 5).ToList()
+                                              d.IdHiloConversacion = guidFamilia And
+                                              d.IdOficinaActual = miOficina And
+                                              d.IdEstadoActual <> 5).ToList()
 
             ' IDENTIFICAMOS AL PADRE (JEFE)
             ' El padre es aquel que NO tiene IdDocumentoPadre
@@ -112,6 +173,7 @@ Public Class frmPase
         ' Validaciones
         If cboDestino.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione Oficina de Destino.", ToastType.Warning)
+            txtBuscar.Focus()
             Return
         End If
         If String.IsNullOrWhiteSpace(txtObservacion.Text) Then

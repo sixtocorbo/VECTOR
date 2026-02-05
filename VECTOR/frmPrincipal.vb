@@ -1,6 +1,7 @@
 ﻿Public Class frmPrincipal
 
     Private Sub frmPrincipal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         ' 1. Configuración Visual
         Me.IsMdiContainer = True
 

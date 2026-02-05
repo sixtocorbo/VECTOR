@@ -7,6 +7,7 @@ Public Class frmGestionRangos
     Private _idEdicion As Integer = 0
 
     Private Async Sub frmGestionRangos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         Await CargarTiposAsync()
         Await CargarGrillaAsync()
         ModoEdicion(False)

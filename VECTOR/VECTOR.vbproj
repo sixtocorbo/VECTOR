@@ -253,6 +253,9 @@
     <EmbeddedResource Include="frmHistorial.resx">
       <DependentUpon>frmHistorial.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmLogin.resx">
+      <DependentUpon>frmLogin.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMesaEntrada.resx">
       <DependentUpon>frmMesaEntrada.vb</DependentUpon>
     </EmbeddedResource>

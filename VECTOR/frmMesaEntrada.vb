@@ -62,6 +62,7 @@ Public Class frmMesaEntrada
     ' CARGA DE FORMULARIO
     ' =======================================================
     Private Sub frmMesaEntrada_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         CargarListas()
 
         If _idEdicion.HasValue Then

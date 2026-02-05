@@ -16,6 +16,7 @@ Public Class frmHistorial
     End Sub
 
     Private Sub frmHistorial_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         CargarHistorial()
     End Sub
 

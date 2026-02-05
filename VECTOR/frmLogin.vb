@@ -54,4 +54,8 @@ Public Class frmLogin
     Private Sub txtClave_KeyDown(sender As Object, e As KeyEventArgs) Handles txtClave.KeyDown
         If e.KeyCode = Keys.Enter Then btnIngresar.PerformClick()
     End Sub
+
+    Private Sub frmLogin_Load(sender As Object, e As EventArgs) Handles Me.Load
+        AppTheme.Aplicar(Me)
+    End Sub
 End Class

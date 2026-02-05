@@ -5,6 +5,7 @@ Imports System.Linq
 Public Class frmUnificarOficinas
 
     Private Async Sub frmUnificarOficinas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         ConfigurarGrilla()
         Await CargarOficinasAsync("")
     End Sub

@@ -119,70 +119,7 @@ Public Class frmBandeja
             Toast.Show(Me, "Error al cargar datos: " & ex.Message, ToastType.Error)
         End Try
     End Function
-    'Private Sub CargarGrilla()
-    '    Try
-    '        ' ✅ USAR Y TIRAR: Conexión segura y optimizada
-    '        Using db As New SecretariaDBEntities()
-    '            db.Configuration.LazyLoadingEnabled = False
 
-    '            Dim consulta = db.Mae_Documento.AsQueryable()
-
-    '            ' A. FILTROS BD
-    '            consulta = consulta.Where(Function(d) d.IdEstadoActual <> 5)
-
-    '            If Not chkVerDerivados.Checked Then
-    '                consulta = consulta.Where(Function(d) d.IdOficinaActual = SesionGlobal.OficinaID)
-    '            End If
-
-    '            consulta = consulta.OrderByDescending(Function(d) d.FechaCreacion)
-
-    '            ' B. PROYECCIÓN DE DATOS PUROS
-    '            Dim listaDatos = consulta.Select(Function(d) New With {
-    '                .ID = d.IdDocumento,
-    '                .Tipo = d.Cat_TipoDocumento.Codigo,
-    '                .Referencia = d.NumeroOficial,
-    '                .Remitente = d.Tra_Movimiento.OrderByDescending(Function(m) m.IdMovimiento).Select(Function(m) m.Cat_Oficina.Nombre).FirstOrDefault(),
-    '                .Asunto = d.Asunto,
-    '                .Ubicacion = d.Cat_Oficina.Nombre,
-    '                .Fecha = d.FechaRecepcion,
-    '                .Estado = d.Cat_Estado.Nombre,
-    '                .IdOficinaActual = d.IdOficinaActual,
-    '                .Cant_Respuestas = db.Mae_Documento.Where(Function(h) h.IdDocumentoPadre = d.IdDocumento And h.IdEstadoActual <> 5).Count(),
-    '                .EsHijo = d.IdDocumentoPadre.HasValue,
-    '                .RefPadre = If(d.IdDocumentoPadre.HasValue, db.Mae_Documento.Where(Function(p) p.IdDocumento = d.IdDocumentoPadre).Select(Function(p) p.Cat_TipoDocumento.Codigo & " " & p.NumeroOficial).FirstOrDefault(), "")
-    '            }).ToList()
-
-    '            ' C. AJUSTES FINALES Y ORDEN DE COLUMNAS (Aquí recuperamos tu diseño "Origen")
-    '            Dim listaFinal = listaDatos.Select(Function(x) New With {
-    '                .ID = x.ID,
-    '                .Tipo = x.Tipo,
-    '                .Referencia = x.Referencia,
-    '                .Fecha = x.Fecha,
-    '                .Estado = x.Estado,
-    '                .Origen = If(String.IsNullOrEmpty(x.Remitente), "Ingreso Inicial", x.Remitente), ' ✅ Nombre "Origen" restaurado
-    '                .Ubicacion = x.Ubicacion,
-    '                .Asunto = x.Asunto,
-    '                .IdOficinaActual = x.IdOficinaActual,
-    '                .Cant_Respuestas = x.Cant_Respuestas,
-    '                .EsHijo = x.EsHijo,
-    '                .RefPadre = x.RefPadre
-    '            }).ToList()
-
-    '            _listaOriginal = New List(Of Object)(listaFinal)
-
-    '        End Using ' 🔒 CIERRE DE CONEXIÓN
-
-    '        ' E. MOSTRAMOS
-    '        AplicarFiltroRapido()
-
-    '    Catch ex As Exception
-    '        MessageBox.Show("Error al cargar datos: " & ex.Message)
-    '    End Try
-    'End Sub
-
-    ' =======================================================
-    ' 2. LÓGICA DE BÚSQUEDA OPTIMIZADA
-    ' =======================================================
     Private Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
         _timerBusqueda.Stop()
         _timerBusqueda.Start()
@@ -585,75 +522,6 @@ Public Class frmBandeja
 
         Await CargarGrillaAsync()
     End Sub
-    'Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
-    '    If dgvPendientes.SelectedRows.Count = 0 Then
-    '        MessageBox.Show("Seleccione el HIJO a vincular.", "Atención")
-    '        Return
-    '    End If
-
-    '    Dim idHijo As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
-
-    '    Using db As New SecretariaDBEntities()
-    '        Dim docHijo = db.Mae_Documento.Find(idHijo)
-
-    '        ' ========================================================
-    '        ' 🔍 MEJORA: DETECTAR Y MOSTRAR AL PADRE ACTUAL
-    '        ' ========================================================
-    '        If docHijo.IdDocumentoPadre.HasValue Then
-
-    '            ' Buscamos quién es el padre actual para informar al usuario
-    '            Dim idPadreActual = docHijo.IdDocumentoPadre.Value
-    '            Dim docPadreActual = db.Mae_Documento.Find(idPadreActual)
-
-    '            Dim infoPadre As String = "Desconocido (ID: " & idPadreActual & ")"
-
-    '            If docPadreActual IsNot Nothing Then
-    '                infoPadre = docPadreActual.Cat_TipoDocumento.Codigo & " " & docPadreActual.NumeroOficial & vbCrLf &
-    '                            "Asunto: " & docPadreActual.Asunto
-    '            End If
-
-    '            MessageBox.Show("⛔ OPERACIÓN DENEGADA" & vbCrLf & vbCrLf &
-    '                            "Este documento YA ESTÁ VINCULADO como adjunto de:" & vbCrLf &
-    '                            "📂 " & infoPadre & vbCrLf & vbCrLf &
-    '                            "No se puede vincular a otro expediente mientras tenga padre.",
-    '                            "Integridad Documental", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-    '            Return
-    '        End If
-    '        ' ========================================================
-
-    '        Dim input As String = Microsoft.VisualBasic.InputBox("Ingrese ID del PADRE:", "Vincular")
-    '        If String.IsNullOrWhiteSpace(input) OrElse Not IsNumeric(input) Then Return
-
-    '        Dim idPadre As Long = CLng(input)
-    '        If idPadre = idHijo Then Return
-
-    '        Dim docPadre = db.Mae_Documento.Find(idPadre)
-    '        If docPadre Is Nothing Then
-    '            MessageBox.Show("Padre no existe.", "Error")
-    '            Return
-    '        End If
-
-    '        ' Si el padre que eligieron ya es hijo de otro, buscamos al ABUELO (el verdadero padre)
-    '        If docPadre.IdDocumentoPadre.HasValue Then
-    '            docPadre = db.Mae_Documento.Find(docPadre.IdDocumentoPadre.Value)
-    '        End If
-
-    '        Dim fHijo = If(docHijo.FechaRecepcion, docHijo.FechaCreacion)
-    '        Dim fPadre = If(docPadre.FechaRecepcion, docPadre.FechaCreacion)
-    '        If fHijo < fPadre Then
-    '            If MessageBox.Show("⚠️ El Hijo es más antiguo que el Padre. ¿Seguir?", "Cronología", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Return
-    '        End If
-
-    '        If MessageBox.Show("¿Vincular " & docHijo.NumeroOficial & " a " & docPadre.NumeroOficial & "?", "Confirmar", MessageBoxButtons.YesNo) = DialogResult.Yes Then
-    '            docHijo.IdDocumentoPadre = docPadre.IdDocumento
-    '            docHijo.IdHiloConversacion = docPadre.IdHiloConversacion
-    '            db.SaveChanges()
-    '            AuditoriaSistema.RegistrarEvento($"Vinculación de documento {docHijo.NumeroOficial} como hijo de {docPadre.NumeroOficial}.", "DOCUMENTOS")
-    '            MessageBox.Show("✅ Vinculado.", "Vector")
-    '        End If
-    '    End Using
-    '    CargarGrilla()
-    'End Sub
 
     Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
         If dgvPendientes.SelectedRows.Count = 0 Then Return

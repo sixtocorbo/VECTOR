@@ -8,6 +8,7 @@ Public Class frmBuscadorReclusos
     Private _versionCarga As Integer = 0
 
     Private Async Sub frmBuscadorReclusos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         Await CargarGrillaAsync()
         txtBuscar.Focus()
     End Sub

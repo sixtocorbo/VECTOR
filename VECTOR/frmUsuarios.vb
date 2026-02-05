@@ -3,6 +3,7 @@
 Public Class frmUsuarios
 
     Private Async Sub frmUsuarios_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         If Not SesionGlobal.EsAdmin Then
             Toast.Show(Me, "Acceso Denegado. Solo Administradores.", ToastType.Error)
             Me.Close()

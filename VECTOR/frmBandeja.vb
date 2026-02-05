@@ -193,19 +193,19 @@ Public Class frmBandeja
             .Columns("Tipo").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Tipo").HeaderText = "Tipo"
 
-            .Columns("Referencia").Width = 100
+            .Columns("Referencia").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Referencia").HeaderText = "Referencia"
             .Columns("Referencia").DefaultCellStyle.Font = New Font(dgvPendientes.Font, FontStyle.Bold)
 
-            .Columns("Fecha").Width = 110
+            .Columns("Fecha").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy"
 
-            .Columns("Estado").Width = 100
+            .Columns("Estado").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
 
-            .Columns("Origen").Width = 140
+            .Columns("Origen").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Origen").HeaderText = "Origen"
 
-            .Columns("Ubicacion").Width = 140
+            .Columns("Ubicacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Ubicacion").HeaderText = "Ubicación"
 
             .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill

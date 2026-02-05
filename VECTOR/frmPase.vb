@@ -1,7 +1,9 @@
-﻿Imports System.Data.Entity
+Imports System.Data.Entity
 Imports System.Text ' Necesario para StringBuilder
 Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Threading
+Imports System.Threading.Tasks
 
 Public Class frmPase
 
@@ -14,8 +16,11 @@ Public Class frmPase
     Private _documentosAEnviar As List(Of Mae_Documento)
     Private _docPadre As Mae_Documento = Nothing
 
-    ' --- NUEVO: Cache para búsqueda rápida ---
+    ' Cache para búsqueda rápida
     Private _todasLasOficinas As List(Of Cat_Oficina)
+    Private _filtroCts As CancellationTokenSource
+    Private _oficinaSeleccionada As Cat_Oficina
+    Private ReadOnly _lstSugerencias As New ListBox()
 
     ' =============================================================
     ' CONSTRUCTOR
@@ -27,6 +32,7 @@ Public Class frmPase
 
     Private Sub frmPase_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        ConfigurarListaSugerencias()
 
         ' 1. Cargar datos
         CargarDatosIniciales()
@@ -37,69 +43,166 @@ Public Class frmPase
         ' 3. AUTOMATIZACIÓN
         txtObservacion.Text = "Se remite para su conocimiento, consideración y fines pertinentes."
 
-        ' --- AQUI AGREGAMOS EL PLACEHOLDER CORRECTAMENTE ---
         UIUtils.SetPlaceholder(txtBuscar, "Escriba para buscar oficina...")
-        ' ---------------------------------------------------
 
-        ' Ponemos el foco en el buscador
         If txtBuscar IsNot Nothing Then
             txtBuscar.Focus()
         End If
     End Sub
 
+    Private Sub ConfigurarListaSugerencias()
+        _lstSugerencias.Name = "lstSugerencias"
+        _lstSugerencias.Font = New Font("Segoe UI", 9.0!)
+        _lstSugerencias.Location = cboDestino.Location
+        _lstSugerencias.Size = New Size(cboDestino.Width, 110)
+        _lstSugerencias.Visible = False
+        _lstSugerencias.DisplayMember = "Nombre"
+        _lstSugerencias.IntegralHeight = False
+
+        GroupBox1.Controls.Add(_lstSugerencias)
+        _lstSugerencias.BringToFront()
+
+        AddHandler _lstSugerencias.DoubleClick, AddressOf lstSugerencias_Seleccionar
+        AddHandler _lstSugerencias.MouseClick, AddressOf lstSugerencias_Seleccionar
+        AddHandler _lstSugerencias.KeyDown, AddressOf lstSugerencias_KeyDown
+
+        ' Se mantiene oculto: ahora la UX de selección se hace en el ListBox.
+        cboDestino.Visible = False
+    End Sub
+
     ' 1. Carga los combos (Destinos)
     Private Sub CargarDatosIniciales()
         Try
-            ' Guardamos TODAS las oficinas (menos la mía) en memoria
-            ' Esto evita ir a la base de datos cada vez que escribes una letra
-            _todasLasOficinas = db.Cat_Oficina.Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).OrderBy(Function(o) o.Nombre).ToList()
-
-            ' Llenamos el combo inicialmente con todo
-            ActualizarComboDestinos(_todasLasOficinas)
-
+            _todasLasOficinas = db.Cat_Oficina.Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).
+                OrderBy(Function(o) o.Nombre).
+                ToList()
         Catch ex As Exception
             Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 
-    ' --- LÓGICA DE BÚSQUEDA INTELIGENTE ---
-    Private Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
-        FiltrarOficinas(txtBuscar.Text)
+    ' Búsqueda asíncrona + cancelación para evitar lag al tipear.
+    Private Async Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
+        _oficinaSeleccionada = Nothing
+        Await FiltrarOficinasAsync(txtBuscar.Text)
     End Sub
 
-    Private Sub FiltrarOficinas(texto As String)
-        ' Protección por si la lista aún no cargó
+    Private Async Function FiltrarOficinasAsync(texto As String) As Task
         If _todasLasOficinas Is Nothing Then Return
 
-        Dim listaFiltrada As List(Of Cat_Oficina)
-
-        If String.IsNullOrWhiteSpace(texto) Then
-            listaFiltrada = _todasLasOficinas
-        Else
-            ' CORRECCIÓN 1: Usamos 'New Char() {" "c}' para que Split acepte las opciones
-            Dim terminos = texto.ToUpper().Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
-
-            ' CORRECCIÓN 2: Simplificamos a una sola línea para evitar el error de "Falta End Function"
-            ' La lógica es: Para cada oficina (o), verificamos que SU nombre contenga TODOS los términos buscados.
-            listaFiltrada = _todasLasOficinas.Where(Function(o) terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).ToList()
+        If _filtroCts IsNot Nothing Then
+            _filtroCts.Cancel()
+            _filtroCts.Dispose()
         End If
 
-        ActualizarComboDestinos(listaFiltrada)
+        _filtroCts = New CancellationTokenSource()
+        Dim token = _filtroCts.Token
+
+        Try
+            Await Task.Delay(150, token) ' debounce
+
+            Dim textoNormalizado = texto.Trim()
+            Dim listaFiltrada As List(Of Cat_Oficina)
+
+            If String.IsNullOrWhiteSpace(textoNormalizado) Then
+                listaFiltrada = New List(Of Cat_Oficina)()
+            Else
+                listaFiltrada = Await Task.Run(Function()
+                                                   Dim terminos = textoNormalizado.ToUpper().
+                                                       Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+
+                                                   Return _todasLasOficinas.
+                                                       Where(Function(o) terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).
+                                                       Take(30).
+                                                       ToList()
+                                               End Function, token)
+            End If
+
+            If token.IsCancellationRequested Then Return
+            MostrarSugerencias(listaFiltrada)
+
+        Catch ex As OperationCanceledException
+            ' Esperado cuando el usuario escribe rápido.
+        End Try
+    End Function
+
+    Private Sub MostrarSugerencias(lista As List(Of Cat_Oficina))
+        _lstSugerencias.BeginUpdate()
+        _lstSugerencias.Items.Clear()
+
+        For Each oficina In lista
+            _lstSugerencias.Items.Add(oficina)
+        Next
+
+        _lstSugerencias.EndUpdate()
+
+        If lista.Count > 0 Then
+            _lstSugerencias.SelectedIndex = 0
+            _lstSugerencias.Visible = True
+        Else
+            OcultarSugerencias()
+        End If
     End Sub
 
-    Private Sub ActualizarComboDestinos(lista As List(Of Cat_Oficina))
+    Private Sub txtBuscar_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBuscar.KeyDown
+        If Not _lstSugerencias.Visible Then Return
+
+        Select Case e.KeyCode
+            Case Keys.Down
+                If _lstSugerencias.SelectedIndex < _lstSugerencias.Items.Count - 1 Then
+                    _lstSugerencias.SelectedIndex += 1
+                End If
+                e.Handled = True
+
+            Case Keys.Up
+                If _lstSugerencias.SelectedIndex > 0 Then
+                    _lstSugerencias.SelectedIndex -= 1
+                End If
+                e.Handled = True
+
+            Case Keys.Enter
+                SeleccionarOficinaActual()
+                e.SuppressKeyPress = True
+                e.Handled = True
+
+            Case Keys.Escape
+                OcultarSugerencias()
+                e.Handled = True
+        End Select
+    End Sub
+
+    Private Sub lstSugerencias_KeyDown(sender As Object, e As KeyEventArgs)
+        If e.KeyCode = Keys.Enter Then
+            SeleccionarOficinaActual()
+            e.SuppressKeyPress = True
+            e.Handled = True
+        End If
+    End Sub
+
+    Private Sub lstSugerencias_Seleccionar(sender As Object, e As EventArgs)
+        SeleccionarOficinaActual()
+    End Sub
+
+    Private Sub SeleccionarOficinaActual()
+        Dim oficina = TryCast(_lstSugerencias.SelectedItem, Cat_Oficina)
+        If oficina Is Nothing Then Return
+
+        _oficinaSeleccionada = oficina
+
+        ' Conservamos el combo interno para no romper el flujo existente.
         cboDestino.DataSource = Nothing
-        cboDestino.DataSource = lista
+        cboDestino.DataSource = New List(Of Cat_Oficina) From {oficina}
         cboDestino.DisplayMember = "Nombre"
         cboDestino.ValueMember = "IdOficina"
+        cboDestino.SelectedIndex = 0
 
-        ' Si hay resultados y el usuario escribió algo, seleccionamos el primero y desplegamos
-        If lista.Count > 0 AndAlso Not String.IsNullOrWhiteSpace(txtBuscar.Text) Then
-            cboDestino.SelectedIndex = 0
-            cboDestino.DroppedDown = True
-        Else
-            cboDestino.SelectedIndex = -1
-        End If
+        txtBuscar.Text = oficina.Nombre
+        txtBuscar.SelectionStart = txtBuscar.TextLength
+        OcultarSugerencias()
+    End Sub
+
+    Private Sub OcultarSugerencias()
+        _lstSugerencias.Visible = False
     End Sub
 
     ' 2. LÓGICA INTELIGENTE: Detecta qué se está enviando realmente
@@ -155,13 +258,9 @@ Public Class frmPase
             sb.AppendLine()
             sb.AppendLine("📄 TOTAL PAQUETE: " & _documentosAEnviar.Count & " documentos | " & totalFojas & " fojas.")
 
-            ' --- CAMBIO: USAMOS EL TEXTBOX SCROLLABLE ---
             txtResumen.Text = sb.ToString()
-
-            ' Truco visual: Quitamos la selección azul automática para que se vea limpio
             txtResumen.SelectionStart = 0
             txtResumen.SelectionLength = 0
-            ' --------------------------------------------
 
         Catch ex As Exception
             txtResumen.Text = "Error al analizar expediente: " & ex.Message
@@ -170,8 +269,7 @@ Public Class frmPase
     End Sub
 
     Private Sub btnConfirmar_Click(sender As Object, e As EventArgs) Handles btnConfirmar.Click
-        ' Validaciones
-        If cboDestino.SelectedIndex = -1 Then
+        If _oficinaSeleccionada Is Nothing Then
             Toast.Show(Me, "Seleccione Oficina de Destino.", ToastType.Warning)
             txtBuscar.Focus()
             Return
@@ -182,7 +280,8 @@ Public Class frmPase
         End If
 
         Try
-            Dim idDestino As Integer = CInt(cboDestino.SelectedValue)
+            Dim idDestino As Integer = _oficinaSeleccionada.IdOficina
+            Dim nombreDestino As String = _oficinaSeleccionada.Nombre
             Dim obs As String = txtObservacion.Text.Trim()
             Dim fojasNuevas As Integer = CInt(numFojasAgregadas.Value)
 
@@ -195,7 +294,6 @@ Public Class frmPase
                 doc.IdEstadoActual = 2 ' En Trámite / Enviado
 
                 ' 2. Sumamos fojas (SOLO AL PADRE)
-                ' Esto es importante: si agregas fojas, se suman al cuerpo principal, no a los adjuntos.
                 If doc.IdDocumento = _docPadre.IdDocumento Then
                     doc.Fojas += fojasNuevas
                 End If
@@ -216,9 +314,9 @@ Public Class frmPase
 
             db.SaveChanges()
 
-            AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {cboDestino.Text}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE")
+            AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {nombreDestino}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE")
             Toast.Show(Me, "✅ PASE EXITOSO." & vbCrLf & vbCrLf &
-                            "Se han enviado " & count & " documento(s) a " & cboDestino.Text & ".", ToastType.Success)
+                            "Se han enviado " & count & " documento(s) a " & nombreDestino & ".", ToastType.Success)
 
             Me.DialogResult = DialogResult.OK
             Me.Close()
@@ -231,6 +329,14 @@ Public Class frmPase
     Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
         Me.DialogResult = DialogResult.Cancel
         Me.Close()
+    End Sub
+
+    Private Sub frmPase_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If _filtroCts IsNot Nothing Then
+            _filtroCts.Cancel()
+            _filtroCts.Dispose()
+            _filtroCts = Nothing
+        End If
     End Sub
 
 End Class

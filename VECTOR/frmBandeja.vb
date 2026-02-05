@@ -77,7 +77,7 @@ Public Class frmBandeja
                 ' B. PROYECCIÓN DE DATOS PUROS
                 Dim listaDatos = Await consulta.Select(Function(d) New With {
     .ID = d.IdDocumento,
-    .Tipo = d.Cat_TipoDocumento.Codigo,
+    .Tipo = d.Cat_TipoDocumento.Nombre,
     .Referencia = d.NumeroOficial,
     .Remitente = d.Tra_Movimiento.OrderByDescending(Function(m) m.IdMovimiento).Select(Function(m) m.Cat_Oficina.Nombre).FirstOrDefault(),
     .Asunto = d.Asunto,
@@ -87,7 +87,7 @@ Public Class frmBandeja
     .IdOficinaActual = d.IdOficinaActual,
                 .Cant_Respuestas = d.Mae_Documento1.Where(Function(h) h.IdEstadoActual <> 5).Count(),
     .EsHijo = d.IdDocumentoPadre.HasValue,
-    .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Codigo & " " & d.Mae_Documento2.NumeroOficial, "")
+    .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Nombre & " " & d.Mae_Documento2.NumeroOficial, "")
 }).ToListAsync()
 
                 ' C. AJUSTES FINALES Y FORMATEO DE TEXTO (La Lógica que pediste)

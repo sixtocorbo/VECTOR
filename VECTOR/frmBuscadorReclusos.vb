@@ -1,16 +1,21 @@
 ﻿Imports System.Data.Entity
+Imports System.Threading
+Imports System.Threading.Tasks
 
 Public Class frmBuscadorReclusos
 
     Public Property ResultadoFormateado As String = ""
     Private db As New SecretariaDBEntities()
+    Private _versionCarga As Integer = 0
 
-    Private Sub frmBuscadorReclusos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CargarGrilla()
+    Private Async Sub frmBuscadorReclusos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Await CargarGrillaAsync()
         txtBuscar.Focus()
     End Sub
 
-    Private Sub CargarGrilla()
+    Private Async Function CargarGrillaAsync() As Task
+        Dim versionActual = Interlocked.Increment(_versionCarga)
+
         ' Empezamos con todos los activos
         Dim query = db.Mae_Reclusos.Where(Function(r) r.Activo = True)
 
@@ -29,10 +34,12 @@ Public Class frmBuscadorReclusos
         End If
 
         ' Proyección simple
-        Dim lista = query.OrderBy(Function(r) r.NombreCompleto).Select(Function(r) New With {
+        Dim lista = Await query.OrderBy(Function(r) r.NombreCompleto).Select(Function(r) New With {
             .ID = r.IdRecluso,
             .Nombre = r.NombreCompleto
-        }).ToList()
+        }).ToListAsync()
+
+        If versionActual <> _versionCarga Then Return
 
         dgvLista.DataSource = lista
 
@@ -42,10 +49,10 @@ Public Class frmBuscadorReclusos
             dgvLista.Columns("Nombre").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             dgvLista.Columns("Nombre").HeaderText = "Nombre del Recluso"
         End If
-    End Sub
+    End Function
 
-    Private Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
-        CargarGrilla()
+    Private Async Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
+        Await CargarGrillaAsync()
     End Sub
 
     Private Sub dgvLista_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvLista.CellDoubleClick

@@ -15,12 +15,10 @@ Public Class frmLogin
         Try
             btnIngresar.Enabled = False
 
-            ' Uso del contexto de base de datos de VECTOR
-            Using db As New SecretariaDBEntities()
+            Using uow As New UnitOfWork()
+                Dim repoUsuarios = uow.Repository(Of Cat_Usuario)()
 
-                ' Buscamos al usuario en Cat_Usuario
-                ' Verificamos que coincida el login, la clave y que esté activo
-                Dim usuario = Await db.Cat_Usuario.FirstOrDefaultAsync(Function(x) x.UsuarioLogin = u AndAlso x.Clave = p AndAlso x.Activo = True)
+                Dim usuario = Await repoUsuarios.GetQueryable("Cat_Oficina").FirstOrDefaultAsync(Function(x) x.UsuarioLogin = u AndAlso x.Clave = p AndAlso x.Activo = True)
 
                 If usuario IsNot Nothing Then
                     ' Determinamos la oficina: si no tiene una asignada, usamos la 1 por defecto

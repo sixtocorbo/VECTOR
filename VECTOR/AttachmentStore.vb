@@ -114,6 +114,24 @@ Public Module AttachmentStore
         Return Path.Combine(GetAttachmentFolder(idDocumento), storedName)
     End Function
 
+    Public Sub DeleteAttachments(idDocumento As Long)
+        If UseDatabaseStorage() Then
+            Using conn As New SqlConnection(GetProviderConnectionString())
+                conn.Open()
+                Using cmd As New SqlCommand("DELETE FROM Tra_AdjuntoDocumento WHERE IdDocumento = @IdDocumento", conn)
+                    cmd.Parameters.AddWithValue("@IdDocumento", idDocumento)
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+            Return
+        End If
+
+        Dim folder = GetAttachmentFolder(idDocumento)
+        If Directory.Exists(folder) Then
+            Directory.Delete(folder, True)
+        End If
+    End Sub
+
     Private Function UseDatabaseStorage() As Boolean
         Dim setting = ConfigurationManager.AppSettings(DatabaseStorageSettingKey)
         If String.IsNullOrWhiteSpace(setting) Then Return False

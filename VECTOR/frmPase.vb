@@ -1,4 +1,4 @@
-Imports System.Data.Entity
+﻿Imports System.Data.Entity
 Imports System.Text ' Necesario para StringBuilder
 Imports System.Collections.Generic
 Imports System.Linq
@@ -7,7 +7,7 @@ Imports System.Threading.Tasks
 
 Public Class frmPase
 
-    Private db As New SecretariaDBEntities()
+    Private ReadOnly _unitOfWork As IUnitOfWork = New UnitOfWork()
 
     ' ID del documento que el usuario clickeó (puede ser hijo o padre)
     Private _idDocumentoSeleccionado As Long
@@ -106,7 +106,8 @@ Public Class frmPase
     ' 1. Carga los combos (Destinos)
     Private Sub CargarDatosIniciales()
         Try
-            _todasLasOficinas = db.Cat_Oficina.Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).
+            _todasLasOficinas = _unitOfWork.Repository(Of Cat_Oficina)().GetQueryable().
+                Where(Function(o) o.IdOficina <> SesionGlobal.OficinaID).
                 OrderBy(Function(o) o.Nombre).
                 ToList()
         Catch ex As Exception
@@ -270,7 +271,7 @@ Public Class frmPase
     Private Sub AnalizarPaquete()
         Try
             ' Buscamos el documento clickeado
-            Dim docBase = db.Mae_Documento.Find(_idDocumentoSeleccionado)
+            Dim docBase = _unitOfWork.Context.Set(Of Mae_Documento)().Find(_idDocumentoSeleccionado)
             If docBase Is Nothing Then
                 txtResumen.Text = "No se encontró el documento seleccionado."
                 btnConfirmar.Enabled = False
@@ -281,7 +282,7 @@ Public Class frmPase
             Dim miOficina = SesionGlobal.OficinaID
 
             ' TRAEMOS A TODA LA FAMILIA QUE ESTÁ CONMIGO
-            _documentosAEnviar = db.Mae_Documento.Where(Function(d) _
+            _documentosAEnviar = _unitOfWork.Repository(Of Mae_Documento)().GetQueryable(tracking:=True).Where(Function(d) _
                                                           d.IdHiloConversacion = guidFamilia And
                                                           d.IdOficinaActual = miOficina And
                                                           d.IdEstadoActual <> 5).ToList()
@@ -394,9 +395,10 @@ Public Class frmPase
                 count += 1
             Next
 
-            db.SaveChanges()
+            _unitOfWork.Commit()
 
-            AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {nombreDestino}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE")
+            AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {nombreDestino}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE", unitOfWorkExterno:=_unitOfWork)
+            _unitOfWork.Commit()
             Toast.Show(Me, "✅ PASE EXITOSO." & vbCrLf & vbCrLf &
                             "Se han enviado " & count & " documento(s) a " & nombreDestino & ".", ToastType.Success)
 
@@ -417,11 +419,7 @@ Public Class frmPase
         _cerrandoFormulario = True
         Interlocked.Increment(_filtroVersion)
 
-        ' Liberación de recursos de base de datos
-        If db IsNot Nothing Then
-            db.Dispose()
-            db = Nothing
-        End If
+        _unitOfWork.Dispose()
     End Sub
 
 End Class

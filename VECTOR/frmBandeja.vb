@@ -625,6 +625,10 @@ Public Class frmBandeja
                     Return
                 End If
 
+                ' Tomamos la decisión ANTES de ejecutar cambios de estado para mantener el flujo atómico.
+                Dim deseaCargarActuacion As Boolean =
+                    MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes
+
                 For Each d In docsA_Recibir
                     d.IdOficinaActual = SesionGlobal.OficinaID
                     d.IdEstadoActual = 1
@@ -641,17 +645,15 @@ Public Class frmBandeja
                 Next
                 Await uow.CommitAsync()
                 AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Docs: {totalDocs}. Exp: {docPadreNumero}.", "RECEPCION")
+
+                If deseaCargarActuacion Then
+                    Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
+                    fRespuesta.ShowDialog()
+                End If
             End Using
 
             ' ✅ ÉXITO: Cargamos grilla dentro del flujo normal
             Await CargarGrillaAsync()
-
-            ' Pregunta post-operación
-            If MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
-                fRespuesta.ShowDialog()
-                Await CargarGrillaAsync()
-            End If
 
         Catch ex As Exception
             ' ⚡ CAPTURA: No usamos Await aquí dentro para evitar el error del compilador

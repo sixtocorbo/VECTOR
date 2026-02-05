@@ -2,7 +2,7 @@
 
 Public Class frmLogin
 
-    Private Sub btnIngresar_Click(sender As Object, e As EventArgs) Handles btnIngresar.Click
+    Private Async Sub btnIngresar_Click(sender As Object, e As EventArgs) Handles btnIngresar.Click
         Dim u As String = txtUsuario.Text.Trim()
         Dim p As String = txtClave.Text.Trim()
 
@@ -13,12 +13,14 @@ Public Class frmLogin
         End If
 
         Try
+            btnIngresar.Enabled = False
+
             ' Uso del contexto de base de datos de VECTOR
             Using db As New SecretariaDBEntities()
 
                 ' Buscamos al usuario en Cat_Usuario
                 ' Verificamos que coincida el login, la clave y que esté activo
-                Dim usuario = db.Cat_Usuario.FirstOrDefault(Function(x) x.UsuarioLogin = u AndAlso x.Clave = p AndAlso x.Activo = True)
+                Dim usuario = Await db.Cat_Usuario.FirstOrDefaultAsync(Function(x) x.UsuarioLogin = u AndAlso x.Clave = p AndAlso x.Activo = True)
 
                 If usuario IsNot Nothing Then
                     ' Determinamos la oficina: si no tiene una asignada, usamos la 1 por defecto
@@ -41,6 +43,8 @@ Public Class frmLogin
             End Using
         Catch ex As Exception
             Toast.Show(Me, "Error al conectar con la base de datos: " & ex.Message, ToastType.Error)
+        Finally
+            btnIngresar.Enabled = True
         End Try
     End Sub
 

@@ -11,7 +11,8 @@ Public Class frmPase
 
     ' ID del documento que el usuario clickeó (puede ser hijo o padre)
     Private _idDocumentoSeleccionado As Long
-    ' Evita que el evento TextChanged se dispare cuando seleccionamos una opción
+
+    ' Bandera para controlar la actualización manual del texto sin disparar búsqueda
     Private _seleccionando As Boolean = False
 
     ' Lista en memoria para guardar TODO lo que se va a enviar
@@ -64,15 +65,14 @@ Public Class frmPase
         ' es decir, que no corte el último ítem a la mitad.
         _lstSugerencias.IntegralHeight = True
 
-        ' Dibujado manual (el código que te pasé antes para el color azul)
+        ' Dibujado manual para el color azul de selección
         _lstSugerencias.DrawMode = DrawMode.OwnerDrawFixed
-        _lstSugerencias.ItemHeight = 22 ' Un poco más alto para que sea legible
+        _lstSugerencias.ItemHeight = 22
 
         _lstSugerencias.Visible = False
         _lstSugerencias.DisplayMember = "Nombre"
 
         ' TRUCO: Agregamos la lista al FORMULARIO, no al GroupBox.
-        ' Esto evita que se corte o quede "atrapada" dentro del marco de arriba.
         Me.Controls.Add(_lstSugerencias)
         _lstSugerencias.BringToFront()
 
@@ -84,28 +84,22 @@ Public Class frmPase
 
         cboDestino.Visible = False
     End Sub
+
     Private Sub lstSugerencias_DrawItem(sender As Object, e As DrawItemEventArgs)
-        ' Si el índice es inválido (lista vacía), salimos
         If e.Index < 0 Then Return
 
-        ' Obtenemos el objeto (la oficina)
         Dim oficina = DirectCast(_lstSugerencias.Items(e.Index), Cat_Oficina)
 
         ' Verificamos si este ítem es el seleccionado actualmente
         If (e.State And DrawItemState.Selected) = DrawItemState.Selected Then
-            ' ESTÁ SELECCIONADO: Lo pintamos AZUL fuerte (SystemBrushes.Highlight)
+            ' Seleccionado: Fondo Azul, Texto Blanco
             e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds)
-            ' Dibujamos el texto en BLANCO
             TextRenderer.DrawText(e.Graphics, oficina.Nombre, _lstSugerencias.Font, e.Bounds, SystemColors.HighlightText, TextFormatFlags.VerticalCenter Or TextFormatFlags.Left)
         Else
-            ' NO ESTÁ SELECCIONADO: Fondo blanco estándar
+            ' No Seleccionado: Fondo Blanco, Texto Negro
             e.Graphics.FillRectangle(SystemBrushes.Window, e.Bounds)
-            ' Texto negro estándar
             TextRenderer.DrawText(e.Graphics, oficina.Nombre, _lstSugerencias.Font, e.Bounds, SystemColors.WindowText, TextFormatFlags.VerticalCenter Or TextFormatFlags.Left)
         End If
-
-        ' Opcional: Dibuja el foco punteado si fuera necesario, aunque aquí no hace falta
-        ' e.DrawFocusRectangle() 
     End Sub
 
     ' 1. Carga los combos (Destinos)
@@ -121,7 +115,7 @@ Public Class frmPase
 
     ' Búsqueda asíncrona + cancelación para evitar lag al tipear.
     Private Async Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
-        ' [NUEVO] Si estamos asignando el valor por código, no buscamos nada.
+        ' Si estamos asignando el valor por código, no buscamos nada.
         If _seleccionando Then Return
 
         _oficinaSeleccionada = Nothing
@@ -139,11 +133,9 @@ Public Class frmPase
         Dim token = _filtroCts.Token
 
         Try
-            ' 2. Delay para "Debounce" (esperar que dejes de escribir)
-            ' AQUÍ es donde suele saltar el error cuando escribes rápido.
-            Await Task.Delay(200, token)
+            ' 2. Delay aumentado a 300ms para reducir carga y falsos positivos
+            Await Task.Delay(300, token)
 
-            ' Si se canceló durante el delay, salimos
             If token.IsCancellationRequested Then Return
 
             Dim textoNormalizado = texto.Trim()
@@ -152,33 +144,28 @@ Public Class frmPase
             If String.IsNullOrWhiteSpace(textoNormalizado) Then
                 listaFiltrada = New List(Of Cat_Oficina)()
             Else
-                ' 3. Búsqueda en hilo secundario
+                ' 3. Búsqueda en hilo secundario con validaciones de seguridad
                 listaFiltrada = Await Task.Run(Function()
                                                    Dim terminos = textoNormalizado.ToUpper().Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
 
-                                                   ' Verificamos token dentro del bucle si fuera muy pesado, 
-                                                   ' pero aquí el LINQ es rápido.
+                                                   ' Filtramos nulos para evitar NullReferenceException
                                                    Return _todasLasOficinas.
-                                                   Where(Function(o) terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).
-                                                   Take(30).
-                                                   ToList()
+                                                       Where(Function(o) Not String.IsNullOrWhiteSpace(o.Nombre) AndAlso terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).
+                                                       Take(30).
+                                                       ToList()
                                                End Function, token)
             End If
 
-            ' 4. Actualizar UI solo si no se ha cancelado mientras buscábamos
+            ' 4. Actualizar UI solo si no se ha cancelado
             If Not token.IsCancellationRequested Then
                 MostrarSugerencias(listaFiltrada)
             End If
 
         Catch ex As TaskCanceledException
-            ' ESTO ES NORMAL: Se canceló porque escribiste otra letra. 
-            ' No hacemos nada. Ignoramos el error.
-
+            ' SILENCIO ABSOLUTO: No hacer nada para evitar lag en el IDE
         Catch ex As OperationCanceledException
-            ' Lo mismo que arriba, por seguridad atrapamos ambas.
-
+            ' SILENCIO ABSOLUTO
         Catch ex As Exception
-            ' Errores reales (ej. base de datos desconectada, nulos, etc.)
             Debug.WriteLine("Error en búsqueda: " & ex.Message)
         End Try
     End Function
@@ -194,24 +181,18 @@ Public Class frmPase
 
         If lista.Count > 0 Then
             ' 1. CALCULAR POSICIÓN EXACTA EN EL FORMULARIO
-            ' Convertimos la posición del TextBox (que está dentro de un GroupBox) a coordenadas de pantalla
-            ' y luego a coordenadas del Formulario. Así la lista siempre cae justo debajo.
             Dim pScreen As Point = txtBuscar.Parent.PointToScreen(New Point(txtBuscar.Left, txtBuscar.Bottom))
             Dim pForm As Point = Me.PointToClient(pScreen)
 
             _lstSugerencias.Location = pForm
             _lstSugerencias.Width = txtBuscar.Width
 
-            ' 2. ALTURA DINÁMICA (Efecto "Acordeón")
-            ' Calculamos altura necesaria: (CantidadItems * AlturaItem) + un pequeño margen
+            ' 2. ALTURA DINÁMICA
             Dim alturaNecesaria As Integer = (lista.Count * _lstSugerencias.ItemHeight) + 4
-
-            ' Ponemos un TOPE máximo (ej. 130px) para que no tape todo el formulario si hay muchos resultados
             Dim alturaMaxima As Integer = 130
 
             If alturaNecesaria > alturaMaxima Then
                 _lstSugerencias.Height = alturaMaxima
-                ' Al haber más ítems que espacio, Windows activa el Scroll automáticamente
             Else
                 _lstSugerencias.Height = alturaNecesaria
             End If
@@ -267,7 +248,7 @@ Public Class frmPase
         Dim oficina = TryCast(_lstSugerencias.SelectedItem, Cat_Oficina)
         If oficina Is Nothing Then Return
 
-        ' 1. Cancelamos cualquier búsqueda asíncrona que pudiera estar pendiente
+        ' 1. Cancelamos cualquier búsqueda asíncrona pendiente
         If _filtroCts IsNot Nothing Then
             _filtroCts.Cancel()
         End If
@@ -281,19 +262,17 @@ Public Class frmPase
         cboDestino.ValueMember = "IdOficina"
         cboDestino.SelectedIndex = 0
 
-        ' 2. [CLAVE] Activamos la bandera para que TextChanged no haga nada
-        _seleccionando = True
+        Try
+            ' 2. Activamos la bandera para bloquear el evento TextChanged
+            _seleccionando = True
+            txtBuscar.Text = oficina.Nombre
+            txtBuscar.SelectionStart = txtBuscar.TextLength
+        Finally
+            ' 3. Aseguramos que la bandera se baje pase lo que pase
+            _seleccionando = False
+        End Try
 
-        txtBuscar.Text = oficina.Nombre
-        txtBuscar.SelectionStart = txtBuscar.TextLength ' Pone el cursor al final
-
-        ' 3. Desactivamos la bandera
-        _seleccionando = False
-
-        ' 4. Ocultamos la lista definitivamente
         OcultarSugerencias()
-
-        ' Opcional: Devolver el foco al TextBox por si se perdió al hacer click
         txtBuscar.Focus()
     End Sub
 
@@ -304,27 +283,41 @@ Public Class frmPase
     ' 2. LÓGICA INTELIGENTE: Detecta qué se está enviando realmente
     Private Sub AnalizarPaquete()
         Try
-            ' Buscamos el documento clickeado para saber su GUID (Familia)
+            ' Buscamos el documento clickeado
             Dim docBase = db.Mae_Documento.Find(_idDocumentoSeleccionado)
-            If docBase Is Nothing Then Return
+            If docBase Is Nothing Then
+                txtResumen.Text = "No se encontró el documento seleccionado."
+                btnConfirmar.Enabled = False
+                Return
+            End If
 
             Dim guidFamilia = docBase.IdHiloConversacion
             Dim miOficina = SesionGlobal.OficinaID
 
             ' TRAEMOS A TODA LA FAMILIA QUE ESTÁ CONMIGO
-            ' Filtros: Mismo GUID, están en MI oficina, y NO están anulados (ID 5)
             _documentosAEnviar = db.Mae_Documento.Where(Function(d) _
-                                              d.IdHiloConversacion = guidFamilia And
-                                              d.IdOficinaActual = miOficina And
-                                              d.IdEstadoActual <> 5).ToList()
+                                                          d.IdHiloConversacion = guidFamilia And
+                                                          d.IdOficinaActual = miOficina And
+                                                          d.IdEstadoActual <> 5).ToList()
+
+            If _documentosAEnviar Is Nothing OrElse _documentosAEnviar.Count = 0 Then
+                txtResumen.Text = "No hay documentos disponibles para enviar en este expediente."
+                btnConfirmar.Enabled = False
+                Return
+            End If
 
             ' IDENTIFICAMOS AL PADRE (JEFE)
-            ' El padre es aquel que NO tiene IdDocumentoPadre
             _docPadre = _documentosAEnviar.FirstOrDefault(Function(d) d.IdDocumentoPadre Is Nothing)
 
-            ' Si no encontramos padre (caso raro), tomamos el más antiguo como Jefe
+            ' Si no encontramos padre, tomamos el más antiguo
             If _docPadre Is Nothing Then
                 _docPadre = _documentosAEnviar.OrderBy(Function(d) d.FechaCreacion).FirstOrDefault()
+            End If
+
+            If _docPadre Is Nothing Then
+                txtResumen.Text = "No se pudo determinar el documento principal del expediente."
+                btnConfirmar.Enabled = False
+                Return
             End If
 
             ' PREPARAMOS EL RESUMEN VISUAL
@@ -365,11 +358,18 @@ Public Class frmPase
     End Sub
 
     Private Sub btnConfirmar_Click(sender As Object, e As EventArgs) Handles btnConfirmar.Click
+        ' Validación de integridad antes de proceder
+        If _documentosAEnviar Is Nothing OrElse _documentosAEnviar.Count = 0 OrElse _docPadre Is Nothing Then
+            Toast.Show(Me, "No hay documentos válidos para realizar el pase.", ToastType.Warning)
+            Return
+        End If
+
         If _oficinaSeleccionada Is Nothing Then
             Toast.Show(Me, "Seleccione Oficina de Destino.", ToastType.Warning)
             txtBuscar.Focus()
             Return
         End If
+
         If String.IsNullOrWhiteSpace(txtObservacion.Text) Then
             Toast.Show(Me, "La observación es obligatoria.", ToastType.Warning)
             Return
@@ -432,6 +432,12 @@ Public Class frmPase
             _filtroCts.Cancel()
             _filtroCts.Dispose()
             _filtroCts = Nothing
+        End If
+
+        ' Liberación de recursos de base de datos
+        If db IsNot Nothing Then
+            db.Dispose()
+            db = Nothing
         End If
     End Sub
 

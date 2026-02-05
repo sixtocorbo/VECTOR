@@ -260,6 +260,9 @@
     <EmbeddedResource Include="frmMesaEntrada.resx">
       <DependentUpon>frmMesaEntrada.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmPase.resx">
+      <DependentUpon>frmPase.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmPrincipal.resx">
       <DependentUpon>frmPrincipal.vb</DependentUpon>
     </EmbeddedResource>

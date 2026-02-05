@@ -55,7 +55,7 @@ Partial Class frmPase
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 185)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(560, 106)
+        Me.GroupBox1.Size = New System.Drawing.Size(560, 146)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Destino"
@@ -65,7 +65,7 @@ Partial Class frmPase
         Me.txtBuscar.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.txtBuscar.Location = New System.Drawing.Point(20, 43)
         Me.txtBuscar.Name = "txtBuscar"
-        Me.txtBuscar.Size = New System.Drawing.Size(520, 23)
+        Me.txtBuscar.Size = New System.Drawing.Size(520, 31)
         Me.txtBuscar.TabIndex = 0
         '
         'cboDestino
@@ -75,7 +75,7 @@ Partial Class frmPase
         Me.cboDestino.FormattingEnabled = True
         Me.cboDestino.Location = New System.Drawing.Point(20, 72)
         Me.cboDestino.Name = "cboDestino"
-        Me.cboDestino.Size = New System.Drawing.Size(520, 25)
+        Me.cboDestino.Size = New System.Drawing.Size(520, 36)
         Me.cboDestino.TabIndex = 1
         '
         'Label1
@@ -84,7 +84,7 @@ Partial Class frmPase
         Me.Label1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(17, 22)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(142, 15)
+        Me.Label1.Size = New System.Drawing.Size(215, 25)
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "¿A qué oficina se envía?"
         '
@@ -94,32 +94,32 @@ Partial Class frmPase
         Me.GroupBox2.Controls.Add(Me.Label3)
         Me.GroupBox2.Controls.Add(Me.txtObservacion)
         Me.GroupBox2.Controls.Add(Me.Label2)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 300)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 337)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(560, 150)
+        Me.GroupBox2.Size = New System.Drawing.Size(560, 173)
         Me.GroupBox2.TabIndex = 2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Detalles del Pase"
         '
         'numFojasAgregadas
         '
-        Me.numFojasAgregadas.Location = New System.Drawing.Point(205, 116)
+        Me.numFojasAgregadas.Location = New System.Drawing.Point(286, 130)
         Me.numFojasAgregadas.Name = "numFojasAgregadas"
-        Me.numFojasAgregadas.Size = New System.Drawing.Size(60, 23)
+        Me.numFojasAgregadas.Size = New System.Drawing.Size(60, 31)
         Me.numFojasAgregadas.TabIndex = 3
         '
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(17, 118)
+        Me.Label3.Location = New System.Drawing.Point(17, 132)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(182, 15)
+        Me.Label3.Size = New System.Drawing.Size(263, 25)
         Me.Label3.TabIndex = 2
         Me.Label3.Text = "Fojas agregadas en esta oficina:"
         '
         'txtObservacion
         '
-        Me.txtObservacion.Location = New System.Drawing.Point(20, 45)
+        Me.txtObservacion.Location = New System.Drawing.Point(20, 64)
         Me.txtObservacion.Multiline = True
         Me.txtObservacion.Name = "txtObservacion"
         Me.txtObservacion.Size = New System.Drawing.Size(520, 60)
@@ -131,7 +131,7 @@ Partial Class frmPase
         Me.Label2.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label2.Location = New System.Drawing.Point(17, 27)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(176, 15)
+        Me.Label2.Size = New System.Drawing.Size(266, 25)
         Me.Label2.TabIndex = 0
         Me.Label2.Text = "Instrucción / Motivo del pase:"
         '
@@ -141,7 +141,7 @@ Partial Class frmPase
         Me.btnConfirmar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnConfirmar.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnConfirmar.ForeColor = System.Drawing.Color.White
-        Me.btnConfirmar.Location = New System.Drawing.Point(392, 460)
+        Me.btnConfirmar.Location = New System.Drawing.Point(392, 540)
         Me.btnConfirmar.Name = "btnConfirmar"
         Me.btnConfirmar.Size = New System.Drawing.Size(180, 40)
         Me.btnConfirmar.TabIndex = 3
@@ -150,7 +150,7 @@ Partial Class frmPase
         '
         'btnCancelar
         '
-        Me.btnCancelar.Location = New System.Drawing.Point(266, 460)
+        Me.btnCancelar.Location = New System.Drawing.Point(266, 540)
         Me.btnCancelar.Name = "btnCancelar"
         Me.btnCancelar.Size = New System.Drawing.Size(110, 40)
         Me.btnCancelar.TabIndex = 4
@@ -172,10 +172,10 @@ Partial Class frmPase
         '
         'frmPase
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ClientSize = New System.Drawing.Size(584, 515)
+        Me.ClientSize = New System.Drawing.Size(584, 592)
         Me.Controls.Add(Me.txtResumen)
         Me.Controls.Add(Me.btnCancelar)
         Me.Controls.Add(Me.btnConfirmar)

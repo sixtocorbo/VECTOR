@@ -290,7 +290,7 @@ Partial Class frmMesaEntrada
         Me.lblAdjuntosInfo.Location = New System.Drawing.Point(24, 131)
         Me.lblAdjuntosInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblAdjuntosInfo.Name = "lblAdjuntosInfo"
-        Me.lblAdjuntosInfo.Size = New System.Drawing.Size(122, 25)
+        Me.lblAdjuntosInfo.Size = New System.Drawing.Size(102, 25)
         Me.lblAdjuntosInfo.TabIndex = 4
         Me.lblAdjuntosInfo.Text = "0 archivo(s)"
         '
@@ -372,7 +372,7 @@ Partial Class frmMesaEntrada
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.AutoScroll = True ' --- CAMBIO CLAVE: Activa el Scroll automático ---
+        Me.AutoScroll = True
         Me.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ClientSize = New System.Drawing.Size(886, 900)
         Me.Controls.Add(Me.btnCancelar)
@@ -381,12 +381,11 @@ Partial Class frmMesaEntrada
         Me.Controls.Add(Me.grpContenido)
         Me.Controls.Add(Me.grpDetalles)
         Me.Controls.Add(Me.grpOrigen)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable ' --- CAMBIO: Permite cambiar tamaño para probar scroll ---
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.MaximizeBox = True
         Me.Name = "frmMesaEntrada"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "VECTOR - Mesa de Entrada"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.grpOrigen.ResumeLayout(False)
         Me.grpOrigen.PerformLayout()
         Me.grpDetalles.ResumeLayout(False)

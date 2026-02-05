@@ -186,11 +186,11 @@ Public Class frmBandeja
 
         ' 2. Configurar Anchos y Títulos (Tu diseño restaurado)
         With dgvPendientes
-            .Columns("ID").Width = 50
+            .Columns("ID").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("ID").HeaderText = "ID"
             .Columns("ID").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-            .Columns("Tipo").Width = 70
+            .Columns("Tipo").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Tipo").HeaderText = "Tipo"
 
             .Columns("Referencia").Width = 100
@@ -200,7 +200,7 @@ Public Class frmBandeja
             .Columns("Fecha").Width = 110
             .Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy"
 
-            .Columns("Estado").Width = 90
+            .Columns("Estado").Width = 100
 
             .Columns("Origen").Width = 140
             .Columns("Origen").HeaderText = "Origen"

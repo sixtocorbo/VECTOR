@@ -187,7 +187,7 @@ Partial Class frmPase
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "frmPase"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "VECTOR - Movimiento de Expediente"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()

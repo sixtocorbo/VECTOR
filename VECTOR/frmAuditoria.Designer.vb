@@ -587,6 +587,7 @@ Partial Class frmAuditoria
         Me.Name = "frmAuditoria"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Auditoría y Transacciones"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.TabControlAuditoria.ResumeLayout(False)
         Me.TabPageAuditoria.ResumeLayout(False)
         Me.SplitAuditoria.Panel1.ResumeLayout(False)

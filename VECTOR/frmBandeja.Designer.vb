@@ -251,6 +251,7 @@ Partial Class frmBandeja
         Me.Name = "frmBandeja"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "VECTOR - Sistema de Gestión"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.PanelSuperior.ResumeLayout(False)
         Me.PanelSuperior.PerformLayout()
         Me.PanelInferior.ResumeLayout(False)

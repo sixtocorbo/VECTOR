@@ -621,24 +621,26 @@ Public Class frmBandeja
                 End If
                 sb.AppendLine("📍 ORIGEN: " & nombreOficinaRemota.ToUpper())
 
-                If MessageBox.Show(sb.ToString(), "Recibir / Recuperar Paquete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                    For Each d In docsA_Recibir
-                        d.IdOficinaActual = SesionGlobal.OficinaID
-                        d.IdEstadoActual = 1
-                        Dim mov As New Tra_Movimiento() With {
-                            .IdDocumento = d.IdDocumento,
-                            .FechaMovimiento = DateTime.Now,
-                            .IdOficinaOrigen = idOficinaOrigen,
-                            .IdOficinaDestino = SesionGlobal.OficinaID,
-                            .IdUsuarioResponsable = SesionGlobal.UsuarioID,
-                            .ObservacionPase = "RECUPERADO DESDE RADAR (SINCRONIZADO)",
-                            .IdEstadoEnEseMomento = 1
-                        }
-                        d.Tra_Movimiento.Add(mov)
-                    Next
-                    Await uow.CommitAsync()
-                    AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Docs: {totalDocs}. Exp: {docPadreNumero}.", "RECEPCION")
+                If MessageBox.Show(sb.ToString(), "Recibir / Recuperar Paquete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
+                    Return
                 End If
+
+                For Each d In docsA_Recibir
+                    d.IdOficinaActual = SesionGlobal.OficinaID
+                    d.IdEstadoActual = 1
+                    Dim mov As New Tra_Movimiento() With {
+                        .IdDocumento = d.IdDocumento,
+                        .FechaMovimiento = DateTime.Now,
+                        .IdOficinaOrigen = idOficinaOrigen,
+                        .IdOficinaDestino = SesionGlobal.OficinaID,
+                        .IdUsuarioResponsable = SesionGlobal.UsuarioID,
+                        .ObservacionPase = "RECUPERADO DESDE RADAR (SINCRONIZADO)",
+                        .IdEstadoEnEseMomento = 1
+                    }
+                    d.Tra_Movimiento.Add(mov)
+                Next
+                Await uow.CommitAsync()
+                AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Docs: {totalDocs}. Exp: {docPadreNumero}.", "RECEPCION")
             End Using
 
             ' ✅ ÉXITO: Cargamos grilla dentro del flujo normal

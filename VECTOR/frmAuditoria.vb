@@ -383,12 +383,22 @@ Public Class frmAuditoria
         Else
             lblDetalleTransaccionFecha.Text = "Fecha: " & fechaStr
         End If
-        lblDetalleTransaccionDocumento.Text = "Documento: " & ObtenerValorCelda(fila, "Documento")
-        lblDetalleTransaccionOrigen.Text = "Origen: " & ObtenerValorCelda(fila, "Origen")
-        lblDetalleTransaccionDestino.Text = "Destino: " & ObtenerValorCelda(fila, "Destino")
+        Dim documento = ObtenerValorCelda(fila, "Documento")
+        Dim origen = ObtenerValorCelda(fila, "Origen")
+        Dim destino = ObtenerValorCelda(fila, "Destino")
+        Dim observacion = ObtenerValorCelda(fila, "Observacion")
+
+        lblDetalleTransaccionDocumento.Text = "Documento: " & documento
+        lblDetalleTransaccionOrigen.Text = "Origen: " & origen
+        lblDetalleTransaccionDestino.Text = "Destino: " & destino
         lblDetalleTransaccionEstado.Text = "Estado: " & ObtenerValorCelda(fila, "Estado")
         lblDetalleTransaccionResponsable.Text = "Responsable: " & ObtenerValorCelda(fila, "Responsable")
-        txtDetalleTransaccionObservacion.Text = ObtenerValorCelda(fila, "Observacion")
+        txtDetalleTransaccionObservacion.Text = String.Join(Environment.NewLine,
+                                                           "Documento: " & documento,
+                                                           "Origen: " & origen,
+                                                           "Destino: " & destino,
+                                                           String.Empty,
+                                                           observacion)
     End Sub
 
 End Class

@@ -7,13 +7,13 @@ Public Class frmAuditoria
     Private WithEvents tmrBusquedaTransacciones As New Timer With {.Interval = 500}
     Private _cargandoCombos As Boolean = False
 
-    Private Sub frmAuditoria_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Async Sub frmAuditoria_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         InicializarFechas()
         CargarCombos()
 
         ' Cargar datos iniciales
-        CargarAuditoria()
-        CargarTransacciones()
+        Await CargarAuditoriaAsync()
+        Await CargarTransaccionesAsync()
 
         ' Suscribir eventos manuales para Combos (para evitar disparos durante la carga)
         SuscribirEventosCambio()
@@ -90,9 +90,9 @@ Public Class frmAuditoria
         tmrBusquedaAuditoria.Start()
     End Sub
 
-    Private Sub tmrBusquedaAuditoria_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaAuditoria.Tick
+    Private Async Sub tmrBusquedaAuditoria_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaAuditoria.Tick
         tmrBusquedaAuditoria.Stop()
-        CargarAuditoria() ' Ejecuta la búsqueda real
+        Await CargarAuditoriaAsync() ' Ejecuta la búsqueda real
     End Sub
 
     Private Sub txtTransaccionesBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtTransaccionesBuscar.TextChanged
@@ -100,145 +100,149 @@ Public Class frmAuditoria
         tmrBusquedaTransacciones.Start()
     End Sub
 
-    Private Sub tmrBusquedaTransacciones_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaTransacciones.Tick
+    Private Async Sub tmrBusquedaTransacciones_Tick(sender As Object, e As EventArgs) Handles tmrBusquedaTransacciones.Tick
         tmrBusquedaTransacciones.Stop()
-        CargarTransacciones() ' Ejecuta la búsqueda real
+        Await CargarTransaccionesAsync() ' Ejecuta la búsqueda real
     End Sub
 
     ' --- MANEJADORES DE FILTROS INMEDIATOS ---
-    Private Sub FiltroAuditoriaCambiado(sender As Object, e As EventArgs)
+    Private Async Sub FiltroAuditoriaCambiado(sender As Object, e As EventArgs)
         If _cargandoCombos Then Return
-        CargarAuditoria()
+        Await CargarAuditoriaAsync()
     End Sub
 
-    Private Sub FiltroTransaccionesCambiado(sender As Object, e As EventArgs)
+    Private Async Sub FiltroTransaccionesCambiado(sender As Object, e As EventArgs)
         If _cargandoCombos Then Return
-        CargarTransacciones()
+        Await CargarTransaccionesAsync()
     End Sub
 
     ' --- CARGA DE DATOS (CON BÚSQUEDA INTELIGENTE) ---
-    Private Sub CargarAuditoria()
+    Private Async Function CargarAuditoriaAsync() As Task
         Try
-            Using db As New SecretariaDBEntities()
-                Dim desde = dtpAuditoriaDesde.Value.Date
-                Dim hasta = dtpAuditoriaHasta.Value.Date.AddDays(1).AddTicks(-1)
+            Dim desde = dtpAuditoriaDesde.Value.Date
+            Dim hasta = dtpAuditoriaHasta.Value.Date.AddDays(1).AddTicks(-1)
 
-                Dim usuarioId As Integer = 0
-                Integer.TryParse(Convert.ToString(cmbAuditoriaUsuario.SelectedValue), usuarioId)
+            Dim usuarioId As Integer = 0
+            Integer.TryParse(Convert.ToString(cmbAuditoriaUsuario.SelectedValue), usuarioId)
 
-                Dim modulo As String = If(cmbAuditoriaModulo.SelectedItem Is Nothing, "Todos", cmbAuditoriaModulo.SelectedItem.ToString())
-                Dim texto = txtAuditoriaBuscar.Text.Trim()
+            Dim modulo As String = If(cmbAuditoriaModulo.SelectedItem Is Nothing, "Todos", cmbAuditoriaModulo.SelectedItem.ToString())
+            Dim texto = txtAuditoriaBuscar.Text.Trim()
 
-                Dim query = db.EventosSistema.Include("Cat_Usuario").AsQueryable()
-                query = query.Where(Function(e) e.FechaEvento >= desde AndAlso e.FechaEvento <= hasta)
+            Dim datos = Await Task.Run(Function()
+                                           Using db As New SecretariaDBEntities()
+                                               Dim query = db.EventosSistema.Include("Cat_Usuario").AsQueryable()
+                                               query = query.Where(Function(e) e.FechaEvento >= desde AndAlso e.FechaEvento <= hasta)
 
-                If usuarioId > 0 Then
-                    query = query.Where(Function(e) e.UsuarioId = usuarioId)
-                End If
+                                               If usuarioId > 0 Then
+                                                   query = query.Where(Function(e) e.UsuarioId = usuarioId)
+                                               End If
 
-                If Not String.Equals(modulo, "Todos", StringComparison.OrdinalIgnoreCase) Then
-                    query = query.Where(Function(e) e.Modulo = modulo)
-                End If
+                                               If Not String.Equals(modulo, "Todos", StringComparison.OrdinalIgnoreCase) Then
+                                                   query = query.Where(Function(e) e.Modulo = modulo)
+                                               End If
 
-                ' --- BÚSQUEDA INTELIGENTE (PALABRAS SUELTAS) ---
-                If Not String.IsNullOrWhiteSpace(texto) Then
-                    Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
-                    For Each palabra In palabras
-                        Dim p = palabra ' Variable local para lambda
-                        ' Busca que la palabra exista en Descripcion O Usuario O Modulo
-                        query = query.Where(Function(e) e.Descripcion.Contains(p) OrElse
-                                                        e.Cat_Usuario.UsuarioLogin.Contains(p) OrElse
-                                                        e.Modulo.Contains(p))
-                    Next
-                End If
-                ' ------------------------------------------------
+                                               ' --- BÚSQUEDA INTELIGENTE (PALABRAS SUELTAS) ---
+                                               If Not String.IsNullOrWhiteSpace(texto) Then
+                                                   Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+                                                   For Each palabra In palabras
+                                                       Dim p = palabra ' Variable local para lambda
+                                                       ' Busca que la palabra exista en Descripcion O Usuario O Modulo
+                                                       query = query.Where(Function(e) e.Descripcion.Contains(p) OrElse
+                                                                                       e.Cat_Usuario.UsuarioLogin.Contains(p) OrElse
+                                                                                       e.Modulo.Contains(p))
+                                                   Next
+                                               End If
+                                               ' ------------------------------------------------
 
-                Dim datos = query.OrderByDescending(Function(e) e.FechaEvento).Select(Function(e) New With {
-                    .IdEvento = e.IdEvento,
-                    .Fecha = e.FechaEvento,
-                    .Usuario = e.Cat_Usuario.UsuarioLogin,
-                    .Modulo = e.Modulo,
-                    .Descripcion = e.Descripcion
-                }).ToList()
+                                               Return query.OrderByDescending(Function(e) e.FechaEvento).Select(Function(e) New With {
+                                                   .IdEvento = e.IdEvento,
+                                                   .Fecha = e.FechaEvento,
+                                                   .Usuario = e.Cat_Usuario.UsuarioLogin,
+                                                   .Modulo = e.Modulo,
+                                                   .Descripcion = e.Descripcion
+                                               }).ToList()
+                                           End Using
+                                       End Function)
 
-                dgvAuditoria.DataSource = datos
-                ConfigurarGridAuditoria()
-                MostrarDetalleAuditoria()
-            End Using
+            dgvAuditoria.DataSource = datos
+            ConfigurarGridAuditoria()
+            MostrarDetalleAuditoria()
         Catch ex As Exception
             ' Evitar msgbox molestos si se está escribiendo rápido, escribir a consola mejor
             Console.WriteLine("Error búsqueda auditoría: " & ex.Message)
         End Try
-    End Sub
+    End Function
 
-    Private Sub CargarTransacciones()
+    Private Async Function CargarTransaccionesAsync() As Task
         Try
-            Using db As New SecretariaDBEntities()
-                Dim desde = dtpTransaccionesDesde.Value.Date
-                Dim hasta = dtpTransaccionesHasta.Value.Date.AddDays(1).AddTicks(-1)
+            Dim desde = dtpTransaccionesDesde.Value.Date
+            Dim hasta = dtpTransaccionesHasta.Value.Date.AddDays(1).AddTicks(-1)
 
-                Dim usuarioId As Integer = 0
-                Integer.TryParse(Convert.ToString(cmbTransaccionesUsuario.SelectedValue), usuarioId)
+            Dim usuarioId As Integer = 0
+            Integer.TryParse(Convert.ToString(cmbTransaccionesUsuario.SelectedValue), usuarioId)
 
-                Dim origenId As Integer = 0
-                Integer.TryParse(Convert.ToString(cmbTransaccionesOrigen.SelectedValue), origenId)
+            Dim origenId As Integer = 0
+            Integer.TryParse(Convert.ToString(cmbTransaccionesOrigen.SelectedValue), origenId)
 
-                Dim destinoId As Integer = 0
-                Integer.TryParse(Convert.ToString(cmbTransaccionesDestino.SelectedValue), destinoId)
+            Dim destinoId As Integer = 0
+            Integer.TryParse(Convert.ToString(cmbTransaccionesDestino.SelectedValue), destinoId)
 
-                Dim texto = txtTransaccionesBuscar.Text.Trim()
+            Dim texto = txtTransaccionesBuscar.Text.Trim()
 
-                Dim query = db.Tra_Movimiento.Include("Mae_Documento.Cat_TipoDocumento").Include("Cat_Oficina").Include("Cat_Oficina1").Include("Cat_Usuario").Include("Cat_Estado").AsQueryable()
-                query = query.Where(Function(m) m.FechaMovimiento >= desde AndAlso m.FechaMovimiento <= hasta)
+            Dim datos = Await Task.Run(Function()
+                                           Using db As New SecretariaDBEntities()
+                                               Dim query = db.Tra_Movimiento.Include("Mae_Documento.Cat_TipoDocumento").Include("Cat_Oficina").Include("Cat_Oficina1").Include("Cat_Usuario").Include("Cat_Estado").AsQueryable()
+                                               query = query.Where(Function(m) m.FechaMovimiento >= desde AndAlso m.FechaMovimiento <= hasta)
 
-                If usuarioId > 0 Then
-                    query = query.Where(Function(m) m.IdUsuarioResponsable.HasValue AndAlso m.IdUsuarioResponsable.Value = usuarioId)
-                End If
+                                               If usuarioId > 0 Then
+                                                   query = query.Where(Function(m) m.IdUsuarioResponsable.HasValue AndAlso m.IdUsuarioResponsable.Value = usuarioId)
+                                               End If
 
-                If origenId > 0 Then
-                    query = query.Where(Function(m) m.IdOficinaOrigen = origenId)
-                End If
+                                               If origenId > 0 Then
+                                                   query = query.Where(Function(m) m.IdOficinaOrigen = origenId)
+                                               End If
 
-                If destinoId > 0 Then
-                    query = query.Where(Function(m) m.IdOficinaDestino = destinoId)
-                End If
+                                               If destinoId > 0 Then
+                                                   query = query.Where(Function(m) m.IdOficinaDestino = destinoId)
+                                               End If
 
-                ' --- BÚSQUEDA INTELIGENTE AMPLIA (PALABRAS SUELTAS) ---
-                If Not String.IsNullOrWhiteSpace(texto) Then
-                    Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
-                    For Each palabra In palabras
-                        Dim p = palabra
-                        ' La palabra debe estar en ALGUNO de estos campos.
-                        ' Al iterar con "Where", forzamos a que CADA palabra del buscador coincida con algo.
-                        query = query.Where(Function(m) m.Mae_Documento.NumeroOficial.Contains(p) OrElse
-                                                        m.Mae_Documento.NumeroInterno.Contains(p) OrElse
-                                                        m.Mae_Documento.Asunto.Contains(p) OrElse
-                                                        m.ObservacionPase.Contains(p) OrElse
-                                                        m.Cat_Oficina.Nombre.Contains(p) OrElse
-                                                        m.Cat_Oficina1.Nombre.Contains(p))
-                    Next
-                End If
-                ' --------------------------------------------------------
+                                               ' --- BÚSQUEDA INTELIGENTE AMPLIA (PALABRAS SUELTAS) ---
+                                               If Not String.IsNullOrWhiteSpace(texto) Then
+                                                   Dim palabras = texto.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+                                                   For Each palabra In palabras
+                                                       Dim p = palabra
+                                                       ' La palabra debe estar en ALGUNO de estos campos.
+                                                       ' Al iterar con "Where", forzamos a que CADA palabra del buscador coincida con algo.
+                                                       query = query.Where(Function(m) m.Mae_Documento.NumeroOficial.Contains(p) OrElse
+                                                                                       m.Mae_Documento.NumeroInterno.Contains(p) OrElse
+                                                                                       m.Mae_Documento.Asunto.Contains(p) OrElse
+                                                                                       m.ObservacionPase.Contains(p) OrElse
+                                                                                       m.Cat_Oficina.Nombre.Contains(p) OrElse
+                                                                                       m.Cat_Oficina1.Nombre.Contains(p))
+                                                   Next
+                                               End If
+                                               ' --------------------------------------------------------
 
-                Dim datos = query.OrderByDescending(Function(m) m.FechaMovimiento).Select(Function(m) New With {
-                    .IdMovimiento = m.IdMovimiento,
-                    .Fecha = m.FechaMovimiento,
-                    .Documento = m.Mae_Documento.Cat_TipoDocumento.Codigo & " " & m.Mae_Documento.NumeroOficial,
-                    .Origen = m.Cat_Oficina.Nombre,
-                    .Destino = m.Cat_Oficina1.Nombre,
-                    .Estado = m.Cat_Estado.Nombre,
-                    .Responsable = If(m.Cat_Usuario Is Nothing, "", m.Cat_Usuario.UsuarioLogin),
-                    .Observacion = m.ObservacionPase
-                }).ToList()
+                                               Return query.OrderByDescending(Function(m) m.FechaMovimiento).Select(Function(m) New With {
+                                                   .IdMovimiento = m.IdMovimiento,
+                                                   .Fecha = m.FechaMovimiento,
+                                                   .Documento = m.Mae_Documento.Cat_TipoDocumento.Codigo & " " & m.Mae_Documento.NumeroOficial,
+                                                   .Origen = m.Cat_Oficina.Nombre,
+                                                   .Destino = m.Cat_Oficina1.Nombre,
+                                                   .Estado = m.Cat_Estado.Nombre,
+                                                   .Responsable = If(m.Cat_Usuario Is Nothing, "", m.Cat_Usuario.UsuarioLogin),
+                                                   .Observacion = m.ObservacionPase
+                                               }).ToList()
+                                           End Using
+                                       End Function)
 
-                dgvTransacciones.DataSource = datos
-                ' ConfigurarGridTransacciones se llama en DataBindingComplete
-                MostrarDetalleTransaccion()
-            End Using
+            dgvTransacciones.DataSource = datos
+            ' ConfigurarGridTransacciones se llama en DataBindingComplete
+            MostrarDetalleTransaccion()
         Catch ex As Exception
             Console.WriteLine("Error búsqueda transacciones: " & ex.Message)
         End Try
-    End Sub
+    End Function
 
     ' --- RESTO DE MÉTODOS DE VISUALIZACIÓN (IGUAL QUE ANTES) ---
 
@@ -312,29 +316,29 @@ Public Class frmAuditoria
         Return If(valor Is Nothing, String.Empty, Convert.ToString(valor))
     End Function
 
-    Private Sub btnAuditoriaBuscar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaBuscar.Click
-        CargarAuditoria()
+    Private Async Sub btnAuditoriaBuscar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaBuscar.Click
+        Await CargarAuditoriaAsync()
     End Sub
 
-    Private Sub btnAuditoriaLimpiar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaLimpiar.Click
+    Private Async Sub btnAuditoriaLimpiar_Click(sender As Object, e As EventArgs) Handles btnAuditoriaLimpiar.Click
         InicializarFechas()
         txtAuditoriaBuscar.Clear()
         cmbAuditoriaUsuario.SelectedIndex = 0
         cmbAuditoriaModulo.SelectedIndex = 0
-        CargarAuditoria()
+        Await CargarAuditoriaAsync()
     End Sub
 
-    Private Sub btnTransaccionesBuscar_Click(sender As Object, e As EventArgs) Handles btnTransaccionesBuscar.Click
-        CargarTransacciones()
+    Private Async Sub btnTransaccionesBuscar_Click(sender As Object, e As EventArgs) Handles btnTransaccionesBuscar.Click
+        Await CargarTransaccionesAsync()
     End Sub
 
-    Private Sub btnTransaccionesLimpiar_Click(sender As Object, e As EventArgs) Handles btnTransaccionesLimpiar.Click
+    Private Async Sub btnTransaccionesLimpiar_Click(sender As Object, e As EventArgs) Handles btnTransaccionesLimpiar.Click
         InicializarFechas()
         txtTransaccionesBuscar.Clear()
         cmbTransaccionesUsuario.SelectedIndex = 0
         cmbTransaccionesOrigen.SelectedIndex = 0
         cmbTransaccionesDestino.SelectedIndex = 0
-        CargarTransacciones()
+        Await CargarTransaccionesAsync()
     End Sub
 
     Private Sub dgvAuditoria_SelectionChanged(sender As Object, e As EventArgs) Handles dgvAuditoria.SelectionChanged

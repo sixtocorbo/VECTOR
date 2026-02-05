@@ -5,7 +5,7 @@ Imports System.IO
 
 Public Class frmMesaEntrada
 
-    Private db As New SecretariaDBEntities()
+    Private ReadOnly _unitOfWork As IUnitOfWork
 
     ' =======================================================
     ' VARIABLES DE ESTADO
@@ -33,6 +33,7 @@ Public Class frmMesaEntrada
 
     ' 1. CONSTRUCTOR PARA NUEVO INGRESO
     Public Sub New()
+        _unitOfWork = New UnitOfWork()
         InitializeComponent()
         _modoRespuesta = False
         _idEdicion = Nothing
@@ -41,6 +42,7 @@ Public Class frmMesaEntrada
 
     ' 2. CONSTRUCTOR PARA RESPUESTA / DIGITALIZACIÓN
     Public Sub New(idPadre As Long, guidHilo As Guid, asuntoOriginal As String, Optional idOrigenExterno As Integer? = Nothing)
+        _unitOfWork = New UnitOfWork()
         InitializeComponent()
         _modoRespuesta = True
         _idDocPadre = idPadre
@@ -52,6 +54,7 @@ Public Class frmMesaEntrada
 
     ' 3. CONSTRUCTOR PARA EDICIÓN
     Public Sub New(idDocAEditar As Long)
+        _unitOfWork = New UnitOfWork()
         InitializeComponent()
         _modoRespuesta = False
         _idEdicion = idDocAEditar
@@ -90,7 +93,7 @@ Public Class frmMesaEntrada
         cboTipo.DisplayMember = "Nombre"
         cboTipo.ValueMember = "IdTipo"
         ' Al final cargamos la lista (esto dispara el evento, pero ya sabe qué es el Value)
-        cboTipo.DataSource = db.Cat_TipoDocumento.ToList()
+        cboTipo.DataSource = _unitOfWork.Repository(Of Cat_TipoDocumento)().GetQueryable().ToList()
         cboTipo.SelectedIndex = -1
 
         ' B. CARGA OFICINAS
@@ -98,7 +101,7 @@ Public Class frmMesaEntrada
         cboOrigen.DisplayMember = "Nombre"
         cboOrigen.ValueMember = "IdOficina"
         ' Al final cargamos la lista
-        cboOrigen.DataSource = db.Cat_Oficina.OrderBy(Function(o) o.Nombre).ToList()
+        cboOrigen.DataSource = _unitOfWork.Repository(Of Cat_Oficina)().GetQueryable().OrderBy(Function(o) o.Nombre).ToList()
         cboOrigen.SelectedIndex = -1
     End Sub
 
@@ -131,7 +134,7 @@ Public Class frmMesaEntrada
         Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
 
         ' 3. Buscamos si hay un rango activo
-        Dim rangoActivo = db.Mae_NumeracionRangos.FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+        Dim rangoActivo = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
 
         If rangoActivo IsNot Nothing Then
             ' CASO A: HAY RANGO AUTOMÁTICO
@@ -191,7 +194,7 @@ Public Class frmMesaEntrada
     End Sub
 
     Private Sub CargarDatosParaEditar()
-        Dim doc = db.Mae_Documento.Find(_idEdicion.Value)
+        Dim doc = _unitOfWork.Context.Set(Of Mae_Documento)().Find(_idEdicion.Value)
 
         Me.Text = "EDITAR DOCUMENTO: " & doc.NumeroOficial
         Me.BackColor = Color.AliceBlue
@@ -313,7 +316,7 @@ Public Class frmMesaEntrada
                 ' =================================================
                 ' CASO UPDATE: EDITAR EXISTENTE
                 ' =================================================
-                doc = db.Mae_Documento.Find(_idEdicion.Value)
+                doc = _unitOfWork.Context.Set(Of Mae_Documento)().Find(_idEdicion.Value)
 
                 ' En edición NO cambiamos el número automáticamente, respetamos el que tiene
                 doc.IdTipo = CInt(cboTipo.SelectedValue)
@@ -323,7 +326,7 @@ Public Class frmMesaEntrada
                 doc.Fojas = CInt(numFojas.Value)
                 doc.FechaRecepcion = dtpFechaRecepcion.Value
 
-                db.SaveChanges()
+                _unitOfWork.Commit()
                 GuardarAdjuntos(doc.IdDocumento)
                 AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
                 Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
@@ -339,7 +342,7 @@ Public Class frmMesaEntrada
                     Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
 
                     ' Volvemos a consultar el rango para asegurar concurrencia
-                    Dim rango = db.Mae_NumeracionRangos.FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+                    Dim rango = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
 
                     If rango Is Nothing Then
                         Toast.Show(Me, "El rango de numeración se desactivó o no existe. Guarde manualmente.", ToastType.Error)
@@ -386,7 +389,7 @@ Public Class frmMesaEntrada
                     doc.IdDocumentoPadre = Nothing
                 End If
 
-                db.Mae_Documento.Add(doc)
+                _unitOfWork.Repository(Of Mae_Documento)().Add(doc)
 
                 ' Trazabilidad
                 Dim mov As New Tra_Movimiento()
@@ -411,7 +414,7 @@ Public Class frmMesaEntrada
                 doc.Tra_Movimiento.Add(mov)
 
                 ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
-                db.SaveChanges()
+                _unitOfWork.Commit()
                 GuardarAdjuntos(doc.IdDocumento)
                 Dim tipoCarga As String = If(_modoRespuesta, "Respuesta/Actuación", "Ingreso")
                 AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS")
@@ -456,6 +459,15 @@ Public Class frmMesaEntrada
 
     Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
         Me.Close()
+    End Sub
+
+    Protected Overrides Sub Dispose(disposing As Boolean)
+        If disposing Then
+            If _unitOfWork IsNot Nothing Then
+                _unitOfWork.Dispose()
+            End If
+        End If
+        MyBase.Dispose(disposing)
     End Sub
 
     Private Sub btnBuscarPPL_Click(sender As Object, e As EventArgs) Handles btnBuscarPPL.Click

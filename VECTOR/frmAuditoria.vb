@@ -367,9 +367,6 @@ Public Class frmAuditoria
     Private Sub MostrarDetalleTransaccion()
         If dgvTransacciones.CurrentRow Is Nothing Then
             lblDetalleTransaccionFecha.Text = "Fecha:"
-            lblDetalleTransaccionDocumento.Text = "Documento:"
-            lblDetalleTransaccionOrigen.Text = "Origen:"
-            lblDetalleTransaccionDestino.Text = "Destino:"
             lblDetalleTransaccionEstado.Text = "Estado:"
             lblDetalleTransaccionResponsable.Text = "Responsable:"
             txtDetalleTransaccionObservacion.Text = String.Empty
@@ -387,17 +384,13 @@ Public Class frmAuditoria
         Dim origen = ObtenerValorCelda(fila, "Origen")
         Dim destino = ObtenerValorCelda(fila, "Destino")
         Dim observacion = ObtenerValorCelda(fila, "Observacion")
-
-        lblDetalleTransaccionDocumento.Text = "Documento: " & documento
-        lblDetalleTransaccionOrigen.Text = "Origen: " & origen
-        lblDetalleTransaccionDestino.Text = "Destino: " & destino
         lblDetalleTransaccionEstado.Text = "Estado: " & ObtenerValorCelda(fila, "Estado")
         lblDetalleTransaccionResponsable.Text = "Responsable: " & ObtenerValorCelda(fila, "Responsable")
         txtDetalleTransaccionObservacion.Text = String.Join(Environment.NewLine,
                                                            "Documento: " & documento,
                                                            "Origen: " & origen,
                                                            "Destino: " & destino,
-                                                           String.Empty,
+                                                           "Observaciones: " &
                                                            observacion)
     End Sub
 

@@ -46,9 +46,6 @@ Partial Class frmAuditoria
         Me.txtDetalleTransaccionObservacion = New System.Windows.Forms.TextBox()
         Me.lblDetalleTransaccionResponsable = New System.Windows.Forms.Label()
         Me.lblDetalleTransaccionEstado = New System.Windows.Forms.Label()
-        Me.lblDetalleTransaccionDestino = New System.Windows.Forms.Label()
-        Me.lblDetalleTransaccionOrigen = New System.Windows.Forms.Label()
-        Me.lblDetalleTransaccionDocumento = New System.Windows.Forms.Label()
         Me.lblDetalleTransaccionFecha = New System.Windows.Forms.Label()
         Me.PanelTransaccionesFiltros = New System.Windows.Forms.Panel()
         Me.btnTransaccionesLimpiar = New System.Windows.Forms.Button()
@@ -121,8 +118,8 @@ Partial Class frmAuditoria
         '
         'SplitAuditoria.Panel2
         '
-        Me.SplitAuditoria.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitAuditoria.Panel2.Controls.Add(Me.grpDetalleAuditoria)
+        Me.SplitAuditoria.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitAuditoria.Panel2MinSize = 185
         Me.SplitAuditoria.Size = New System.Drawing.Size(1186, 569)
         Me.SplitAuditoria.SplitterDistance = 380
@@ -157,7 +154,7 @@ Partial Class frmAuditoria
         Me.grpDetalleAuditoria.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpDetalleAuditoria.Location = New System.Drawing.Point(0, 0)
         Me.grpDetalleAuditoria.Name = "grpDetalleAuditoria"
-        Me.grpDetalleAuditoria.Size = New System.Drawing.Size(1186, 185)
+        Me.grpDetalleAuditoria.Size = New System.Drawing.Size(1186, 177)
         Me.grpDetalleAuditoria.TabIndex = 0
         Me.grpDetalleAuditoria.TabStop = False
         Me.grpDetalleAuditoria.Text = "Detalle de auditoría"
@@ -172,7 +169,7 @@ Partial Class frmAuditoria
         Me.txtDetalleAuditoriaDescripcion.Name = "txtDetalleAuditoriaDescripcion"
         Me.txtDetalleAuditoriaDescripcion.ReadOnly = True
         Me.txtDetalleAuditoriaDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDetalleAuditoriaDescripcion.Size = New System.Drawing.Size(1154, 95)
+        Me.txtDetalleAuditoriaDescripcion.Size = New System.Drawing.Size(1154, 87)
         Me.txtDetalleAuditoriaDescripcion.TabIndex = 3
         '
         'lblDetalleAuditoriaModulo
@@ -354,8 +351,8 @@ Partial Class frmAuditoria
         '
         'SplitTransacciones.Panel2
         '
-        Me.SplitTransacciones.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitTransacciones.Panel2.Controls.Add(Me.grpDetalleTransaccion)
+        Me.SplitTransacciones.Panel2.Padding = New System.Windows.Forms.Padding(0, 0, 0, 8)
         Me.SplitTransacciones.Panel2MinSize = 185
         Me.SplitTransacciones.Size = New System.Drawing.Size(1186, 569)
         Me.SplitTransacciones.SplitterDistance = 380
@@ -386,14 +383,11 @@ Partial Class frmAuditoria
         Me.grpDetalleTransaccion.Controls.Add(Me.txtDetalleTransaccionObservacion)
         Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionResponsable)
         Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionEstado)
-        Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionDestino)
-        Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionOrigen)
-        Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionDocumento)
         Me.grpDetalleTransaccion.Controls.Add(Me.lblDetalleTransaccionFecha)
         Me.grpDetalleTransaccion.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpDetalleTransaccion.Location = New System.Drawing.Point(0, 0)
         Me.grpDetalleTransaccion.Name = "grpDetalleTransaccion"
-        Me.grpDetalleTransaccion.Size = New System.Drawing.Size(1186, 185)
+        Me.grpDetalleTransaccion.Size = New System.Drawing.Size(1186, 177)
         Me.grpDetalleTransaccion.TabIndex = 0
         Me.grpDetalleTransaccion.TabStop = False
         Me.grpDetalleTransaccion.Text = "Detalle de transacción"
@@ -403,18 +397,18 @@ Partial Class frmAuditoria
         Me.txtDetalleTransaccionObservacion.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtDetalleTransaccionObservacion.Location = New System.Drawing.Point(16, 90)
+        Me.txtDetalleTransaccionObservacion.Location = New System.Drawing.Point(16, 48)
         Me.txtDetalleTransaccionObservacion.Multiline = True
         Me.txtDetalleTransaccionObservacion.Name = "txtDetalleTransaccionObservacion"
         Me.txtDetalleTransaccionObservacion.ReadOnly = True
         Me.txtDetalleTransaccionObservacion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDetalleTransaccionObservacion.Size = New System.Drawing.Size(1154, 80)
+        Me.txtDetalleTransaccionObservacion.Size = New System.Drawing.Size(1154, 114)
         Me.txtDetalleTransaccionObservacion.TabIndex = 6
         '
         'lblDetalleTransaccionResponsable
         '
         Me.lblDetalleTransaccionResponsable.AutoSize = True
-        Me.lblDetalleTransaccionResponsable.Location = New System.Drawing.Point(270, 55)
+        Me.lblDetalleTransaccionResponsable.Location = New System.Drawing.Point(582, 25)
         Me.lblDetalleTransaccionResponsable.Name = "lblDetalleTransaccionResponsable"
         Me.lblDetalleTransaccionResponsable.Size = New System.Drawing.Size(107, 20)
         Me.lblDetalleTransaccionResponsable.TabIndex = 5
@@ -423,38 +417,11 @@ Partial Class frmAuditoria
         'lblDetalleTransaccionEstado
         '
         Me.lblDetalleTransaccionEstado.AutoSize = True
-        Me.lblDetalleTransaccionEstado.Location = New System.Drawing.Point(12, 55)
+        Me.lblDetalleTransaccionEstado.Location = New System.Drawing.Point(297, 25)
         Me.lblDetalleTransaccionEstado.Name = "lblDetalleTransaccionEstado"
         Me.lblDetalleTransaccionEstado.Size = New System.Drawing.Size(64, 20)
         Me.lblDetalleTransaccionEstado.TabIndex = 4
         Me.lblDetalleTransaccionEstado.Text = "Estado:"
-        '
-        'lblDetalleTransaccionDestino
-        '
-        Me.lblDetalleTransaccionDestino.AutoSize = True
-        Me.lblDetalleTransaccionDestino.Location = New System.Drawing.Point(690, 25)
-        Me.lblDetalleTransaccionDestino.Name = "lblDetalleTransaccionDestino"
-        Me.lblDetalleTransaccionDestino.Size = New System.Drawing.Size(68, 20)
-        Me.lblDetalleTransaccionDestino.TabIndex = 3
-        Me.lblDetalleTransaccionDestino.Text = "Destino:"
-        '
-        'lblDetalleTransaccionOrigen
-        '
-        Me.lblDetalleTransaccionOrigen.AutoSize = True
-        Me.lblDetalleTransaccionOrigen.Location = New System.Drawing.Point(460, 25)
-        Me.lblDetalleTransaccionOrigen.Name = "lblDetalleTransaccionOrigen"
-        Me.lblDetalleTransaccionOrigen.Size = New System.Drawing.Size(60, 20)
-        Me.lblDetalleTransaccionOrigen.TabIndex = 2
-        Me.lblDetalleTransaccionOrigen.Text = "Origen:"
-        '
-        'lblDetalleTransaccionDocumento
-        '
-        Me.lblDetalleTransaccionDocumento.AutoSize = True
-        Me.lblDetalleTransaccionDocumento.Location = New System.Drawing.Point(270, 25)
-        Me.lblDetalleTransaccionDocumento.Name = "lblDetalleTransaccionDocumento"
-        Me.lblDetalleTransaccionDocumento.Size = New System.Drawing.Size(96, 20)
-        Me.lblDetalleTransaccionDocumento.TabIndex = 1
-        Me.lblDetalleTransaccionDocumento.Text = "Documento:"
         '
         'lblDetalleTransaccionFecha
         '
@@ -675,9 +642,6 @@ Partial Class frmAuditoria
     Friend WithEvents txtDetalleTransaccionObservacion As TextBox
     Friend WithEvents lblDetalleTransaccionResponsable As Label
     Friend WithEvents lblDetalleTransaccionEstado As Label
-    Friend WithEvents lblDetalleTransaccionDestino As Label
-    Friend WithEvents lblDetalleTransaccionOrigen As Label
-    Friend WithEvents lblDetalleTransaccionDocumento As Label
     Friend WithEvents lblDetalleTransaccionFecha As Label
     Friend WithEvents btnTransaccionesLimpiar As Button
     Friend WithEvents btnTransaccionesBuscar As Button

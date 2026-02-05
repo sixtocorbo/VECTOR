@@ -2,6 +2,8 @@
 Imports System.Diagnostics
 Imports System.Drawing
 Imports System.IO
+Imports System.Threading
+Imports System.Threading.Tasks
 
 Public Class frmMesaEntrada
 
@@ -26,6 +28,14 @@ Public Class frmMesaEntrada
 
     ' Adjuntos digitales (almacenados en disco)
     Private _adjuntos As New List(Of AttachmentInfo)()
+
+    ' Búsqueda de Organismo/Oficina (estilo frmPase)
+    Private _todasLasOficinas As List(Of Cat_Oficina)
+    Private _oficinaOrigenSeleccionada As Cat_Oficina
+    Private _filtroVersionOrigen As Integer = 0
+    Private _cerrandoFormulario As Boolean = False
+    Private _seleccionandoOrigen As Boolean = False
+    Private ReadOnly _lstSugerenciasOrigen As New ListBox()
 
     ' =======================================================
     ' CONSTRUCTORES (POLIMORFISMO)
@@ -66,7 +76,9 @@ Public Class frmMesaEntrada
     ' =======================================================
     Private Sub frmMesaEntrada_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        ConfigurarBuscadorOrigen()
         CargarListas()
+        UIUtils.SetPlaceholder(txtBuscarOrigen, "Escriba para buscar oficina...")
 
         If _idEdicion.HasValue Then
             ' MODO A: EDITAR (Update)
@@ -79,7 +91,7 @@ Public Class frmMesaEntrada
             LimpiarControles()
             Try
                 ' Por defecto, el origen soy yo
-                cboOrigen.SelectedValue = SesionGlobal.OficinaID
+                SeleccionarOrigenPorId(SesionGlobal.OficinaID)
             Catch
             End Try
         End If
@@ -97,12 +109,48 @@ Public Class frmMesaEntrada
         cboTipo.SelectedIndex = -1
 
         ' B. CARGA OFICINAS
-        ' Primero configuramos QUÉ vamos a usar
+        _todasLasOficinas = _unitOfWork.Repository(Of Cat_Oficina)().GetQueryable().OrderBy(Function(o) o.Nombre).ToList()
+
+        ' Combo oculto solo para compatibilidad de lógica existente
         cboOrigen.DisplayMember = "Nombre"
         cboOrigen.ValueMember = "IdOficina"
-        ' Al final cargamos la lista
-        cboOrigen.DataSource = _unitOfWork.Repository(Of Cat_Oficina)().GetQueryable().OrderBy(Function(o) o.Nombre).ToList()
+        cboOrigen.DataSource = _todasLasOficinas
         cboOrigen.SelectedIndex = -1
+        _oficinaOrigenSeleccionada = Nothing
+    End Sub
+
+    Private Sub ConfigurarBuscadorOrigen()
+        _lstSugerenciasOrigen.Name = "lstSugerenciasOrigen"
+        _lstSugerenciasOrigen.Font = New Font("Segoe UI", 9.0!)
+        _lstSugerenciasOrigen.BackColor = Color.White
+        _lstSugerenciasOrigen.BorderStyle = BorderStyle.FixedSingle
+        _lstSugerenciasOrigen.IntegralHeight = True
+        _lstSugerenciasOrigen.DrawMode = DrawMode.OwnerDrawFixed
+        _lstSugerenciasOrigen.ItemHeight = 22
+        _lstSugerenciasOrigen.Visible = False
+        _lstSugerenciasOrigen.DisplayMember = "Nombre"
+
+        Me.Controls.Add(_lstSugerenciasOrigen)
+        _lstSugerenciasOrigen.BringToFront()
+
+        AddHandler _lstSugerenciasOrigen.DoubleClick, AddressOf lstSugerenciasOrigen_Seleccionar
+        AddHandler _lstSugerenciasOrigen.MouseClick, AddressOf lstSugerenciasOrigen_Seleccionar
+        AddHandler _lstSugerenciasOrigen.KeyDown, AddressOf lstSugerenciasOrigen_KeyDown
+        AddHandler _lstSugerenciasOrigen.DrawItem, AddressOf lstSugerenciasOrigen_DrawItem
+    End Sub
+
+    Private Sub lstSugerenciasOrigen_DrawItem(sender As Object, e As DrawItemEventArgs)
+        If e.Index < 0 Then Return
+
+        Dim oficina = DirectCast(_lstSugerenciasOrigen.Items(e.Index), Cat_Oficina)
+
+        If (e.State And DrawItemState.Selected) = DrawItemState.Selected Then
+            e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds)
+            TextRenderer.DrawText(e.Graphics, oficina.Nombre, _lstSugerenciasOrigen.Font, e.Bounds, SystemColors.HighlightText, TextFormatFlags.VerticalCenter Or TextFormatFlags.Left)
+        Else
+            e.Graphics.FillRectangle(SystemBrushes.Window, e.Bounds)
+            TextRenderer.DrawText(e.Graphics, oficina.Nombre, _lstSugerenciasOrigen.Font, e.Bounds, SystemColors.WindowText, TextFormatFlags.VerticalCenter Or TextFormatFlags.Left)
+        End If
     End Sub
 
     ' =======================================================
@@ -165,6 +213,160 @@ Public Class frmMesaEntrada
         VerificarRangoNumeracion()
     End Sub
 
+    Private Async Sub txtBuscarOrigen_TextChanged(sender As Object, e As EventArgs) Handles txtBuscarOrigen.TextChanged
+        If _seleccionandoOrigen Then Return
+
+        _oficinaOrigenSeleccionada = Nothing
+        cboOrigen.SelectedIndex = -1
+        Await FiltrarOficinasOrigenAsync(txtBuscarOrigen.Text)
+    End Sub
+
+    Private Async Function FiltrarOficinasOrigenAsync(texto As String) As Task
+        Dim versionActual = Interlocked.Increment(_filtroVersionOrigen)
+
+        Try
+            Await Task.Delay(300)
+
+            If _cerrandoFormulario OrElse versionActual <> _filtroVersionOrigen Then Return
+
+            Dim textoNormalizado = texto.Trim()
+            Dim listaFiltrada As List(Of Cat_Oficina)
+
+            If String.IsNullOrWhiteSpace(textoNormalizado) Then
+                listaFiltrada = New List(Of Cat_Oficina)()
+            Else
+                listaFiltrada = Await Task.Run(Function()
+                                                   Dim terminos = textoNormalizado.ToUpper().Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+
+                                                   Return _todasLasOficinas.
+                                                       Where(Function(o) Not String.IsNullOrWhiteSpace(o.Nombre) AndAlso terminos.All(Function(t) o.Nombre.ToUpper().Contains(t))).
+                                                       Take(30).
+                                                       ToList()
+                                               End Function)
+            End If
+
+            If _cerrandoFormulario OrElse versionActual <> _filtroVersionOrigen Then Return
+            MostrarSugerenciasOrigen(listaFiltrada)
+        Catch ex As Exception
+            Debug.WriteLine("Error en búsqueda de oficinas: " & ex.Message)
+        End Try
+    End Function
+
+    Private Sub MostrarSugerenciasOrigen(lista As List(Of Cat_Oficina))
+        _lstSugerenciasOrigen.BeginUpdate()
+        _lstSugerenciasOrigen.Items.Clear()
+
+        For Each oficina In lista
+            _lstSugerenciasOrigen.Items.Add(oficina)
+        Next
+
+        _lstSugerenciasOrigen.EndUpdate()
+
+        If lista.Count > 0 Then
+            Dim pScreen As Point = txtBuscarOrigen.Parent.PointToScreen(New Point(txtBuscarOrigen.Left, txtBuscarOrigen.Bottom))
+            Dim pForm As Point = Me.PointToClient(pScreen)
+
+            _lstSugerenciasOrigen.Location = pForm
+            _lstSugerenciasOrigen.Width = txtBuscarOrigen.Width
+
+            Dim alturaNecesaria As Integer = (lista.Count * _lstSugerenciasOrigen.ItemHeight) + 4
+            Dim alturaMaxima As Integer = 130
+            _lstSugerenciasOrigen.Height = If(alturaNecesaria > alturaMaxima, alturaMaxima, alturaNecesaria)
+
+            _lstSugerenciasOrigen.SelectedIndex = 0
+            _lstSugerenciasOrigen.Visible = True
+            _lstSugerenciasOrigen.BringToFront()
+        Else
+            OcultarSugerenciasOrigen()
+        End If
+    End Sub
+
+    Private Sub txtBuscarOrigen_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBuscarOrigen.KeyDown
+        If Not _lstSugerenciasOrigen.Visible Then Return
+
+        Select Case e.KeyCode
+            Case Keys.Down
+                If _lstSugerenciasOrigen.SelectedIndex < _lstSugerenciasOrigen.Items.Count - 1 Then
+                    _lstSugerenciasOrigen.SelectedIndex += 1
+                End If
+                e.Handled = True
+            Case Keys.Up
+                If _lstSugerenciasOrigen.SelectedIndex > 0 Then
+                    _lstSugerenciasOrigen.SelectedIndex -= 1
+                End If
+                e.Handled = True
+            Case Keys.Enter
+                SeleccionarOficinaOrigenActual()
+                e.SuppressKeyPress = True
+                e.Handled = True
+            Case Keys.Escape
+                OcultarSugerenciasOrigen()
+                e.Handled = True
+        End Select
+    End Sub
+
+    Private Sub lstSugerenciasOrigen_KeyDown(sender As Object, e As KeyEventArgs)
+        If e.KeyCode = Keys.Enter Then
+            SeleccionarOficinaOrigenActual()
+            e.SuppressKeyPress = True
+            e.Handled = True
+        End If
+    End Sub
+
+    Private Sub lstSugerenciasOrigen_Seleccionar(sender As Object, e As EventArgs)
+        SeleccionarOficinaOrigenActual()
+    End Sub
+
+    Private Sub SeleccionarOficinaOrigenActual()
+        Dim oficina = TryCast(_lstSugerenciasOrigen.SelectedItem, Cat_Oficina)
+        If oficina Is Nothing Then Return
+
+        SeleccionarOrigen(oficina)
+        txtBuscarOrigen.Focus()
+    End Sub
+
+    Private Sub SeleccionarOrigen(oficina As Cat_Oficina)
+        Interlocked.Increment(_filtroVersionOrigen)
+
+        _oficinaOrigenSeleccionada = oficina
+
+        cboOrigen.DataSource = Nothing
+        cboOrigen.DataSource = New List(Of Cat_Oficina) From {oficina}
+        cboOrigen.DisplayMember = "Nombre"
+        cboOrigen.ValueMember = "IdOficina"
+        cboOrigen.SelectedIndex = 0
+
+        Try
+            _seleccionandoOrigen = True
+            txtBuscarOrigen.Text = oficina.Nombre
+            txtBuscarOrigen.SelectionStart = txtBuscarOrigen.TextLength
+        Finally
+            _seleccionandoOrigen = False
+        End Try
+
+        OcultarSugerenciasOrigen()
+        VerificarRangoNumeracion()
+    End Sub
+
+    Private Sub SeleccionarOrigenPorId(idOficina As Integer)
+        Dim oficina = _todasLasOficinas.FirstOrDefault(Function(o) o.IdOficina = idOficina)
+        If oficina Is Nothing Then Return
+
+        SeleccionarOrigen(oficina)
+    End Sub
+
+    Private Sub OcultarSugerenciasOrigen()
+        _lstSugerenciasOrigen.Visible = False
+    End Sub
+
+    Private Function ObtenerIdOrigenSeleccionado() As Integer?
+        If _oficinaOrigenSeleccionada IsNot Nothing Then
+            Return _oficinaOrigenSeleccionada.IdOficina
+        End If
+
+        Return Nothing
+    End Function
+
     ' =======================================================
     ' CONFIGURACIONES DE MODO
     ' =======================================================
@@ -175,13 +377,13 @@ Public Class frmMesaEntrada
 
         If _idOrigenForzado.HasValue Then
             ' DIGITALIZACIÓN: Viene de afuera, origen fijo, numeración manual.
-            cboOrigen.SelectedValue = _idOrigenForzado.Value
-            cboOrigen.Enabled = False
+            SeleccionarOrigenPorId(_idOrigenForzado.Value)
+            txtBuscarOrigen.Enabled = False
         Else
             ' RESPUESTA PROPIA: Origen soy yo.
             Try
-                cboOrigen.SelectedValue = SesionGlobal.OficinaID
-                cboOrigen.Enabled = False
+                SeleccionarOrigenPorId(SesionGlobal.OficinaID)
+                txtBuscarOrigen.Enabled = False
             Catch
             End Try
         End If
@@ -204,9 +406,9 @@ Public Class frmMesaEntrada
 
         Dim primerMov = doc.Tra_Movimiento.OrderBy(Function(m) m.IdMovimiento).FirstOrDefault()
         If primerMov IsNot Nothing Then
-            cboOrigen.SelectedValue = primerMov.IdOficinaOrigen
+            SeleccionarOrigenPorId(primerMov.IdOficinaOrigen)
         End If
-        cboOrigen.Enabled = False
+        txtBuscarOrigen.Enabled = False
 
         txtNumeroRef.Text = doc.NumeroOficial
         txtAsunto.Text = doc.Asunto
@@ -300,6 +502,13 @@ Public Class frmMesaEntrada
         ' 1. Validaciones básicas
         If cboTipo.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione el TIPO de documento.", ToastType.Warning)
+            Return
+        End If
+
+        Dim idOrigenSeleccionado = ObtenerIdOrigenSeleccionado()
+        If Not idOrigenSeleccionado.HasValue Then
+            Toast.Show(Me, "Seleccione Organismo / Oficina de origen.", ToastType.Warning)
+            txtBuscarOrigen.Focus()
             Return
         End If
 
@@ -397,7 +606,7 @@ Public Class frmMesaEntrada
                 Dim mov As New Tra_Movimiento()
                 mov.IdDocumento = doc.IdDocumento
                 mov.FechaMovimiento = DateTime.Now
-                mov.IdOficinaOrigen = CInt(cboOrigen.SelectedValue)
+                mov.IdOficinaOrigen = idOrigenSeleccionado.Value
                 mov.IdOficinaDestino = SesionGlobal.OficinaID
 
                 If _modoRespuesta Then
@@ -472,6 +681,9 @@ Public Class frmMesaEntrada
         txtDescripcion.Clear()
         cboTipo.SelectedIndex = -1
         cboOrigen.SelectedIndex = -1
+        _oficinaOrigenSeleccionada = Nothing
+        txtBuscarOrigen.Clear()
+        txtBuscarOrigen.Enabled = True
         numFojas.Value = 1
         dtpFechaRecepcion.Value = DateTime.Now
     End Sub
@@ -480,7 +692,9 @@ Public Class frmMesaEntrada
         Me.Close()
     End Sub
 
-    Private Sub frmMesaEntrada_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+    Private Sub frmMesaEntrada_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        _cerrandoFormulario = True
+        Interlocked.Increment(_filtroVersionOrigen)
         _unitOfWork.Dispose()
     End Sub
 

@@ -336,6 +336,15 @@ Public Class frmBandeja
             Dim hilo = docPadre.IdHiloConversacion
 
             Dim ultimoHijo = Await docRepo.GetQueryable().Where(Function(d) d.IdHiloConversacion = hilo And d.IdDocumento <> docPadre.IdDocumento And d.IdEstadoActual <> 5).OrderByDescending(Function(d) d.FechaCreacion).FirstOrDefaultAsync()
+            Dim movRepo = uow.Repository(Of Tra_Movimiento)()
+            Dim ultimoMovimientoPadre = Await movRepo.GetQueryable().
+                Where(Function(m) m.IdDocumento = idPadreReal).
+                OrderByDescending(Function(m) m.FechaMovimiento).
+                ThenByDescending(Function(m) m.IdMovimiento).
+                FirstOrDefaultAsync()
+            Dim preguntarNuevaRespuesta As Boolean = (ultimoMovimientoPadre IsNot Nothing AndAlso
+                                                       ultimoMovimientoPadre.IdOficinaOrigen = IdBandejaEntrada AndAlso
+                                                       ultimoMovimientoPadre.IdOficinaDestino = IdBandejaEntrada)
 
             Dim sb As New StringBuilder()
             sb.AppendLine("Vas a iniciar el trámite de PASE (Salida).")
@@ -345,14 +354,20 @@ Public Class frmBandeja
                 sb.AppendLine("📎 ÚLTIMA ACTUACIÓN: " & ultimoHijo.Cat_TipoDocumento.Codigo & " " & ultimoHijo.NumeroOficial)
             End If
             sb.AppendLine()
-            sb.AppendLine("¿Deseas agregar una NUEVA RESPUESTA antes de enviarlo?")
+            If preguntarNuevaRespuesta Then
+                sb.AppendLine("¿Deseas agregar una NUEVA RESPUESTA antes de enviarlo?")
+                Dim resp = MessageBox.Show(sb.ToString(), "Flujo de Salida", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+                If resp = DialogResult.Cancel Then Return
 
-            Dim resp = MessageBox.Show(sb.ToString(), "Flujo de Salida", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
-            If resp = DialogResult.Cancel Then Return
-
-            If resp = DialogResult.Yes Then
-                Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto)
-                fRespuesta.ShowDialog()
+                If resp = DialogResult.Yes Then
+                    Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto)
+                    fRespuesta.ShowDialog()
+                End If
+            Else
+                sb.AppendLine("¿Deseas continuar con el PASE ahora?")
+                If MessageBox.Show(sb.ToString(), "Flujo de Salida", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
+                    Return
+                End If
             End If
 
             Dim fPase As New frmPase(idPadreReal)

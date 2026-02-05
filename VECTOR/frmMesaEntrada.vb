@@ -461,13 +461,8 @@ Public Class frmMesaEntrada
         Me.Close()
     End Sub
 
-    Protected Overrides Sub Dispose(disposing As Boolean)
-        If disposing Then
-            If _unitOfWork IsNot Nothing Then
-                _unitOfWork.Dispose()
-            End If
-        End If
-        MyBase.Dispose(disposing)
+    Private Sub frmMesaEntrada_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        _unitOfWork.Dispose()
     End Sub
 
     Private Sub btnBuscarPPL_Click(sender As Object, e As EventArgs) Handles btnBuscarPPL.Click

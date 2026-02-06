@@ -124,6 +124,12 @@
     <Compile Include="frmAuditoria.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmEstadisticas.Designer.vb">
+      <DependentUpon>frmEstadisticas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmEstadisticas.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmBandeja.Designer.vb">
       <DependentUpon>frmBandeja.vb</DependentUpon>
     </Compile>
@@ -250,6 +256,9 @@
   <ItemGroup>
     <EmbeddedResource Include="frmAuditoria.resx">
       <DependentUpon>frmAuditoria.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmEstadisticas.resx">
+      <DependentUpon>frmEstadisticas.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmBandeja.resx">
       <DependentUpon>frmBandeja.vb</DependentUpon>

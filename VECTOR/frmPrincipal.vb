@@ -86,6 +86,10 @@
         AbrirFormularioHijo(Of frmAuditoria)()
     End Sub
 
+    Private Sub EstadisticasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EstadisticasToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmEstadisticas)()
+    End Sub
+
     ' --- NUEVO: EVENTO PARA LA HERRAMIENTA DE UNIFICAR ---
     Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmUnificarOficinas)()

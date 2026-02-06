@@ -216,12 +216,17 @@ Public Class frmBandeja
     Private Sub dgvPendientes_RowPrePaint(sender As Object, e As DataGridViewRowPrePaintEventArgs) Handles dgvPendientes.RowPrePaint
         If e.RowIndex < 0 Then Return
         If Not dgvPendientes.Columns.Contains("IdOficinaActual") Then Return
+        If Not dgvPendientes.Columns.Contains("Cant_Respuestas") Then Return
+        If Not dgvPendientes.Columns.Contains("EsHijo") Then Return
 
         Dim fila = dgvPendientes.Rows(e.RowIndex)
         If fila.Cells("IdOficinaActual").Value Is Nothing Then Return
 
         Dim idOficinaDoc As Integer = CInt(fila.Cells("IdOficinaActual").Value)
         Dim esMio As Boolean = (idOficinaDoc = SesionGlobal.OficinaID)
+        Dim cantRespuestas As Integer = If(fila.Cells("Cant_Respuestas").Value Is Nothing, 0, CInt(fila.Cells("Cant_Respuestas").Value))
+        Dim esHijo As Boolean = If(fila.Cells("EsHijo").Value Is Nothing, False, CBool(fila.Cells("EsHijo").Value))
+        Dim esDocumentoPadre As Boolean = (Not esHijo) AndAlso (cantRespuestas > 0)
 
         If esMio Then
             fila.DefaultCellStyle.ForeColor = Color.Black
@@ -230,6 +235,8 @@ Public Class frmBandeja
             fila.DefaultCellStyle.ForeColor = Color.Gray
             fila.DefaultCellStyle.Font = _fontItalic
         End If
+
+        fila.DefaultCellStyle.BackColor = If(esDocumentoPadre, Color.LightYellow, Color.White)
     End Sub
 
     ' =======================================================

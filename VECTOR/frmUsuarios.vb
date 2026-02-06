@@ -2,6 +2,8 @@
 
 Public Class frmUsuarios
 
+    Private _usuarioEnEdicionId As Integer?
+
     Private Async Sub frmUsuarios_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         If Not SesionGlobal.EsAdmin Then
@@ -28,37 +30,91 @@ Public Class frmUsuarios
     End Function
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
-        If String.IsNullOrWhiteSpace(txtNombre.Text) Or String.IsNullOrWhiteSpace(txtClave.Text) Then
-            Toast.Show(Me, "Complete todos los campos.", ToastType.Warning)
+        Dim nombre = txtNombre.Text.Trim()
+        Dim login = txtLogin.Text.Trim()
+        Dim clave = txtClave.Text.Trim()
+        Dim rol = cmbRol.Text
+
+        If String.IsNullOrWhiteSpace(nombre) Or String.IsNullOrWhiteSpace(login) Then
+            Toast.Show(Me, "Complete nombre y usuario.", ToastType.Warning)
             Return
         End If
 
         Using uow As New UnitOfWork()
             Dim repoUsuarios = uow.Repository(Of Cat_Usuario)()
-            Dim login = txtLogin.Text.Trim()
+            If _usuarioEnEdicionId.HasValue Then
+                Dim usuario = Await repoUsuarios.GetQueryable().FirstOrDefaultAsync(Function(u) u.IdUsuario = _usuarioEnEdicionId.Value)
+                If usuario Is Nothing Then
+                    Toast.Show(Me, "Usuario no encontrado.", ToastType.Warning)
+                    Return
+                End If
 
-            If Await repoUsuarios.AnyAsync(Function(u) u.UsuarioLogin = login) Then
-                Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
-                Return
+                If usuario.UsuarioLogin <> login AndAlso Await repoUsuarios.AnyAsync(Function(u) u.UsuarioLogin = login) Then
+                    Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
+                    Return
+                End If
+
+                usuario.NombreCompleto = nombre
+                usuario.UsuarioLogin = login
+                usuario.Rol = rol
+
+                If Not String.IsNullOrWhiteSpace(clave) Then
+                    usuario.Clave = clave
+                End If
+
+                repoUsuarios.Update(usuario)
+                Await uow.CommitAsync()
+                AuditoriaSistema.RegistrarEvento($"Usuario actualizado: {usuario.UsuarioLogin}.", "USUARIOS")
+                Toast.Show(Me, "Usuario actualizado correctamente.", ToastType.Success)
+            Else
+                If String.IsNullOrWhiteSpace(clave) Then
+                    Toast.Show(Me, "Complete la contraseña.", ToastType.Warning)
+                    Return
+                End If
+
+                If Await repoUsuarios.AnyAsync(Function(u) u.UsuarioLogin = login) Then
+                    Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
+                    Return
+                End If
+
+                Dim nuevo As New Cat_Usuario()
+                nuevo.NombreCompleto = nombre
+                nuevo.UsuarioLogin = login
+                nuevo.Clave = clave
+                nuevo.Rol = rol
+                nuevo.Activo = True
+                nuevo.IdOficina = 13
+
+                repoUsuarios.Add(nuevo)
+                Await uow.CommitAsync()
+
+                AuditoriaSistema.RegistrarEvento($"Alta de usuario {nuevo.UsuarioLogin} en Mesa de Entrada (ID 13).", "USUARIOS")
+                Toast.Show(Me, "Usuario creado correctamente.", ToastType.Success)
             End If
-
-            Dim nuevo As New Cat_Usuario()
-            nuevo.NombreCompleto = txtNombre.Text.Trim()
-            nuevo.UsuarioLogin = login
-            nuevo.Clave = txtClave.Text.Trim()
-            nuevo.Rol = cmbRol.Text
-            nuevo.Activo = True
-            nuevo.IdOficina = 13
-
-            repoUsuarios.Add(nuevo)
-            Await uow.CommitAsync()
-
-            AuditoriaSistema.RegistrarEvento($"Alta de usuario {nuevo.UsuarioLogin} en Mesa de Entrada (ID 13).", "USUARIOS")
-            Toast.Show(Me, "Usuario creado correctamente.", ToastType.Success)
 
             Await CargarUsuariosAsync()
             Limpiar()
         End Using
+    End Sub
+
+    Private Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
+        If dgvUsuarios.SelectedRows.Count = 0 Then
+            Toast.Show(Me, "Seleccione un usuario para editar.", ToastType.Warning)
+            Return
+        End If
+
+        Dim idUser As Integer = Convert.ToInt32(dgvUsuarios.SelectedRows(0).Cells("ID").Value)
+        Dim nombre As String = dgvUsuarios.SelectedRows(0).Cells("Nombre").Value.ToString()
+        Dim login As String = dgvUsuarios.SelectedRows(0).Cells("Login").Value.ToString()
+        Dim rol As String = dgvUsuarios.SelectedRows(0).Cells("Rol").Value.ToString()
+
+        _usuarioEnEdicionId = idUser
+        txtNombre.Text = nombre
+        txtLogin.Text = login
+        txtClave.Text = ""
+        cmbRol.SelectedItem = rol
+        lblModoEdicion.Text = "Modo: Edición"
+        btnGuardar.Text = "ACTUALIZAR USUARIO"
     End Sub
 
     Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
@@ -100,14 +156,23 @@ Public Class frmUsuarios
                 End If
 
                 Await CargarUsuariosAsync()
+                Limpiar()
             End Using
         End If
+    End Sub
+
+    Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
+        Limpiar()
     End Sub
 
     Private Sub Limpiar()
         txtNombre.Text = ""
         txtLogin.Text = ""
         txtClave.Text = ""
+        cmbRol.SelectedIndex = 0
+        _usuarioEnEdicionId = Nothing
+        lblModoEdicion.Text = "Modo: Alta"
+        btnGuardar.Text = "GUARDAR USUARIO"
     End Sub
 
 End Class

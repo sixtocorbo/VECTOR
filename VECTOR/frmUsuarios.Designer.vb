@@ -27,8 +27,11 @@ Partial Class frmUsuarios
         Me.lblLogin = New System.Windows.Forms.Label()
         Me.txtNombre = New System.Windows.Forms.TextBox()
         Me.lblNombre = New System.Windows.Forms.Label()
+        Me.lblModoEdicion = New System.Windows.Forms.Label()
+        Me.btnCancelar = New System.Windows.Forms.Button()
         Me.dgvUsuarios = New System.Windows.Forms.DataGridView()
         Me.btnEliminar = New System.Windows.Forms.Button()
+        Me.btnEditar = New System.Windows.Forms.Button()
         Me.lblTituloLista = New System.Windows.Forms.Label()
         Me.grpNuevo.SuspendLayout()
         CType(Me.dgvUsuarios, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -45,10 +48,12 @@ Partial Class frmUsuarios
         Me.grpNuevo.Controls.Add(Me.lblLogin)
         Me.grpNuevo.Controls.Add(Me.txtNombre)
         Me.grpNuevo.Controls.Add(Me.lblNombre)
+        Me.grpNuevo.Controls.Add(Me.lblModoEdicion)
+        Me.grpNuevo.Controls.Add(Me.btnCancelar)
         Me.grpNuevo.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.grpNuevo.Location = New System.Drawing.Point(12, 12)
         Me.grpNuevo.Name = "grpNuevo"
-        Me.grpNuevo.Size = New System.Drawing.Size(250, 310)
+        Me.grpNuevo.Size = New System.Drawing.Size(250, 368)
         Me.grpNuevo.TabIndex = 0
         Me.grpNuevo.TabStop = False
         Me.grpNuevo.Text = "Datos de Usuario"
@@ -134,6 +139,29 @@ Partial Class frmUsuarios
         Me.lblNombre.TabIndex = 1
         Me.lblNombre.Text = "Nombre Completo:"
         '
+        'lblModoEdicion
+        '
+        Me.lblModoEdicion.AutoSize = True
+        Me.lblModoEdicion.Font = New System.Drawing.Font("Segoe UI", 8.0!, System.Drawing.FontStyle.Italic)
+        Me.lblModoEdicion.Location = New System.Drawing.Point(18, 300)
+        Me.lblModoEdicion.Name = "lblModoEdicion"
+        Me.lblModoEdicion.Size = New System.Drawing.Size(66, 13)
+        Me.lblModoEdicion.TabIndex = 11
+        Me.lblModoEdicion.Text = "Modo: Alta"
+        '
+        'btnCancelar
+        '
+        Me.btnCancelar.BackColor = System.Drawing.Color.DimGray
+        Me.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnCancelar.Font = New System.Drawing.Font("Segoe UI", 8.0!, System.Drawing.FontStyle.Bold)
+        Me.btnCancelar.ForeColor = System.Drawing.Color.White
+        Me.btnCancelar.Location = New System.Drawing.Point(18, 318)
+        Me.btnCancelar.Name = "btnCancelar"
+        Me.btnCancelar.Size = New System.Drawing.Size(215, 30)
+        Me.btnCancelar.TabIndex = 10
+        Me.btnCancelar.Text = "CANCELAR EDICIÓN"
+        Me.btnCancelar.UseVisualStyleBackColor = False
+        '
         'dgvUsuarios
         '
         Me.dgvUsuarios.AllowUserToAddRows = False
@@ -161,6 +189,19 @@ Partial Class frmUsuarios
         Me.btnEliminar.Text = "Eliminar Seleccionado"
         Me.btnEliminar.UseVisualStyleBackColor = False
         '
+        'btnEditar
+        '
+        Me.btnEditar.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnEditar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.btnEditar.ForeColor = System.Drawing.Color.White
+        Me.btnEditar.Location = New System.Drawing.Point(400, 288)
+        Me.btnEditar.Name = "btnEditar"
+        Me.btnEditar.Size = New System.Drawing.Size(150, 34)
+        Me.btnEditar.TabIndex = 4
+        Me.btnEditar.Text = "Editar Seleccionado"
+        Me.btnEditar.UseVisualStyleBackColor = False
+        '
         'lblTituloLista
         '
         Me.lblTituloLista.AutoSize = True
@@ -175,7 +216,8 @@ Partial Class frmUsuarios
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(730, 340)
+        Me.ClientSize = New System.Drawing.Size(730, 390)
+        Me.Controls.Add(Me.btnEditar)
         Me.Controls.Add(Me.btnEliminar)
         Me.Controls.Add(Me.lblTituloLista)
         Me.Controls.Add(Me.dgvUsuarios)
@@ -202,7 +244,10 @@ Partial Class frmUsuarios
     Friend WithEvents lblRol As System.Windows.Forms.Label
     Friend WithEvents cmbRol As System.Windows.Forms.ComboBox
     Friend WithEvents btnGuardar As System.Windows.Forms.Button
+    Friend WithEvents lblModoEdicion As System.Windows.Forms.Label
+    Friend WithEvents btnCancelar As System.Windows.Forms.Button
     Friend WithEvents dgvUsuarios As System.Windows.Forms.DataGridView
     Friend WithEvents lblTituloLista As System.Windows.Forms.Label
     Friend WithEvents btnEliminar As System.Windows.Forms.Button
+    Friend WithEvents btnEditar As System.Windows.Forms.Button
 End Class

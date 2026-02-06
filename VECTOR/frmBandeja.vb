@@ -1,12 +1,10 @@
 ﻿Imports System.Data.Entity
 Imports System.Drawing
 Imports System.Text
-Imports System.Reflection ' Necesario para el Doble Buffer
+Imports System.Reflection
 Imports System.Threading.Tasks
 
 Public Class frmBandeja
-
-    ' ❌ ELIMINADO: Private db As New SecretariaDBEntities() 
 
     Private Const IdBandejaEntrada As Integer = 13
     Private _fontNormal As Font
@@ -74,7 +72,7 @@ Public Class frmBandeja
                 consulta = consulta.OrderByDescending(Function(d) d.FechaCreacion)
 
                 ' B. PROYECCIÓN DE DATOS PUROS
-                ' B. PROYECCIÓN DE DATOS PUROS
+
                 Dim listaDatos = Await consulta.Select(Function(d) New With {
     .ID = d.IdDocumento,
     .Tipo = d.Cat_TipoDocumento.Nombre,

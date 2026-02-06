@@ -703,28 +703,30 @@ Public Class frmMesaEntrada
     Private Sub btnBuscarPPL_Click(sender As Object, e As EventArgs) Handles btnBuscarPPL.Click
         Dim f As New frmBuscadorReclusos()
 
-        If f.ShowDialog() = DialogResult.OK Then
+        AddHandler f.FormClosed, Sub(sender2, args2)
+                                     If f.DialogResult <> DialogResult.OK Then Return
 
-            Dim textoAInsertar As String = f.ResultadoFormateado
+                                     Dim textoAInsertar As String = f.ResultadoFormateado
 
-            ' Lógica de inserción inteligente
-            If txtAsunto.Focused Then
-                txtAsunto.Text &= " - REF: " & textoAInsertar
-                txtAsunto.SelectionStart = txtAsunto.Text.Length
+                                     ' Lógica de inserción inteligente
+                                     If txtAsunto.Focused Then
+                                         txtAsunto.Text &= " - REF: " & textoAInsertar
+                                         txtAsunto.SelectionStart = txtAsunto.Text.Length
 
-            ElseIf txtDescripcion.Focused Then
-                Dim posicion As Integer = txtDescripcion.SelectionStart
-                txtDescripcion.Text = txtDescripcion.Text.Insert(posicion, textoAInsertar)
-                txtDescripcion.SelectionStart = posicion + textoAInsertar.Length
+                                     ElseIf txtDescripcion.Focused Then
+                                         Dim posicion As Integer = txtDescripcion.SelectionStart
+                                         txtDescripcion.Text = txtDescripcion.Text.Insert(posicion, textoAInsertar)
+                                         txtDescripcion.SelectionStart = posicion + textoAInsertar.Length
 
-            Else
-                ' Si no hay foco, sugerimos el asunto estándar
-                If String.IsNullOrWhiteSpace(txtAsunto.Text) Then
-                    txtAsunto.Text = "PPL " & textoAInsertar
-                Else
-                    txtAsunto.Text &= " (" & textoAInsertar & ")"
-                End If
-            End If
-        End If
+                                     Else
+                                         ' Si no hay foco, sugerimos el asunto estándar
+                                         If String.IsNullOrWhiteSpace(txtAsunto.Text) Then
+                                             txtAsunto.Text = "PPL " & textoAInsertar
+                                         Else
+                                             txtAsunto.Text &= " (" & textoAInsertar & ")"
+                                         End If
+                                     End If
+                                 End Sub
+        ShowFormInMdi(Me, f)
     End Sub
 End Class

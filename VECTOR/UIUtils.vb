@@ -1,5 +1,7 @@
 ﻿Imports System.Runtime.InteropServices
 
+Imports System.Windows.Forms
+
 Public Module UIUtils
 
     ' Constante de Windows para definir el mensaje de "Cue Banner"
@@ -17,6 +19,28 @@ Public Module UIUtils
         If txt IsNot Nothing Then
             SendMessage(txt.Handle, EM_SETCUEBANNER, 0, texto)
         End If
+    End Sub
+
+    Public Sub ShowFormInMdi(owner As Form, child As Form, Optional onClosed As FormClosedEventHandler = Nothing)
+        If owner Is Nothing OrElse owner.MdiParent Is Nothing Then
+            If onClosed IsNot Nothing Then
+                AddHandler child.FormClosed, onClosed
+            End If
+
+            child.ShowDialog(owner)
+            Return
+        End If
+
+        child.MdiParent = owner.MdiParent
+        child.WindowState = FormWindowState.Maximized
+        child.ShowIcon = False
+
+        If onClosed IsNot Nothing Then
+            AddHandler child.FormClosed, onClosed
+        End If
+
+        child.Show()
+        child.BringToFront()
     End Sub
 
 End Module

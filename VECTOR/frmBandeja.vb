@@ -505,11 +505,13 @@ Public Class frmBandeja
         ' 1. Asignamos el Padre MDI (El mismo padre que tiene la Bandeja actual)
         ' Esto es lo que hace que la ventana se "meta" dentro del contenedor principal
         fNuevo.MdiParent = Me.MdiParent
+        fNuevo.WindowState = FormWindowState.Maximized
 
         ' 2. TRUCO: Como .Show() no detiene el código (no espera), 
         ' necesitamos avisarle a la grilla que se recargue SOLO cuando el formulario se cierre.
         AddHandler fNuevo.FormClosed, Async Sub(s, args)
                                           Await CargarGrillaAsync()
+                                          Me.WindowState = FormWindowState.Maximized
                                       End Sub
 
         ' 3. Usamos .Show() en lugar de .ShowDialog()

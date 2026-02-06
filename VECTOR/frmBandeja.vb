@@ -36,11 +36,11 @@ Public Class frmBandeja
             _fontNormal = dgvPendientes.Font
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
 
-            ConfigurarBotones(False, False, False)
+            ConfigurarBotones(False, False, False, False)
             Await CargarGrillaAsync()
         Catch ex As Exception
             Me.Text = "VECTOR - Sistema de Gestión"
-            ConfigurarBotones(False, False, False)
+            ConfigurarBotones(False, False, False, False)
         End Try
     End Sub
 
@@ -252,17 +252,18 @@ Public Class frmBandeja
 
     Private Sub ActualizarBotonesPorSeleccion()
         If dgvPendientes.SelectedRows.Count = 0 Then
-            ConfigurarBotones(False, False, False)
+            ConfigurarBotones(False, False, False, False)
             Return
         End If
 
         Dim idOficinaDoc As Integer = CInt(dgvPendientes.SelectedRows(0).Cells("IdOficinaActual").Value)
         Dim esMio As Boolean = (idOficinaDoc = SesionGlobal.OficinaID)
         Dim esBandejaEntrada As Boolean = (idOficinaDoc = IdBandejaEntrada)
-        ConfigurarBotones(True, esMio, esBandejaEntrada)
+        Dim esHijo As Boolean = If(dgvPendientes.SelectedRows(0).Cells("EsHijo").Value Is Nothing, False, CBool(dgvPendientes.SelectedRows(0).Cells("EsHijo").Value))
+        ConfigurarBotones(True, esMio, esBandejaEntrada, esHijo)
     End Sub
 
-    Private Sub ConfigurarBotones(haySeleccion As Boolean, esMio As Boolean, esBandejaEntrada As Boolean)
+    Private Sub ConfigurarBotones(haySeleccion As Boolean, esMio As Boolean, esBandejaEntrada As Boolean, esHijo As Boolean)
         Dim bgApagado As Color = SystemColors.Control
         Dim fgApagado As Color = SystemColors.GrayText
 
@@ -276,6 +277,9 @@ Public Class frmBandeja
         btnEliminar.Enabled = haySeleccion And esMio
         btnEditar.Enabled = haySeleccion And esMio
         btnHistorial.Enabled = haySeleccion
+        btnDesvincular.Enabled = haySeleccion And esMio And esHijo
+        btnDesvincular.BackColor = If(btnDesvincular.Enabled, Color.SteelBlue, bgApagado)
+        btnDesvincular.ForeColor = If(btnDesvincular.Enabled, Color.White, fgApagado)
 
         ' 2. BOTÓN NUEVO INGRESO
         btnNuevoIngreso.Text = "➕ NUEVO INGRESO"

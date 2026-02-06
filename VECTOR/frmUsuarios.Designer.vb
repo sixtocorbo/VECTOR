@@ -19,6 +19,7 @@ Partial Class frmUsuarios
     Private Sub InitializeComponent()
         Me.grpNuevo = New System.Windows.Forms.GroupBox()
         Me.btnGuardar = New System.Windows.Forms.Button()
+        Me.btnCancelarEdicion = New System.Windows.Forms.Button()
         Me.cmbRol = New System.Windows.Forms.ComboBox()
         Me.lblRol = New System.Windows.Forms.Label()
         Me.txtClave = New System.Windows.Forms.TextBox()
@@ -36,6 +37,7 @@ Partial Class frmUsuarios
         '
         'grpNuevo
         '
+        Me.grpNuevo.Controls.Add(Me.btnCancelarEdicion)
         Me.grpNuevo.Controls.Add(Me.btnGuardar)
         Me.grpNuevo.Controls.Add(Me.cmbRol)
         Me.grpNuevo.Controls.Add(Me.lblRol)
@@ -59,12 +61,26 @@ Partial Class frmUsuarios
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(18, 255)
+        Me.btnGuardar.Location = New System.Drawing.Point(18, 209)
         Me.btnGuardar.Name = "btnGuardar"
         Me.btnGuardar.Size = New System.Drawing.Size(215, 40)
         Me.btnGuardar.TabIndex = 9
         Me.btnGuardar.Text = "GUARDAR USUARIO"
         Me.btnGuardar.UseVisualStyleBackColor = False
+        '
+        'btnCancelarEdicion
+        '
+        Me.btnCancelarEdicion.BackColor = System.Drawing.Color.DimGray
+        Me.btnCancelarEdicion.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnCancelarEdicion.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.btnCancelarEdicion.ForeColor = System.Drawing.Color.White
+        Me.btnCancelarEdicion.Location = New System.Drawing.Point(18, 255)
+        Me.btnCancelarEdicion.Name = "btnCancelarEdicion"
+        Me.btnCancelarEdicion.Size = New System.Drawing.Size(215, 40)
+        Me.btnCancelarEdicion.TabIndex = 10
+        Me.btnCancelarEdicion.Text = "CANCELAR EDICIÓN"
+        Me.btnCancelarEdicion.UseVisualStyleBackColor = False
+        Me.btnCancelarEdicion.Visible = False
         '
         'cmbRol
         '
@@ -202,6 +218,7 @@ Partial Class frmUsuarios
     Friend WithEvents lblRol As System.Windows.Forms.Label
     Friend WithEvents cmbRol As System.Windows.Forms.ComboBox
     Friend WithEvents btnGuardar As System.Windows.Forms.Button
+    Friend WithEvents btnCancelarEdicion As System.Windows.Forms.Button
     Friend WithEvents dgvUsuarios As System.Windows.Forms.DataGridView
     Friend WithEvents lblTituloLista As System.Windows.Forms.Label
     Friend WithEvents btnEliminar As System.Windows.Forms.Button

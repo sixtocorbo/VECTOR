@@ -10,6 +10,10 @@ Public Class frmUnificarOficinas
         Await CargarOficinasAsync("")
     End Sub
 
+    Private Sub frmUnificarOficinas_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
+    End Sub
+
     Private Sub ConfigurarGrilla()
         dgvOficinas.Columns.Clear()
 

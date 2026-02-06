@@ -19,6 +19,10 @@ Public Class frmAuditoria
         SuscribirEventosCambio()
     End Sub
 
+    Private Sub frmAuditoria_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
+    End Sub
+
     Private Sub InicializarFechas()
         Dim hoy = Date.Today
         dtpAuditoriaDesde.Value = hoy.AddDays(-7)

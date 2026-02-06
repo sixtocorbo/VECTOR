@@ -430,11 +430,21 @@ Public Class frmBandeja
             ' 🚀 PASE DIRECTO
             ' =========================================================================
             Dim fPase As New frmPase(idPadreReal)
-            fPase.ShowDialog()
+            If Me.MdiParent Is Nothing Then
+                fPase.ShowDialog()
+            Else
+                fPase.MdiParent = Me.MdiParent
+                AddHandler fPase.FormClosed, Async Sub(s, args)
+                                                   Await CargarGrillaAsync()
+                                               End Sub
+                fPase.Show()
+            End If
 
         End Using
 
-        Await CargarGrillaAsync()
+        If Me.MdiParent Is Nothing Then
+            Await CargarGrillaAsync()
+        End If
     End Sub
     Private Async Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
         ' Preparamos un ID sugerido si hay selección, pero no es obligatorio

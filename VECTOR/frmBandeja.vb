@@ -287,6 +287,25 @@ Public Class frmBandeja
     ' 5. ACCIONES (CRUD - CON Unit of Work)
     ' =======================================================
 
+    Private Async Sub RecargarAlCerrarAsync(sender As Object, e As FormClosedEventArgs)
+        Await CargarGrillaAsync()
+        If Me.MdiParent IsNot Nothing Then
+            Me.WindowState = FormWindowState.Maximized
+        End If
+    End Sub
+
+    Private Async Function AbrirPaseAsync(idPadreReal As Long) As Task
+        Dim fPase As New frmPase(idPadreReal)
+
+        If Me.MdiParent Is Nothing Then
+            fPase.ShowDialog(Me)
+            Await CargarGrillaAsync()
+            Return
+        End If
+
+        ShowFormInMdi(Me, fPase, AddressOf RecargarAlCerrarAsync)
+    End Function
+
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
@@ -311,8 +330,7 @@ Public Class frmBandeja
         End Using
 
         Dim fEdicion As New frmMesaEntrada(idDoc)
-        fEdicion.ShowDialog()
-        Await CargarGrillaAsync()
+        ShowFormInMdi(Me, fEdicion, AddressOf RecargarAlCerrarAsync)
     End Sub
 
     Private Async Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
@@ -422,29 +440,23 @@ Public Class frmBandeja
                 If resp = DialogResult.Cancel Then Return
                 If resp = DialogResult.Yes Then
                     Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadre.IdHiloConversacion, docPadre.Asunto)
-                    fRespuesta.ShowDialog()
+                    If Me.MdiParent Is Nothing Then
+                        fRespuesta.ShowDialog(Me)
+                    Else
+                        AddHandler fRespuesta.FormClosed, Async Sub(sender2, args2)
+                                                              Await AbrirPaseAsync(idPadreReal)
+                                                          End Sub
+                        ShowFormInMdi(Me, fRespuesta)
+                        Return
+                    End If
                 End If
             End If
 
             ' =========================================================================
             ' 🚀 PASE DIRECTO
             ' =========================================================================
-            Dim fPase As New frmPase(idPadreReal)
-            If Me.MdiParent Is Nothing Then
-                fPase.ShowDialog()
-            Else
-                fPase.MdiParent = Me.MdiParent
-                AddHandler fPase.FormClosed, Async Sub(s, args)
-                                                   Await CargarGrillaAsync()
-                                               End Sub
-                fPase.Show()
-            End If
-
+            Await AbrirPaseAsync(idPadreReal)
         End Using
-
-        If Me.MdiParent Is Nothing Then
-            Await CargarGrillaAsync()
-        End If
     End Sub
     Private Async Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
         ' Preparamos un ID sugerido si hay selección, pero no es obligatorio
@@ -456,11 +468,12 @@ Public Class frmBandeja
         ' Abrimos el nuevo formulario de vinculación manual
         ' Le pasamos el ID seleccionado para que lo pre-complete en el campo "Hijo"
         Dim fVincular As New frmVincular(idSugerido)
-
-        If fVincular.ShowDialog() = DialogResult.OK Then
-            ' Si la operación fue exitosa, recargamos la grilla para ver los cambios
-            Await CargarGrillaAsync()
-        End If
+        AddHandler fVincular.FormClosed, Async Sub(sender2, args2)
+                                                  If fVincular.DialogResult = DialogResult.OK Then
+                                                      Await CargarGrillaAsync()
+                                                  End If
+                                              End Sub
+        ShowFormInMdi(Me, fVincular)
     End Sub
 
     Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
@@ -605,7 +618,7 @@ Public Class frmBandeja
 
                 If deseaCargarActuacion Then
                     Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
-                    fRespuesta.ShowDialog()
+                    ShowFormInMdi(Me, fRespuesta, AddressOf RecargarAlCerrarAsync)
                 End If
             End Using
 
@@ -630,7 +643,7 @@ Public Class frmBandeja
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
         Dim fHist As New frmHistorial(idDoc)
-        fHist.ShowDialog()
+        ShowFormInMdi(Me, fHist)
     End Sub
 
     Private Async Sub chkVerDerivados_CheckedChanged(sender As Object, e As EventArgs) Handles chkVerDerivados.CheckedChanged

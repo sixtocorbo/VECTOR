@@ -485,12 +485,27 @@ Public Class frmBandeja
         End Using
         Await CargarGrillaAsync()
     End Sub
-
-    Private Async Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
+    Private Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
         Dim fNuevo As New frmMesaEntrada()
-        fNuevo.ShowDialog()
-        Await CargarGrillaAsync()
+
+        ' 1. Asignamos el Padre MDI (El mismo padre que tiene la Bandeja actual)
+        ' Esto es lo que hace que la ventana se "meta" dentro del contenedor principal
+        fNuevo.MdiParent = Me.MdiParent
+
+        ' 2. TRUCO: Como .Show() no detiene el código (no espera), 
+        ' necesitamos avisarle a la grilla que se recargue SOLO cuando el formulario se cierre.
+        AddHandler fNuevo.FormClosed, Async Sub(s, args)
+                                          Await CargarGrillaAsync()
+                                      End Sub
+
+        ' 3. Usamos .Show() en lugar de .ShowDialog()
+        fNuevo.Show()
     End Sub
+    'Private Async Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
+    '    Dim fNuevo As New frmMesaEntrada()
+    '    fNuevo.ShowDialog()
+    '    Await CargarGrillaAsync()
+    'End Sub
 
     Private Async Function EjecutarRecibirDocumentoAsync() As Task
         If dgvPendientes.SelectedRows.Count = 0 Then Return

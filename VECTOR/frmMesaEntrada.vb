@@ -663,7 +663,7 @@ Public Class frmMesaEntrada
                 Toast.Show(Me, sb.ToString(), ToastType.Success)
                 ' ------------------------------------------
             End If
-
+            Me.ShowIcon = False
             Me.Close()
 
         Catch ex As Exception

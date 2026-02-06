@@ -22,6 +22,7 @@ Partial Class frmPrincipal
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmPrincipal))
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.SistemaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SalirToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -31,7 +32,7 @@ Partial Class frmPrincipal
         Me.GestionUsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AuditoriaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.EstadisticasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.UnificarOficinasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem() ' <--- NUEVO
+        Me.UnificarOficinasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.VentanasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.lblEstadoUsuario = New System.Windows.Forms.ToolStripStatusLabel()
@@ -42,12 +43,12 @@ Partial Class frmPrincipal
         '
         'MenuStrip1
         '
+        Me.MenuStrip1.GripMargin = New System.Windows.Forms.Padding(2, 2, 0, 2)
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(24, 24)
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SistemaToolStripMenuItem, Me.GestiónToolStripMenuItem, Me.VentanasToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.MdiWindowListItem = Me.VentanasToolStripMenuItem
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(9, 3, 0, 3)
         Me.MenuStrip1.Size = New System.Drawing.Size(1512, 35)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
@@ -75,37 +76,37 @@ Partial Class frmPrincipal
         'BandejaDeEntradaToolStripMenuItem
         '
         Me.BandejaDeEntradaToolStripMenuItem.Name = "BandejaDeEntradaToolStripMenuItem"
-        Me.BandejaDeEntradaToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.BandejaDeEntradaToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.BandejaDeEntradaToolStripMenuItem.Text = "Bandeja de Entrada"
         '
         'GestionRangosToolStripMenuItem
         '
         Me.GestionRangosToolStripMenuItem.Name = "GestionRangosToolStripMenuItem"
-        Me.GestionRangosToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.GestionRangosToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.GestionRangosToolStripMenuItem.Text = "Numeración y Rangos"
         '
         'GestionUsuariosToolStripMenuItem
         '
         Me.GestionUsuariosToolStripMenuItem.Name = "GestionUsuariosToolStripMenuItem"
-        Me.GestionUsuariosToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.GestionUsuariosToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.GestionUsuariosToolStripMenuItem.Text = "Gestión de Usuarios"
         '
         'AuditoriaToolStripMenuItem
         '
         Me.AuditoriaToolStripMenuItem.Name = "AuditoriaToolStripMenuItem"
-        Me.AuditoriaToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.AuditoriaToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.AuditoriaToolStripMenuItem.Text = "Auditoría"
         '
         'EstadisticasToolStripMenuItem
         '
         Me.EstadisticasToolStripMenuItem.Name = "EstadisticasToolStripMenuItem"
-        Me.EstadisticasToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.EstadisticasToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.EstadisticasToolStripMenuItem.Text = "Estadísticas Generales"
         '
         'UnificarOficinasToolStripMenuItem
         '
         Me.UnificarOficinasToolStripMenuItem.Name = "UnificarOficinasToolStripMenuItem"
-        Me.UnificarOficinasToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.UnificarOficinasToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.UnificarOficinasToolStripMenuItem.Text = "Herramienta Unificar Oficinas"
         '
         'VentanasToolStripMenuItem
@@ -145,6 +146,7 @@ Partial Class frmPrincipal
         Me.ClientSize = New System.Drawing.Size(1512, 1050)
         Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.IsMdiContainer = True
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)

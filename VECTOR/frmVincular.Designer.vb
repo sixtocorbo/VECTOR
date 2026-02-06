@@ -64,7 +64,7 @@ Partial Class frmVincular
         Me.txtIdPadre.Font = New System.Drawing.Font("Segoe UI", 11.0!)
         Me.txtIdPadre.Location = New System.Drawing.Point(19, 105)
         Me.txtIdPadre.Name = "txtIdPadre"
-        Me.txtIdPadre.Size = New System.Drawing.Size(320, 27)
+        Me.txtIdPadre.Size = New System.Drawing.Size(320, 37)
         Me.txtIdPadre.TabIndex = 3
         '
         'lblPadre
@@ -73,7 +73,7 @@ Partial Class frmVincular
         Me.lblPadre.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
         Me.lblPadre.Location = New System.Drawing.Point(16, 87)
         Me.lblPadre.Name = "lblPadre"
-        Me.lblPadre.Size = New System.Drawing.Size(201, 15)
+        Me.lblPadre.Size = New System.Drawing.Size(325, 25)
         Me.lblPadre.TabIndex = 2
         Me.lblPadre.Text = "ID del PADRE (Carpeta Contenedora)"
         '
@@ -82,7 +82,7 @@ Partial Class frmVincular
         Me.txtIdHijo.Font = New System.Drawing.Font("Segoe UI", 11.0!)
         Me.txtIdHijo.Location = New System.Drawing.Point(19, 42)
         Me.txtIdHijo.Name = "txtIdHijo"
-        Me.txtIdHijo.Size = New System.Drawing.Size(320, 27)
+        Me.txtIdHijo.Size = New System.Drawing.Size(320, 37)
         Me.txtIdHijo.TabIndex = 1
         '
         'lblHijo
@@ -91,7 +91,7 @@ Partial Class frmVincular
         Me.lblHijo.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
         Me.lblHijo.Location = New System.Drawing.Point(16, 24)
         Me.lblHijo.Name = "lblHijo"
-        Me.lblHijo.Size = New System.Drawing.Size(161, 15)
+        Me.lblHijo.Size = New System.Drawing.Size(265, 25)
         Me.lblHijo.TabIndex = 0
         Me.lblHijo.Text = "ID del HIJO (El que se mueve)"
         '
@@ -119,7 +119,7 @@ Partial Class frmVincular
         '
         'frmVincular
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ClientSize = New System.Drawing.Size(384, 266)

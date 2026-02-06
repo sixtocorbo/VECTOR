@@ -30,6 +30,7 @@ Partial Class Toast
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(278, 244)
         Me.Name = "Toast"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Toast"
         Me.ResumeLayout(False)
 

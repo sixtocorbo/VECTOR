@@ -58,7 +58,15 @@ Public Class Repository(Of T As Class)
     End Sub
 
     Public Sub RemoveRange(entities As IEnumerable(Of T)) Implements IRepository(Of T).RemoveRange
-        _dbSet.RemoveRange(entities)
+        For Each entity In entities
+            Dim entry = _context.Entry(entity)
+
+            If entry.State = EntityState.Detached Then
+                _dbSet.Attach(entity)
+            End If
+
+            entry.State = EntityState.Deleted
+        Next
     End Sub
 
     Public Sub RemoveById(id As Integer) Implements IRepository(Of T).RemoveById

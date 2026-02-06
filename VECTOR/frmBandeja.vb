@@ -266,25 +266,34 @@ Public Class frmBandeja
     Private Sub ConfigurarBotones(haySeleccion As Boolean, esMio As Boolean, esBandejaEntrada As Boolean, esHijo As Boolean)
         Dim bgApagado As Color = SystemColors.Control
         Dim fgApagado As Color = SystemColors.GrayText
+        Dim colorActivo As Color = AppTheme.Palette.Primary
+        Dim colorTextoActivo As Color = Color.White
 
         ' 1. BOTONES DE GESTIÓN
         Dim habilitarPase As Boolean = haySeleccion AndAlso ((esMio And esBandejaEntrada) OrElse (Not esBandejaEntrada))
-        btnDarPase.Enabled = habilitarPase
-        btnDarPase.BackColor = If(habilitarPase, Color.ForestGreen, bgApagado)
-        btnDarPase.ForeColor = If(habilitarPase, Color.White, fgApagado)
+        ConfigurarEstadoBoton(btnDarPase, habilitarPase, colorActivo, colorTextoActivo, bgApagado, fgApagado)
 
-        btnVincular.Enabled = haySeleccion And esMio
-        btnEliminar.Enabled = haySeleccion And esMio
-        btnEditar.Enabled = haySeleccion And esMio
-        btnHistorial.Enabled = haySeleccion
-        btnDesvincular.Enabled = haySeleccion And esMio And esHijo
-        btnDesvincular.BackColor = If(btnDesvincular.Enabled, Color.SteelBlue, bgApagado)
-        btnDesvincular.ForeColor = If(btnDesvincular.Enabled, Color.White, fgApagado)
+        ConfigurarEstadoBoton(btnVincular, haySeleccion And esMio, colorActivo, colorTextoActivo, bgApagado, fgApagado)
+        ConfigurarEstadoBoton(btnEliminar, haySeleccion And esMio, colorActivo, colorTextoActivo, bgApagado, fgApagado)
+        ConfigurarEstadoBoton(btnEditar, haySeleccion And esMio, colorActivo, colorTextoActivo, bgApagado, fgApagado)
+        ConfigurarEstadoBoton(btnHistorial, haySeleccion, colorActivo, colorTextoActivo, bgApagado, fgApagado)
+        ConfigurarEstadoBoton(btnDesvincular, haySeleccion And esMio And esHijo, colorActivo, colorTextoActivo, bgApagado, fgApagado)
 
         ' 2. BOTÓN NUEVO INGRESO
         btnNuevoIngreso.Text = "➕ NUEVO INGRESO"
         btnNuevoIngreso.BackColor = Color.ForestGreen
         btnNuevoIngreso.ForeColor = Color.White
+    End Sub
+
+    Private Sub ConfigurarEstadoBoton(btn As Button,
+                                      habilitado As Boolean,
+                                      colorActivo As Color,
+                                      colorTextoActivo As Color,
+                                      colorApagado As Color,
+                                      colorTextoApagado As Color)
+        btn.Enabled = habilitado
+        btn.BackColor = If(habilitado, colorActivo, colorApagado)
+        btn.ForeColor = If(habilitado, colorTextoActivo, colorTextoApagado)
     End Sub
 
     ' =======================================================

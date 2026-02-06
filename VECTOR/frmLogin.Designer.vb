@@ -58,6 +58,7 @@ Partial Class frmLogin
         '
         'txtUsuario
         '
+        Me.txtUsuario.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtUsuario.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.txtUsuario.Location = New System.Drawing.Point(51, 142)
         Me.txtUsuario.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)

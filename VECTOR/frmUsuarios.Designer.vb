@@ -97,6 +97,7 @@ Partial Class frmUsuarios
         '
         'txtClave
         '
+        Me.txtClave.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtClave.Location = New System.Drawing.Point(27, 246)
         Me.txtClave.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtClave.Name = "txtClave"
@@ -116,6 +117,7 @@ Partial Class frmUsuarios
         '
         'txtLogin
         '
+        Me.txtLogin.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtLogin.Location = New System.Drawing.Point(27, 162)
         Me.txtLogin.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtLogin.Name = "txtLogin"
@@ -134,6 +136,7 @@ Partial Class frmUsuarios
         '
         'txtNombre
         '
+        Me.txtNombre.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtNombre.Location = New System.Drawing.Point(27, 77)
         Me.txtNombre.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombre.Name = "txtNombre"

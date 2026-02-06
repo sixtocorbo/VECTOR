@@ -94,6 +94,7 @@ Partial Class frmMesaEntrada
         '
         'txtBuscarOrigen
         '
+        Me.txtBuscarOrigen.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtBuscarOrigen.Location = New System.Drawing.Point(28, 69)
         Me.txtBuscarOrigen.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtBuscarOrigen.Name = "txtBuscarOrigen"
@@ -162,6 +163,7 @@ Partial Class frmMesaEntrada
         '
         'txtNumeroRef
         '
+        Me.txtNumeroRef.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtNumeroRef.Location = New System.Drawing.Point(339, 72)
         Me.txtNumeroRef.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNumeroRef.Name = "txtNumeroRef"
@@ -231,6 +233,7 @@ Partial Class frmMesaEntrada
         '
         'txtDescripcion
         '
+        Me.txtDescripcion.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtDescripcion.Location = New System.Drawing.Point(28, 145)
         Me.txtDescripcion.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtDescripcion.Multiline = True
@@ -251,6 +254,7 @@ Partial Class frmMesaEntrada
         '
         'txtAsunto
         '
+        Me.txtAsunto.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtAsunto.Location = New System.Drawing.Point(28, 68)
         Me.txtAsunto.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtAsunto.Name = "txtAsunto"

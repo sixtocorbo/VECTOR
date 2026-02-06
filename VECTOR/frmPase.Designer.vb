@@ -62,6 +62,7 @@ Partial Class frmPase
         '
         'txtBuscar
         '
+        Me.txtBuscar.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtBuscar.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.txtBuscar.Location = New System.Drawing.Point(20, 43)
         Me.txtBuscar.Name = "txtBuscar"
@@ -119,6 +120,7 @@ Partial Class frmPase
         '
         'txtObservacion
         '
+        Me.txtObservacion.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtObservacion.Location = New System.Drawing.Point(20, 64)
         Me.txtObservacion.Multiline = True
         Me.txtObservacion.Name = "txtObservacion"

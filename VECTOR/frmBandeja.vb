@@ -51,6 +51,10 @@ Public Class frmBandeja
         End If
     End Sub
 
+    Private Sub frmBandeja_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
+    End Sub
+
     ' =======================================================
     ' 1. CARGA DESDE BASE DE DATOS (Unit of Work + Tu Diseño)
     ' =======================================================

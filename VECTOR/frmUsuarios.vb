@@ -8,12 +8,17 @@ Public Class frmUsuarios
         AppTheme.Aplicar(Me)
         If Not SesionGlobal.EsAdmin Then
             Toast.Show(Me, "Acceso Denegado. Solo Administradores.", ToastType.Error)
+            Me.ShowIcon = False
             Me.Close()
             Return
         End If
 
         Await CargarUsuariosAsync()
         cmbRol.SelectedIndex = 0
+    End Sub
+
+    Private Sub frmUsuarios_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
     End Sub
 
     Private Async Function CargarUsuariosAsync() As Task

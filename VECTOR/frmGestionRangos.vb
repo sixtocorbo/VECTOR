@@ -13,6 +13,10 @@ Public Class frmGestionRangos
         ModoEdicion(False)
     End Sub
 
+    Private Sub frmGestionRangos_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
+    End Sub
+
     ' 1. CARGA EL COMBO DE TIPOS DE DOCUMENTO (Desde Cat_TipoDocumento)
     Private Async Function CargarTiposAsync() As Task
         Using uow As New UnitOfWork()

@@ -689,10 +689,12 @@ Public Class frmMesaEntrada
     End Sub
 
     Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
+        Me.ShowIcon = False
         Me.Close()
     End Sub
 
     Private Sub frmMesaEntrada_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Me.ShowIcon = False
         _cerrandoFormulario = True
         Interlocked.Increment(_filtroVersionOrigen)
         _unitOfWork.Dispose()

@@ -39,23 +39,28 @@ Partial Class frmUnificarOficinas
         '
         Me.dgvOficinas.AllowUserToAddRows = False
         Me.dgvOficinas.AllowUserToDeleteRows = False
+        Me.dgvOficinas.AllowUserToResizeColumns = False
+        Me.dgvOficinas.AllowUserToResizeRows = False
         Me.dgvOficinas.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgvOficinas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvOficinas.Location = New System.Drawing.Point(12, 60)
+        Me.dgvOficinas.Location = New System.Drawing.Point(18, 92)
+        Me.dgvOficinas.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.dgvOficinas.Name = "dgvOficinas"
+        Me.dgvOficinas.RowHeadersWidth = 62
         Me.dgvOficinas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvOficinas.Size = New System.Drawing.Size(760, 380)
+        Me.dgvOficinas.Size = New System.Drawing.Size(1140, 585)
         Me.dgvOficinas.TabIndex = 2
         '
         'lblFiltro
         '
         Me.lblFiltro.AutoSize = True
         Me.lblFiltro.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblFiltro.Location = New System.Drawing.Point(9, 15)
+        Me.lblFiltro.Location = New System.Drawing.Point(14, 23)
+        Me.lblFiltro.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFiltro.Name = "lblFiltro"
-        Me.lblFiltro.Size = New System.Drawing.Size(203, 16)
+        Me.lblFiltro.Size = New System.Drawing.Size(295, 25)
         Me.lblFiltro.TabIndex = 0
         Me.lblFiltro.Text = "1. Buscar Oficina (Ej: 'SDO'):"
         '
@@ -64,18 +69,20 @@ Partial Class frmUnificarOficinas
         Me.txtBuscar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtBuscar.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBuscar.Location = New System.Drawing.Point(218, 10)
+        Me.txtBuscar.Location = New System.Drawing.Point(327, 15)
+        Me.txtBuscar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtBuscar.Name = "txtBuscar"
-        Me.txtBuscar.Size = New System.Drawing.Size(539, 24)
+        Me.txtBuscar.Size = New System.Drawing.Size(806, 33)
         Me.txtBuscar.TabIndex = 1
         '
         'lblDestino
         '
         Me.lblDestino.AutoSize = True
         Me.lblDestino.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblDestino.Location = New System.Drawing.Point(9, 15)
+        Me.lblDestino.Location = New System.Drawing.Point(14, 23)
+        Me.lblDestino.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblDestino.Name = "lblDestino"
-        Me.lblDestino.Size = New System.Drawing.Size(271, 16)
+        Me.lblDestino.Size = New System.Drawing.Size(394, 25)
         Me.lblDestino.TabIndex = 3
         Me.lblDestino.Text = "2. Nombre CORRECTO (Destino Final):"
         '
@@ -84,9 +91,10 @@ Partial Class frmUnificarOficinas
         Me.txtNombreOficial.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtNombreOficial.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtNombreOficial.Location = New System.Drawing.Point(12, 34)
+        Me.txtNombreOficial.Location = New System.Drawing.Point(18, 52)
+        Me.txtNombreOficial.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombreOficial.Name = "txtNombreOficial"
-        Me.txtNombreOficial.Size = New System.Drawing.Size(580, 24)
+        Me.txtNombreOficial.Size = New System.Drawing.Size(868, 33)
         Me.txtNombreOficial.TabIndex = 4
         '
         'btnUnificar
@@ -95,9 +103,10 @@ Partial Class frmUnificarOficinas
         Me.btnUnificar.BackColor = System.Drawing.Color.ForestGreen
         Me.btnUnificar.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnUnificar.ForeColor = System.Drawing.Color.White
-        Me.btnUnificar.Location = New System.Drawing.Point(608, 15)
+        Me.btnUnificar.Location = New System.Drawing.Point(912, 23)
+        Me.btnUnificar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnUnificar.Name = "btnUnificar"
-        Me.btnUnificar.Size = New System.Drawing.Size(149, 45)
+        Me.btnUnificar.Size = New System.Drawing.Size(224, 69)
         Me.btnUnificar.TabIndex = 5
         Me.btnUnificar.Text = "UNIFICAR SELECCIONADOS"
         Me.btnUnificar.UseVisualStyleBackColor = False
@@ -108,8 +117,9 @@ Partial Class frmUnificarOficinas
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
         Me.PanelSuperior.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelSuperior.Location = New System.Drawing.Point(0, 0)
+        Me.PanelSuperior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.PanelSuperior.Name = "PanelSuperior"
-        Me.PanelSuperior.Size = New System.Drawing.Size(784, 54)
+        Me.PanelSuperior.Size = New System.Drawing.Size(1176, 83)
         Me.PanelSuperior.TabIndex = 6
         '
         'PanelInferior
@@ -118,19 +128,21 @@ Partial Class frmUnificarOficinas
         Me.PanelInferior.Controls.Add(Me.btnUnificar)
         Me.PanelInferior.Controls.Add(Me.txtNombreOficial)
         Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelInferior.Location = New System.Drawing.Point(0, 446)
+        Me.PanelInferior.Location = New System.Drawing.Point(0, 687)
+        Me.PanelInferior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.PanelInferior.Name = "PanelInferior"
-        Me.PanelInferior.Size = New System.Drawing.Size(784, 75)
+        Me.PanelInferior.Size = New System.Drawing.Size(1176, 115)
         Me.PanelInferior.TabIndex = 7
         '
         'frmUnificarOficinas
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(784, 521)
+        Me.ClientSize = New System.Drawing.Size(1176, 802)
         Me.Controls.Add(Me.dgvOficinas)
         Me.Controls.Add(Me.PanelInferior)
         Me.Controls.Add(Me.PanelSuperior)
+        Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "frmUnificarOficinas"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Herramienta de Unificación de Oficinas (VECTOR)"

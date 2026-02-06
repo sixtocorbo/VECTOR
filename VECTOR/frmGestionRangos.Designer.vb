@@ -199,6 +199,8 @@ Partial Class frmGestionRangos
         '
         Me.dgvRangos.AllowUserToAddRows = False
         Me.dgvRangos.AllowUserToDeleteRows = False
+        Me.dgvRangos.AllowUserToResizeColumns = False
+        Me.dgvRangos.AllowUserToResizeRows = False
         Me.dgvRangos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvRangos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvRangos.Location = New System.Drawing.Point(18, 338)

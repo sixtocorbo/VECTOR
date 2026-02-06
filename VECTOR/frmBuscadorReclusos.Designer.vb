@@ -22,7 +22,7 @@ Partial Class frmBuscadorReclusos
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.pnlSuperior = New System.Windows.Forms.Panel()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.lblBuscar = New System.Windows.Forms.Label()
@@ -105,19 +105,20 @@ Partial Class frmBuscadorReclusos
         '
         Me.dgvLista.AllowUserToAddRows = False
         Me.dgvLista.AllowUserToDeleteRows = False
+        Me.dgvLista.AllowUserToResizeColumns = False
         Me.dgvLista.AllowUserToResizeRows = False
         Me.dgvLista.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvLista.BackgroundColor = System.Drawing.Color.White
         Me.dgvLista.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvLista.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.SteelBlue
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvLista.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvLista.DefaultCellStyle = DataGridViewCellStyle1
         Me.dgvLista.Dock = System.Windows.Forms.DockStyle.Fill
         Me.dgvLista.Location = New System.Drawing.Point(0, 70)
         Me.dgvLista.MultiSelect = False

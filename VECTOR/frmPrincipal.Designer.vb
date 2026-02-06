@@ -30,6 +30,7 @@ Partial Class frmPrincipal
         Me.GestionRangosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionUsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AuditoriaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.EstadisticasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UnificarOficinasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem() ' <--- NUEVO
         Me.VentanasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
@@ -66,7 +67,7 @@ Partial Class frmPrincipal
         '
         'GestiónToolStripMenuItem
         '
-        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
+        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
         Me.GestiónToolStripMenuItem.Name = "GestiónToolStripMenuItem"
         Me.GestiónToolStripMenuItem.Size = New System.Drawing.Size(88, 29)
         Me.GestiónToolStripMenuItem.Text = "Gestión"
@@ -94,6 +95,12 @@ Partial Class frmPrincipal
         Me.AuditoriaToolStripMenuItem.Name = "AuditoriaToolStripMenuItem"
         Me.AuditoriaToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
         Me.AuditoriaToolStripMenuItem.Text = "Auditoría"
+        '
+        'EstadisticasToolStripMenuItem
+        '
+        Me.EstadisticasToolStripMenuItem.Name = "EstadisticasToolStripMenuItem"
+        Me.EstadisticasToolStripMenuItem.Size = New System.Drawing.Size(345, 34)
+        Me.EstadisticasToolStripMenuItem.Text = "Estadísticas Generales"
         '
         'UnificarOficinasToolStripMenuItem
         '
@@ -162,6 +169,7 @@ Partial Class frmPrincipal
     Friend WithEvents GestionRangosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionUsuariosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AuditoriaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents EstadisticasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents UnificarOficinasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem ' <--- NUEVO
     Friend WithEvents VentanasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents StatusStrip1 As System.Windows.Forms.StatusStrip

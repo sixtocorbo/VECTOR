@@ -37,13 +37,21 @@ Public Class frmGestionRangos
     Private Async Function CargarOficinasAsync() As Task
         Using uow As New UnitOfWork()
             Dim repoOficinas = uow.Repository(Of Cat_Oficina)()
+
+            ' 1. Traemos todas las oficinas de la BD
             Dim oficinasDb = Await repoOficinas.GetQueryable().OrderBy(Function(o) o.Nombre).ToListAsync()
 
+            ' 2. Construimos la lista visual
             _oficinas = New List(Of OficinaOption) From {
                 New OficinaOption With {.IdOficina = Nothing, .Nombre = "BANDEJA DE ENTRADA (GENERAL)"}
             }
 
-            _oficinas.AddRange(oficinasDb.Select(Function(o) New OficinaOption With {
+            ' 3. Agregamos las oficinas reales EXCLUYENDO la Bandeja de Entrada (ID 13)
+            ' para que no aparezca duplicada ni confundamos al usuario.
+            ' (Asumiendo que 13 es el ID fijo de Bandeja, ajusta si es otro)
+            Dim idBandeja As Integer = 13
+
+            _oficinas.AddRange(oficinasDb.Where(Function(o) o.IdOficina <> idBandeja).Select(Function(o) New OficinaOption With {
                 .IdOficina = o.IdOficina,
                 .Nombre = o.Nombre
             }))
@@ -285,7 +293,13 @@ Public Class frmGestionRangos
                     If hayCruce Then
                         ' CASO 1: PELEA DE OFICINAS (Específico vs Específico) -> ERROR
                         If Not soyGeneral AndAlso Not existenteEsGeneral Then
-                            Dim nombreOfi = _oficinas.FirstOrDefault(Function(o) o.IdOficina = existente.IdOficina)?.Nombre
+
+                            ' --- CORRECCIÓN: COMPARACIÓN SEGURA DE NULLABLES ---
+                            ' Usamos .HasValue y .Value para evitar que la comparación devuelva 'Nothing'
+                            Dim nombreOfi = _oficinas.FirstOrDefault(Function(o) o.IdOficina.HasValue AndAlso o.IdOficina.Value = existente.IdOficina.Value)?.Nombre
+
+                            If String.IsNullOrEmpty(nombreOfi) Then nombreOfi = "Oficina Desconocida"
+
                             Toast.Show(Me, $"CONFLICTO: El rango {rango.NumeroInicio}-{rango.NumeroFin} choca con la oficina '{nombreOfi}' ({existente.NumeroInicio}-{existente.NumeroFin})." & vbCrLf & "Dos oficinas no pueden compartir números.", ToastType.Error)
                             Return
                         End If

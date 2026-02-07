@@ -47,8 +47,6 @@ Partial Class frmGestionRangos
         '
         Me.pnlEditor.BackColor = System.Drawing.Color.WhiteSmoke
         Me.pnlEditor.Controls.Add(Me.chkActivo)
-        Me.pnlEditor.Controls.Add(Me.btnCancelar)
-        Me.pnlEditor.Controls.Add(Me.btnGuardar)
         Me.pnlEditor.Controls.Add(Me.txtUltimo)
         Me.pnlEditor.Controls.Add(Me.lblUltimo)
         Me.pnlEditor.Controls.Add(Me.txtFin)
@@ -68,7 +66,7 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.pnlEditor.Name = "pnlEditor"
         Me.pnlEditor.Padding = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.pnlEditor.Size = New System.Drawing.Size(1140, 231)
+        Me.pnlEditor.Size = New System.Drawing.Size(908, 231)
         Me.pnlEditor.TabIndex = 0
         Me.pnlEditor.TabStop = False
         Me.pnlEditor.Text = "Detalle del Rango"
@@ -80,7 +78,7 @@ Partial Class frmGestionRangos
         Me.chkActivo.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkActivo.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.chkActivo.ForeColor = System.Drawing.Color.Green
-        Me.chkActivo.Location = New System.Drawing.Point(825, 46)
+        Me.chkActivo.Location = New System.Drawing.Point(370, 188)
         Me.chkActivo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkActivo.Name = "chkActivo"
         Me.chkActivo.Size = New System.Drawing.Size(186, 24)
@@ -90,10 +88,10 @@ Partial Class frmGestionRangos
         '
         'btnCancelar
         '
-        Me.btnCancelar.Location = New System.Drawing.Point(975, 154)
+        Me.btnCancelar.Location = New System.Drawing.Point(746, 269)
         Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnCancelar.Name = "btnCancelar"
-        Me.btnCancelar.Size = New System.Drawing.Size(135, 54)
+        Me.btnCancelar.Size = New System.Drawing.Size(180, 54)
         Me.btnCancelar.TabIndex = 11
         Me.btnCancelar.Text = "Cancelar"
         Me.btnCancelar.UseVisualStyleBackColor = True
@@ -103,17 +101,17 @@ Partial Class frmGestionRangos
         Me.btnGuardar.BackColor = System.Drawing.Color.SteelBlue
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(810, 154)
+        Me.btnGuardar.Location = New System.Drawing.Point(564, 269)
         Me.btnGuardar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnGuardar.Name = "btnGuardar"
-        Me.btnGuardar.Size = New System.Drawing.Size(150, 54)
+        Me.btnGuardar.Size = New System.Drawing.Size(180, 54)
         Me.btnGuardar.TabIndex = 10
         Me.btnGuardar.Text = "GUARDAR"
         Me.btnGuardar.UseVisualStyleBackColor = False
         '
         'txtUltimo
         '
-        Me.txtUltimo.Location = New System.Drawing.Point(600, 166)
+        Me.txtUltimo.Location = New System.Drawing.Point(504, 126)
         Me.txtUltimo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtUltimo.Name = "txtUltimo"
         Me.txtUltimo.Size = New System.Drawing.Size(148, 26)
@@ -123,7 +121,7 @@ Partial Class frmGestionRangos
         'lblUltimo
         '
         Me.lblUltimo.AutoSize = True
-        Me.lblUltimo.Location = New System.Drawing.Point(596, 142)
+        Me.lblUltimo.Location = New System.Drawing.Point(500, 102)
         Me.lblUltimo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblUltimo.Name = "lblUltimo"
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
@@ -132,7 +130,7 @@ Partial Class frmGestionRangos
         '
         'txtFin
         '
-        Me.txtFin.Location = New System.Drawing.Point(420, 166)
+        Me.txtFin.Location = New System.Drawing.Point(348, 126)
         Me.txtFin.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtFin.Name = "txtFin"
         Me.txtFin.ReadOnly = True
@@ -142,7 +140,7 @@ Partial Class frmGestionRangos
         'lblFin
         '
         Me.lblFin.AutoSize = True
-        Me.lblFin.Location = New System.Drawing.Point(416, 142)
+        Me.lblFin.Location = New System.Drawing.Point(344, 102)
         Me.lblFin.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFin.Name = "lblFin"
         Me.lblFin.Size = New System.Drawing.Size(95, 20)
@@ -151,7 +149,7 @@ Partial Class frmGestionRangos
         '
         'txtCantidad
         '
-        Me.txtCantidad.Location = New System.Drawing.Point(600, 106)
+        Me.txtCantidad.Location = New System.Drawing.Point(192, 126)
         Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtCantidad.Name = "txtCantidad"
         Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
@@ -160,16 +158,16 @@ Partial Class frmGestionRangos
         'lblCantidad
         '
         Me.lblCantidad.AutoSize = True
-        Me.lblCantidad.Location = New System.Drawing.Point(596, 82)
+        Me.lblCantidad.Location = New System.Drawing.Point(188, 102)
         Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCantidad.Name = "lblCantidad"
-        Me.lblCantidad.Size = New System.Drawing.Size(145, 20)
+        Me.lblCantidad.Size = New System.Drawing.Size(143, 20)
         Me.lblCantidad.TabIndex = 12
         Me.lblCantidad.Text = "Cantidad números:"
         '
         'txtInicio
         '
-        Me.txtInicio.Location = New System.Drawing.Point(240, 166)
+        Me.txtInicio.Location = New System.Drawing.Point(32, 126)
         Me.txtInicio.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtInicio.Name = "txtInicio"
         Me.txtInicio.Size = New System.Drawing.Size(148, 26)
@@ -178,7 +176,7 @@ Partial Class frmGestionRangos
         'lblInicio
         '
         Me.lblInicio.AutoSize = True
-        Me.lblInicio.Location = New System.Drawing.Point(236, 142)
+        Me.lblInicio.Location = New System.Drawing.Point(28, 102)
         Me.lblInicio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblInicio.Name = "lblInicio"
         Me.lblInicio.Size = New System.Drawing.Size(110, 20)
@@ -188,7 +186,7 @@ Partial Class frmGestionRangos
         'txtNombre
         '
         Me.txtNombre.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtNombre.Location = New System.Drawing.Point(240, 77)
+        Me.txtNombre.Location = New System.Drawing.Point(240, 58)
         Me.txtNombre.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombre.Name = "txtNombre"
         Me.txtNombre.Size = New System.Drawing.Size(508, 26)
@@ -197,7 +195,7 @@ Partial Class frmGestionRangos
         'lblNombre
         '
         Me.lblNombre.AutoSize = True
-        Me.lblNombre.Location = New System.Drawing.Point(236, 52)
+        Me.lblNombre.Location = New System.Drawing.Point(236, 33)
         Me.lblNombre.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblNombre.Name = "lblNombre"
         Me.lblNombre.Size = New System.Drawing.Size(193, 20)
@@ -208,7 +206,7 @@ Partial Class frmGestionRangos
         '
         Me.cmbOficina.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbOficina.FormattingEnabled = True
-        Me.cmbOficina.Location = New System.Drawing.Point(780, 122)
+        Me.cmbOficina.Location = New System.Drawing.Point(32, 184)
         Me.cmbOficina.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cmbOficina.Name = "cmbOficina"
         Me.cmbOficina.Size = New System.Drawing.Size(330, 28)
@@ -217,10 +215,10 @@ Partial Class frmGestionRangos
         'lblOficina
         '
         Me.lblOficina.AutoSize = True
-        Me.lblOficina.Location = New System.Drawing.Point(776, 96)
+        Me.lblOficina.Location = New System.Drawing.Point(28, 158)
         Me.lblOficina.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblOficina.Name = "lblOficina"
-        Me.lblOficina.Size = New System.Drawing.Size(63, 20)
+        Me.lblOficina.Size = New System.Drawing.Size(62, 20)
         Me.lblOficina.TabIndex = 3
         Me.lblOficina.Text = "Oficina:"
         '
@@ -228,7 +226,7 @@ Partial Class frmGestionRangos
         '
         Me.cmbTipo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbTipo.FormattingEnabled = True
-        Me.cmbTipo.Location = New System.Drawing.Point(30, 77)
+        Me.cmbTipo.Location = New System.Drawing.Point(30, 58)
         Me.cmbTipo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cmbTipo.Name = "cmbTipo"
         Me.cmbTipo.Size = New System.Drawing.Size(178, 28)
@@ -237,7 +235,7 @@ Partial Class frmGestionRangos
         'lblTipo
         '
         Me.lblTipo.AutoSize = True
-        Me.lblTipo.Location = New System.Drawing.Point(26, 52)
+        Me.lblTipo.Location = New System.Drawing.Point(26, 33)
         Me.lblTipo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblTipo.Name = "lblTipo"
         Me.lblTipo.Size = New System.Drawing.Size(43, 20)
@@ -259,7 +257,7 @@ Partial Class frmGestionRangos
         Me.dgvRangos.ReadOnly = True
         Me.dgvRangos.RowHeadersWidth = 62
         Me.dgvRangos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvRangos.Size = New System.Drawing.Size(1140, 354)
+        Me.dgvRangos.Size = New System.Drawing.Size(908, 222)
         Me.dgvRangos.TabIndex = 1
         '
         'btnNuevo
@@ -274,7 +272,7 @@ Partial Class frmGestionRangos
         '
         'btnEditar
         '
-        Me.btnEditar.Location = New System.Drawing.Point(210, 269)
+        Me.btnEditar.Location = New System.Drawing.Point(200, 269)
         Me.btnEditar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnEditar.Name = "btnEditar"
         Me.btnEditar.Size = New System.Drawing.Size(180, 54)
@@ -287,7 +285,7 @@ Partial Class frmGestionRangos
         Me.btnEliminar.BackColor = System.Drawing.Color.IndianRed
         Me.btnEliminar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEliminar.ForeColor = System.Drawing.Color.White
-        Me.btnEliminar.Location = New System.Drawing.Point(402, 269)
+        Me.btnEliminar.Location = New System.Drawing.Point(382, 269)
         Me.btnEliminar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnEliminar.Name = "btnEliminar"
         Me.btnEliminar.Size = New System.Drawing.Size(180, 54)
@@ -299,9 +297,11 @@ Partial Class frmGestionRangos
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1176, 709)
+        Me.ClientSize = New System.Drawing.Size(939, 576)
         Me.Controls.Add(Me.btnEliminar)
+        Me.Controls.Add(Me.btnCancelar)
         Me.Controls.Add(Me.btnEditar)
+        Me.Controls.Add(Me.btnGuardar)
         Me.Controls.Add(Me.btnNuevo)
         Me.Controls.Add(Me.dgvRangos)
         Me.Controls.Add(Me.pnlEditor)

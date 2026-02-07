@@ -117,6 +117,7 @@ Partial Class frmGestionRangos
         Me.txtUltimo.Size = New System.Drawing.Size(148, 26)
         Me.txtUltimo.TabIndex = 9
         Me.txtUltimo.Text = "0"
+        Me.txtUltimo.Visible = False
         '
         'lblUltimo
         '
@@ -127,6 +128,7 @@ Partial Class frmGestionRangos
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
         Me.lblUltimo.TabIndex = 8
         Me.lblUltimo.Text = "Último Usado:"
+        Me.lblUltimo.Visible = False
         '
         'txtFin
         '
@@ -191,6 +193,7 @@ Partial Class frmGestionRangos
         Me.txtNombre.Name = "txtNombre"
         Me.txtNombre.Size = New System.Drawing.Size(508, 26)
         Me.txtNombre.TabIndex = 3
+        Me.txtNombre.Visible = False
         '
         'lblNombre
         '
@@ -201,6 +204,7 @@ Partial Class frmGestionRangos
         Me.lblNombre.Size = New System.Drawing.Size(193, 20)
         Me.lblNombre.TabIndex = 2
         Me.lblNombre.Text = "Nombre (Ej: Oficios 2026):"
+        Me.lblNombre.Visible = False
         '
         'cmbOficina
         '

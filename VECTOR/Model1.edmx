@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Cat_Estado">
           <Key>
             <PropertyRef Name="IdEstado" />
@@ -109,6 +109,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Activo" Type="bit" Nullable="false" />
           <Property Name="FechaCreacion" Type="datetime" />
           <Property Name="IdOficina" Type="int" />
+          <Property Name="Anio" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Mae_Reclusos">
           <Key>
@@ -423,8 +424,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SecretariaDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -544,6 +544,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="IdOficina" Type="Int32" />
           <NavigationProperty Name="Cat_Oficina" Relationship="Self.FK_Numeracion_Oficina" FromRole="Mae_NumeracionRangos" ToRole="Cat_Oficina" />
           <NavigationProperty Name="Cat_TipoDocumento" Relationship="Self.FK_Numeracion_Tipo" FromRole="Mae_NumeracionRangos" ToRole="Cat_TipoDocumento" />
+          <Property Name="Anio" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Mae_Reclusos">
           <Key>
@@ -963,6 +964,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySetMapping Name="Mae_NumeracionRangos">
             <EntityTypeMapping TypeName="SecretariaDBModel.Mae_NumeracionRangos">
               <MappingFragment StoreEntitySet="Mae_NumeracionRangos">
+                <ScalarProperty Name="Anio" ColumnName="Anio" />
                 <ScalarProperty Name="IdRango" ColumnName="IdRango" />
                 <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
                 <ScalarProperty Name="NombreRango" ColumnName="NombreRango" />

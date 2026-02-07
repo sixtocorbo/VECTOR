@@ -20,6 +20,7 @@ Partial Public Class Mae_NumeracionRangos
     Public Property Activo As Boolean
     Public Property FechaCreacion As Nullable(Of Date)
     Public Property IdOficina As Nullable(Of Integer)
+    Public Property Anio As Integer
 
     Public Overridable Property Cat_Oficina As Cat_Oficina
     Public Overridable Property Cat_TipoDocumento As Cat_TipoDocumento

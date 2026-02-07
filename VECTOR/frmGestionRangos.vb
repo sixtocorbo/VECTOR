@@ -33,6 +33,7 @@ Public Class frmGestionRangos
         Me.ShowIcon = False
     End Sub
 
+    ' --- CORRECCIÓN MATEMÁTICA 1: Cálculo exacto del Fin ---
     Private Sub ActualizarFinDesdeCantidad()
         Dim ini As Integer
         Dim cantidad As Integer
@@ -52,7 +53,8 @@ Public Class frmGestionRangos
             Return
         End If
 
-        Dim finCalculado As Integer = ini + cantidad
+        ' Si inicio es 1 y cantidad es 10, el fin debe ser 10 (1..10), no 11.
+        Dim finCalculado As Integer = ini + cantidad - 1
         txtFin.Text = finCalculado.ToString()
     End Sub
 
@@ -97,8 +99,6 @@ Public Class frmGestionRangos
             }
 
             ' 3. Agregamos las oficinas reales EXCLUYENDO la Bandeja de Entrada (ID 13)
-            ' para que no aparezca duplicada ni confundamos al usuario.
-            ' (Asumiendo que 13 es el ID fijo de Bandeja, ajusta si es otro)
             Dim idBandeja As Integer = 13
 
             _oficinas.AddRange(oficinasDb.Where(Function(o) o.IdOficina <> idBandeja).Select(Function(o) New OficinaOption With {
@@ -201,6 +201,7 @@ Public Class frmGestionRangos
         End Try
     End Function
 
+    ' --- CORRECCIÓN MATEMÁTICA 2: Ajuste de Gaps en General ---
     Private Function CalcularInicioDisponible(rangos As List(Of RangoSimple), cantidad As Integer) As Integer
         If rangos Is Nothing OrElse rangos.Count = 0 Then
             Return 1
@@ -211,7 +212,8 @@ Public Class frmGestionRangos
         Dim actualInicio As Integer = ordenados(0).Inicio
         Dim actualFin As Integer = ordenados(0).Fin
 
-        If inicioBase + cantidad <= actualInicio - 1 Then
+        ' Si cabe antes del primer rango:
+        If inicioBase + cantidad - 1 <= actualInicio - 1 Then
             Return inicioBase
         End If
 
@@ -222,7 +224,8 @@ Public Class frmGestionRangos
             Else
                 Dim gapInicio As Integer = actualFin + 1
                 Dim gapFin As Integer = rango.Inicio - 1
-                If gapInicio + cantidad <= gapFin Then
+                ' Verificamos si cabe en el hueco exacto
+                If gapInicio + cantidad - 1 <= gapFin Then
                     Return gapInicio
                 End If
                 actualInicio = rango.Inicio
@@ -233,6 +236,7 @@ Public Class frmGestionRangos
         Return actualFin + 1
     End Function
 
+    ' --- CORRECCIÓN MATEMÁTICA 3: Ajuste de Gaps en Sub-rangos ---
     Private Function CalcularInicioDisponibleEnRango(rangoBase As RangoSimple, rangosOcupados As List(Of RangoSimple), cantidad As Integer) As Integer?
         If rangoBase Is Nothing Then Return Nothing
         If cantidad < 0 Then Return Nothing
@@ -240,7 +244,7 @@ Public Class frmGestionRangos
         Dim baseInicio As Integer = rangoBase.Inicio
         Dim baseFin As Integer = rangoBase.Fin
 
-        If baseInicio + cantidad > baseFin Then Return Nothing
+        If baseInicio + cantidad - 1 > baseFin Then Return Nothing
 
         Dim ocupados = rangosOcupados.
             Where(Function(r) r.Fin >= baseInicio AndAlso r.Inicio <= baseFin).
@@ -253,15 +257,20 @@ Public Class frmGestionRangos
             Dim ocupadoInicio As Integer = Math.Max(ocupado.Inicio, baseInicio)
             Dim ocupadoFin As Integer = Math.Min(ocupado.Fin, baseFin)
 
-            If cursor + cantidad <= ocupadoInicio - 1 Then
+            ' Verificamos si cabe antes del bloque ocupado
+            If cursor + cantidad - 1 <= ocupadoInicio - 1 Then
                 Return cursor
             End If
 
+            ' Saltamos el bloque ocupado
             cursor = Math.Max(cursor, ocupadoFin + 1)
-            If cursor + cantidad > baseFin Then Return Nothing
+
+            ' Si ya nos salimos del rango base, abortar
+            If cursor + cantidad - 1 > baseFin Then Return Nothing
         Next
 
-        If cursor + cantidad <= baseFin Then
+        ' Verificamos si cabe en el espacio final restante
+        If cursor + cantidad - 1 <= baseFin Then
             Return cursor
         End If
 
@@ -301,7 +310,7 @@ Public Class frmGestionRangos
         cmbTipo.Focus()
         chkActivo.Checked = True
         txtUltimo.Text = "0"
-        txtUltimo.Enabled = True ' Permitimos ajustar manualmente el último utilizado al crear.
+        txtUltimo.Enabled = True
     End Sub
 
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
@@ -316,15 +325,9 @@ Public Class frmGestionRangos
             If r IsNot Nothing Then
                 cmbTipo.SelectedValue = r.IdTipo
 
-                ' --- CORRECCIÓN DEL ERROR ---
-                ' No podemos asignar Nothing directamente a SelectedValue.
-                ' Lo manejamos manualmente:
                 If r.IdOficina.HasValue Then
                     cmbOficina.SelectedValue = r.IdOficina.Value
                 Else
-                    ' Caso: BANDEJA DE ENTRADA (IdOficina es NULL en base de datos)
-                    ' Buscamos manualmente en la lista el ítem que corresponde a Nothing
-                    ' (Generalmente es el primero, índice 0, pero lo buscamos por seguridad)
                     cmbOficina.SelectedIndex = -1
                     If _oficinas IsNot Nothing Then
                         For i As Integer = 0 To _oficinas.Count - 1
@@ -335,16 +338,18 @@ Public Class frmGestionRangos
                         Next
                     End If
                 End If
-                ' -----------------------------
 
                 txtNombre.Text = r.NombreRango
                 txtInicio.Text = r.NumeroInicio.ToString()
-                txtCantidad.Text = Math.Max(0, r.NumeroFin - r.NumeroInicio).ToString()
+
+                ' --- CORRECCIÓN MATEMÁTICA 4: Recuperar cantidad correcta (+1) ---
+                ' Rango 1 a 10 son 10 números. (10 - 1) + 1 = 10.
+                txtCantidad.Text = Math.Max(0, r.NumeroFin - r.NumeroInicio + 1).ToString()
+
                 txtFin.Text = r.NumeroFin.ToString()
                 txtUltimo.Text = r.UltimoUtilizado.ToString()
                 chkActivo.Checked = r.Activo
 
-                ' Permitimos editar el último utilizado solo para correcciones manuales
                 txtUltimo.Enabled = True
 
                 ModoEdicion(True)
@@ -386,7 +391,7 @@ Public Class frmGestionRangos
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
-        ' A. VALIDACIONES DE INTERFAZ (Igual que antes...)
+        ' A. VALIDACIONES DE INTERFAZ
         If cmbTipo.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
             Return
@@ -408,15 +413,16 @@ Public Class frmGestionRangos
             Return
         End If
 
-        fin = ini + cantidad
+        ' --- CORRECCIÓN MATEMÁTICA 5: Confirmar cálculo final al guardar ---
+        fin = ini + cantidad - 1
         txtFin.Text = fin.ToString()
 
         If cantidad < 0 Then
             Toast.Show(Me, "La cantidad de números debe ser mayor o igual a cero.", ToastType.Warning)
             Return
         End If
-        If ini >= fin Then
-            Toast.Show(Me, "El número de Inicio debe ser menor al número Fin.", ToastType.Warning)
+        If ini > fin Then ' Ajustado a > porque ini == fin es válido (cantidad 1)
+            Toast.Show(Me, "El número de Inicio no puede ser mayor al número Fin.", ToastType.Warning)
             Return
         End If
         If ult < (ini - 1) Or ult > fin Then
@@ -471,7 +477,6 @@ Public Class frmGestionRangos
                 ' =====================================================================
                 Dim soyGeneral As Boolean = Not rango.IdOficina.HasValue
 
-                ' Traemos TODOS los rangos activos de este tipo (menos yo mismo)
                 Dim rangosExistentes = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.Activo = True And x.IdRango <> rango.IdRango).ToListAsync()
 
                 For Each existente In rangosExistentes
@@ -483,11 +488,7 @@ Public Class frmGestionRangos
                     If hayCruce Then
                         ' CASO 1: PELEA DE OFICINAS (Específico vs Específico) -> ERROR
                         If Not soyGeneral AndAlso Not existenteEsGeneral Then
-
-                            ' --- CORRECCIÓN: COMPARACIÓN SEGURA DE NULLABLES ---
-                            ' Usamos .HasValue y .Value para evitar que la comparación devuelva 'Nothing'
                             Dim nombreOfi = _oficinas.FirstOrDefault(Function(o) o.IdOficina.HasValue AndAlso o.IdOficina.Value = existente.IdOficina.Value)?.Nombre
-
                             If String.IsNullOrEmpty(nombreOfi) Then nombreOfi = "Oficina Desconocida"
 
                             Toast.Show(Me, $"CONFLICTO: El rango {rango.NumeroInicio}-{rango.NumeroFin} choca con la oficina '{nombreOfi}' ({existente.NumeroInicio}-{existente.NumeroFin})." & vbCrLf & "Dos oficinas no pueden compartir números.", ToastType.Error)
@@ -501,8 +502,6 @@ Public Class frmGestionRangos
                         End If
 
                         ' CASO 3: CESIÓN (General vs Específico) -> PERMITIDO
-                        ' Aquí es donde permitimos que la Bandeja tenga 1-1000 y la Oficina A tenga 100-200.
-                        ' El sistema asumirá que es una "Reserva" dentro del bloque general.
                     End If
                 Next
 
@@ -526,7 +525,7 @@ Public Class frmGestionRangos
                 If esNuevo Then repoRangos.Add(rango)
                 Await uow.CommitAsync()
 
-                Toast.Show(Me, "Rango configurado correctamente (con reservas permitidas).", ToastType.Success)
+                Toast.Show(Me, "Rango configurado correctamente.", ToastType.Success)
                 ModoEdicion(False)
                 Await CargarGrillaAsync()
             End Using

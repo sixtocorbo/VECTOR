@@ -59,6 +59,8 @@ Public Class frmGestionRangos
         Using uow As New UnitOfWork()
             Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
             Dim repoOficinas = uow.Repository(Of Cat_Oficina)()
+
+            ' Hacemos un Left Join para mostrar el nombre de la oficina o "BANDEJA DE ENTRADA"
             Dim lista = Await (From r In repoRangos.GetQueryable("Cat_TipoDocumento")
                                Group Join o In repoOficinas.GetQueryable()
                                    On r.IdOficina Equals o.IdOficina Into oficinaJoin = Group
@@ -130,9 +132,31 @@ Public Class frmGestionRangos
         Using uow As New UnitOfWork()
             Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
             Dim r = Await repoRangos.GetByIdAsync(_idEdicion)
+
             If r IsNot Nothing Then
                 cmbTipo.SelectedValue = r.IdTipo
-                cmbOficina.SelectedValue = If(r.IdOficina.HasValue, CType(r.IdOficina, Object), Nothing)
+
+                ' --- CORRECCIÓN DEL ERROR ---
+                ' No podemos asignar Nothing directamente a SelectedValue.
+                ' Lo manejamos manualmente:
+                If r.IdOficina.HasValue Then
+                    cmbOficina.SelectedValue = r.IdOficina.Value
+                Else
+                    ' Caso: BANDEJA DE ENTRADA (IdOficina es NULL en base de datos)
+                    ' Buscamos manualmente en la lista el ítem que corresponde a Nothing
+                    ' (Generalmente es el primero, índice 0, pero lo buscamos por seguridad)
+                    cmbOficina.SelectedIndex = -1
+                    If _oficinas IsNot Nothing Then
+                        For i As Integer = 0 To _oficinas.Count - 1
+                            If _oficinas(i).IdOficina Is Nothing Then
+                                cmbOficina.SelectedIndex = i
+                                Exit For
+                            End If
+                        Next
+                    End If
+                End If
+                ' -----------------------------
+
                 txtNombre.Text = r.NombreRango
                 txtInicio.Text = r.NumeroInicio.ToString()
                 txtFin.Text = r.NumeroFin.ToString()
@@ -152,7 +176,7 @@ Public Class frmGestionRangos
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
-        ' A. VALIDACIONES DE INTERFAZ
+        ' A. VALIDACIONES DE INTERFAZ (Igual que antes...)
         If cmbTipo.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
             Return
@@ -185,19 +209,18 @@ Public Class frmGestionRangos
 
                 If esNuevo Then
                     rango = New Mae_NumeracionRangos()
-                    repoRangos.Add(rango)
+                    rango.FechaCreacion = DateTime.Now
                 Else
                     rango = Await repoRangos.GetByIdAsync(_idEdicion)
                 End If
 
-                If rango Is Nothing Then
-                    Toast.Show(Me, "No se encontró el rango a editar.", ToastType.Warning)
-                    Return
-                End If
+                If rango Is Nothing Then Return
 
-                ' Asignar valores
+                ' --- Asignar valores ---
                 rango.IdTipo = Convert.ToInt32(cmbTipo.SelectedValue)
                 Dim selectedOficina = cmbOficina.SelectedValue
+
+                ' Normalización del ID Oficina
                 If selectedOficina Is Nothing OrElse selectedOficina Is DBNull.Value Then
                     rango.IdOficina = Nothing
                 Else
@@ -208,22 +231,50 @@ Public Class frmGestionRangos
                         rango.IdOficina = Nothing
                     End If
                 End If
+
                 rango.NombreRango = txtNombre.Text.Trim()
                 rango.NumeroInicio = ini
                 rango.NumeroFin = fin
                 rango.UltimoUtilizado = ult
                 rango.Activo = chkActivo.Checked
 
-                ' Si es nuevo, ponemos fecha
-                If _idEdicion = 0 Then rango.FechaCreacion = DateTime.Now
+                ' =====================================================================
+                ' LÓGICA DE VALIDACIÓN DE SUPERPOSICIÓN MULTI-OFICINA
+                ' =====================================================================
+                Dim soyGeneral As Boolean = Not rango.IdOficina.HasValue
 
-                ' REGLA DE NEGOCIO:
-                ' Si activo este rango, debo desactivar cualquier otro rango ACTIVO del mismo tipo
-                ' para que el sistema no se confunda sobre cuál usar.
+                ' Traemos TODOS los rangos activos de este tipo (menos yo mismo)
+                Dim rangosExistentes = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.Activo = True And x.IdRango <> rango.IdRango).ToListAsync()
+
+                For Each existente In rangosExistentes
+                    Dim existenteEsGeneral As Boolean = Not existente.IdOficina.HasValue
+
+                    ' Verificamos si hay intersección matemática de números
+                    Dim hayCruce As Boolean = (rango.NumeroInicio <= existente.NumeroFin) And (rango.NumeroFin >= existente.NumeroInicio)
+
+                    If hayCruce Then
+                        ' CASO 1: PELEA DE OFICINAS (Específico vs Específico) -> ERROR
+                        If Not soyGeneral AndAlso Not existenteEsGeneral Then
+                            Dim nombreOfi = _oficinas.FirstOrDefault(Function(o) o.IdOficina = existente.IdOficina)?.Nombre
+                            Toast.Show(Me, $"CONFLICTO: El rango {rango.NumeroInicio}-{rango.NumeroFin} choca con la oficina '{nombreOfi}' ({existente.NumeroInicio}-{existente.NumeroFin})." & vbCrLf & "Dos oficinas no pueden compartir números.", ToastType.Error)
+                            Return
+                        End If
+
+                        ' CASO 2: PELEA DE GENERALES (General vs General) -> ERROR
+                        If soyGeneral AndAlso existenteEsGeneral Then
+                            Toast.Show(Me, $"CONFLICTO: Ya existe un Rango General activo ({existente.NumeroInicio}-{existente.NumeroFin}). Solo puede haber una Bandeja General por tipo.", ToastType.Error)
+                            Return
+                        End If
+
+                        ' CASO 3: CESIÓN (General vs Específico) -> PERMITIDO
+                        ' Aquí es donde permitimos que la Bandeja tenga 1-1000 y la Oficina A tenga 100-200.
+                        ' El sistema asumirá que es una "Reserva" dentro del bloque general.
+                    End If
+                Next
+
+                ' Si paso la validación, desactivo SOLO mis versiones anteriores exactas
                 If rango.Activo Then
-                    Dim otrosQuery = repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And
-                                                                         x.IdRango <> rango.IdRango And
-                                                                         x.Activo = True)
+                    Dim otrosQuery = repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.IdRango <> rango.IdRango And x.Activo = True)
                     Dim otros As List(Of Mae_NumeracionRangos)
 
                     If rango.IdOficina.HasValue Then
@@ -238,35 +289,16 @@ Public Class frmGestionRangos
                     Next
                 End If
 
+                If esNuevo Then repoRangos.Add(rango)
                 Await uow.CommitAsync()
 
-                Dim accion As String = If(esNuevo, "Creación", "Edición")
-                Dim oficinaNombre As String
-                If rango.IdOficina.HasValue Then
-                    Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina = rango.IdOficina.Value)
-                    oficinaNombre = If(oficina?.Nombre, "BANDEJA DE ENTRADA")
-                Else
-                    oficinaNombre = "BANDEJA DE ENTRADA"
-                End If
-                AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Oficina: {oficinaNombre}. Activo: {rango.Activo}.", "RANGOS")
-                Toast.Show(Me, "Rango guardado correctamente.", ToastType.Success)
-
+                Toast.Show(Me, "Rango configurado correctamente (con reservas permitidas).", ToastType.Success)
                 ModoEdicion(False)
                 Await CargarGrillaAsync()
             End Using
 
-            ' C. MANEJO DE ERRORES DE VALIDACIÓN (ENTITY FRAMEWORK)
-        Catch dbEx As DbEntityValidationException
-            Dim mensaje As String = ""
-            For Each valResult In dbEx.EntityValidationErrors
-                For Each validationError In valResult.ValidationErrors
-                    mensaje &= "- " & validationError.ErrorMessage & vbCrLf
-                Next
-            Next
-            Toast.Show(Me, "Error de validación de datos:" & vbCrLf & mensaje, ToastType.Warning)
-
         Catch ex As Exception
-            Toast.Show(Me, "Ocurrió un error inesperado: " & ex.Message, ToastType.Error)
+            Toast.Show(Me, "Error: " & ex.Message, ToastType.Error)
         End Try
     End Sub
 

@@ -307,6 +307,15 @@ Public Class frmGestionRangos
 
     Private Sub btnNuevo_Click(sender As Object, e As EventArgs) Handles btnNuevo.Click
         ModoEdicion(True)
+
+        ' --- CORRECCIÓN CLAVE ---
+        ' Limpiamos estos campos para que el sistema sepa que puede 
+        ' sobrescribirlos con la sugerencia automática.
+        txtInicio.Text = ""   ' <--- Esto es lo que faltaba
+        txtFin.Text = ""
+        _ultimoInicioSugerido = Nothing
+        ' ------------------------
+
         cmbTipo.Focus()
         chkActivo.Checked = True
         txtUltimo.Text = "0"

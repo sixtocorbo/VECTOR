@@ -177,7 +177,9 @@
     <Compile Include="frmGestionRangos.Designer.vb">
       <DependentUpon>frmGestionRangos.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmGestionRangos.vb" />
+    <Compile Include="frmGestionRangos.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmHistorial.Designer.vb">
       <DependentUpon>frmHistorial.vb</DependentUpon>
     </Compile>

@@ -1,6 +1,7 @@
 ﻿Imports System.Data.Entity
 Imports System.Data.Entity.Validation
 Imports System.Drawing ' Necesario para manipulación de colores
+Imports System.Linq
 
 Public Class frmGestionRangos
 
@@ -48,7 +49,7 @@ Public Class frmGestionRangos
         Await CargarListasAsync()
 
         ' Inicializamos los límites de stock (Simulación de Secretaría General)
-        InicializarStockSecretaria()
+        Await InicializarStockSecretariaAsync()
 
         Await CargarGrillaAsync()
         ModoEdicion(False)
@@ -61,8 +62,9 @@ Public Class frmGestionRangos
     ' =======================================================
     ' LÓGICA DE STOCK (SECRETARÍA GENERAL)
     ' =======================================================
-    Private Sub InicializarStockSecretaria()
+    Private Async Function InicializarStockSecretariaAsync() As Task
         _limitesPorTipo = New Dictionary(Of Integer, Integer)()
+        Dim limitesBD = Await ObtenerCuposSecretariaDesdeBDAsync()
 
         ' Mapeamos los cupos basándonos en el Nombre del tipo (ya que los IDs pueden variar)
         If cmbTipo.DataSource IsNot Nothing Then
@@ -71,19 +73,66 @@ Public Class frmGestionRangos
                 For Each t In listaTipos
                     Dim cantidad As Integer = _stockDefault
 
-                    ' Asignación inteligente por palabras clave
-                    Dim nombreUpper = t.Nombre.ToUpper()
-                    If nombreUpper.Contains("MEMORANDO") Then cantidad = _stockTotalMemorandos
-                    If nombreUpper.Contains("NOTA") Then cantidad = _stockTotalNotas
-                    If nombreUpper.Contains("RESOLUCION") Then cantidad = _stockTotalResoluciones
-                    If nombreUpper.Contains("DICTAMEN") Then cantidad = _stockTotalDictamenes
-                    If nombreUpper.Contains("OFICIO") Then cantidad = _stockTotalOficios
+                    If limitesBD.ContainsKey(t.IdTipo) Then
+                        cantidad = limitesBD(t.IdTipo)
+                    Else
+                        ' Asignación inteligente por palabras clave (fallback)
+                        Dim nombreUpper = t.Nombre.ToUpper()
+                        If nombreUpper.Contains("MEMORANDO") Then cantidad = _stockTotalMemorandos
+                        If nombreUpper.Contains("NOTA") Then cantidad = _stockTotalNotas
+                        If nombreUpper.Contains("RESOLUCION") Then cantidad = _stockTotalResoluciones
+                        If nombreUpper.Contains("DICTAMEN") Then cantidad = _stockTotalDictamenes
+                        If nombreUpper.Contains("OFICIO") Then cantidad = _stockTotalOficios
+                    End If
 
                     _limitesPorTipo.Add(t.IdTipo, cantidad)
                 Next
             End If
         End If
-    End Sub
+    End Function
+
+    Private Async Function ObtenerCuposSecretariaDesdeBDAsync() As Task(Of Dictionary(Of Integer, Integer))
+        Dim resultado As New Dictionary(Of Integer, Integer)
+
+        Using uow As New UnitOfWork()
+            Try
+                Dim sql As String = "SELECT IdCupo, IdTipo, Cantidad, Fecha FROM Mae_CuposSecretaria"
+                Dim registros = Await uow.Context.Database.SqlQuery(Of CupoSecretariaRecord)(sql).ToListAsync()
+
+                For Each grupo In registros.GroupBy(Function(r) r.IdTipo)
+                    Dim ultimo = grupo.OrderByDescending(Function(r) r.Fecha).
+                        ThenByDescending(Function(r) r.IdCupo).
+                        FirstOrDefault()
+
+                    If ultimo IsNot Nothing Then
+                        resultado(grupo.Key) = ultimo.Cantidad
+                    End If
+                Next
+            Catch ex As Exception
+                ' Si la tabla no existe o falla la consulta, usamos los valores por defecto.
+                resultado.Clear()
+            End Try
+        End Using
+
+        Return resultado
+    End Function
+
+    Private Function TryObtenerIdTipoSeleccionado(ByRef idTipo As Integer) As Boolean
+        If cmbTipo.SelectedIndex = -1 Then Return False
+
+        If TypeOf cmbTipo.SelectedValue Is Integer Then
+            idTipo = CInt(cmbTipo.SelectedValue)
+            Return True
+        End If
+
+        Dim tipo = TryCast(cmbTipo.SelectedItem, Cat_TipoDocumento)
+        If tipo IsNot Nothing Then
+            idTipo = tipo.IdTipo
+            Return True
+        End If
+
+        Return False
+    End Function
 
     Private Function ObtenerLimiteTotal(idTipo As Integer) As Integer
         Dim limiteTotal As Integer = _stockDefault
@@ -130,7 +179,11 @@ Public Class frmGestionRangos
             Return
         End If
 
-        Dim idTipo As Integer = CInt(cmbTipo.SelectedValue)
+        Dim idTipo As Integer
+        If Not TryObtenerIdTipoSeleccionado(idTipo) Then
+            lblStock.Text = "---"
+            Return
+        End If
         Dim anio As Integer = CInt(numAnio.Value)
 
         Dim restante = Await ObtenerStockRestanteAsync(idTipo, anio)
@@ -283,7 +336,8 @@ Public Class frmGestionRangos
 
         _sugerenciaEnCurso = True
         Try
-            Dim idTipo As Integer = Convert.ToInt32(cmbTipo.SelectedValue)
+            Dim idTipo As Integer
+            If Not TryObtenerIdTipoSeleccionado(idTipo) Then Return
             Dim anio As Integer = CInt(numAnio.Value)
 
             Using uow As New UnitOfWork()
@@ -473,7 +527,11 @@ Public Class frmGestionRangos
         End If
 
         ' 2. VALIDACIÓN DE STOCK (Control Secretaría General)
-        Dim idTipo As Integer = CInt(cmbTipo.SelectedValue)
+        Dim idTipo As Integer
+        If Not TryObtenerIdTipoSeleccionado(idTipo) Then
+            Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
+            Return
+        End If
         Dim anio As Integer = CInt(numAnio.Value)
 
         Dim stockRestante = Await ObtenerStockRestanteAsync(idTipo, anio)
@@ -501,7 +559,7 @@ Public Class frmGestionRangos
                     rango = Await repo.GetByIdAsync(_idEdicion)
                 End If
 
-                rango.IdTipo = CInt(cmbTipo.SelectedValue)
+                rango.IdTipo = idTipo
                 rango.IdOficina = CInt(cmbOficina.SelectedValue)
                 rango.Anio = CInt(numAnio.Value)
                 rango.NombreRango = txtNombre.Text
@@ -536,6 +594,16 @@ Public Class frmGestionRangos
         Catch ex As Exception
             Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
         End Try
+    End Sub
+
+    Private Async Sub btnCupos_Click(sender As Object, e As EventArgs) Handles btnCupos.Click
+        Using formulario As New frmCuposSecretaria()
+            Dim resultado = formulario.ShowDialog(Me)
+            If resultado = DialogResult.OK Then
+                Await InicializarStockSecretariaAsync()
+                ActualizarVisualizadorStock()
+            End If
+        End Using
     End Sub
 
 End Class

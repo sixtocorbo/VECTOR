@@ -258,12 +258,22 @@ Public Class frmGestionRangos
     End Function
 
     Private Function ObtenerNombreOficinaSeleccionada() As String
-        If cmbOficina.SelectedValue Is Nothing Then
+        Dim selectedValue = cmbOficina.SelectedValue
+        If selectedValue Is Nothing OrElse selectedValue Is DBNull.Value Then
             Return "BANDEJA DE ENTRADA"
         End If
 
-        Dim idOficina = CType(cmbOficina.SelectedValue, Integer?)
-        Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina = idOficina)
+        Dim idOficina As Integer? = TryCast(selectedValue, Integer?)
+        If Not idOficina.HasValue Then
+            Dim parsedId As Integer
+            If Integer.TryParse(selectedValue.ToString(), parsedId) Then
+                idOficina = parsedId
+            Else
+                Return "BANDEJA DE ENTRADA"
+            End If
+        End If
+
+        Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina.HasValue AndAlso o.IdOficina.Value = idOficina.Value)
         Return If(oficina?.Nombre, "BANDEJA DE ENTRADA")
     End Function
 

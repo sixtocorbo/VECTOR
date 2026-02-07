@@ -197,7 +197,17 @@ Public Class frmGestionRangos
 
                 ' Asignar valores
                 rango.IdTipo = Convert.ToInt32(cmbTipo.SelectedValue)
-                rango.IdOficina = If(cmbOficina.SelectedValue Is Nothing, Nothing, CType(cmbOficina.SelectedValue, Integer?))
+                Dim selectedOficina = cmbOficina.SelectedValue
+                If selectedOficina Is Nothing OrElse selectedOficina Is DBNull.Value Then
+                    rango.IdOficina = Nothing
+                Else
+                    Dim parsedOficina As Integer
+                    If Integer.TryParse(selectedOficina.ToString(), parsedOficina) Then
+                        rango.IdOficina = parsedOficina
+                    Else
+                        rango.IdOficina = Nothing
+                    End If
+                End If
                 rango.NombreRango = txtNombre.Text.Trim()
                 rango.NumeroInicio = ini
                 rango.NumeroFin = fin
@@ -211,10 +221,16 @@ Public Class frmGestionRangos
                 ' Si activo este rango, debo desactivar cualquier otro rango ACTIVO del mismo tipo
                 ' para que el sistema no se confunda sobre cuál usar.
                 If rango.Activo Then
-                    Dim otros = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And
-                                                                          x.IdRango <> rango.IdRango And
-                                                                          x.Activo = True And
-                                                                          x.IdOficina = rango.IdOficina).ToListAsync()
+                    Dim otrosQuery = repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And
+                                                                         x.IdRango <> rango.IdRango And
+                                                                         x.Activo = True)
+                    If rango.IdOficina.HasValue Then
+                        Dim idOficina = rango.IdOficina.Value
+                        otrosQuery = otrosQuery.Where(Function(x) x.IdOficina.HasValue AndAlso x.IdOficina.Value = idOficina)
+                    Else
+                        otrosQuery = otrosQuery.Where(Function(x) Not x.IdOficina.HasValue)
+                    End If
+                    Dim otros = Await otrosQuery.ToListAsync()
                     For Each o In otros
                         o.Activo = False
                     Next
@@ -223,9 +239,13 @@ Public Class frmGestionRangos
                 Await uow.CommitAsync()
 
                 Dim accion As String = If(esNuevo, "Creación", "Edición")
-                Dim oficinaNombre As String = If(rango.IdOficina.HasValue,
-                                                 _oficinas.FirstOrDefault(Function(o) o.IdOficina = rango.IdOficina)?.Nombre,
-                                                 "BANDEJA DE ENTRADA")
+                Dim oficinaNombre As String
+                If rango.IdOficina.HasValue Then
+                    Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina = rango.IdOficina.Value)
+                    oficinaNombre = If(oficina?.Nombre, "BANDEJA DE ENTRADA")
+                Else
+                    oficinaNombre = "BANDEJA DE ENTRADA"
+                End If
                 AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Oficina: {oficinaNombre}. Activo: {rango.Activo}.", "RANGOS")
                 Toast.Show(Me, "Rango guardado correctamente.", ToastType.Success)
 

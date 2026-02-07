@@ -5,9 +5,16 @@ Public Class frmGestionRangos
 
     ' Variable para controlar si estamos editando (0 = Nuevo, >0 = ID del rango)
     Private _idEdicion As Integer = 0
+    Private _oficinas As List(Of OficinaOption)
+
+    Private Class OficinaOption
+        Public Property IdOficina As Integer?
+        Public Property Nombre As String
+    End Class
 
     Private Async Sub frmGestionRangos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        Await CargarOficinasAsync()
         Await CargarTiposAsync()
         Await CargarGrillaAsync()
         ModoEdicion(False)
@@ -27,20 +34,45 @@ Public Class frmGestionRangos
         End Using
     End Function
 
+    Private Async Function CargarOficinasAsync() As Task
+        Using uow As New UnitOfWork()
+            Dim repoOficinas = uow.Repository(Of Cat_Oficina)()
+            Dim oficinasDb = Await repoOficinas.GetQueryable().OrderBy(Function(o) o.Nombre).ToListAsync()
+
+            _oficinas = New List(Of OficinaOption) From {
+                New OficinaOption With {.IdOficina = Nothing, .Nombre = "BANDEJA DE ENTRADA (GENERAL)"}
+            }
+
+            _oficinas.AddRange(oficinasDb.Select(Function(o) New OficinaOption With {
+                .IdOficina = o.IdOficina,
+                .Nombre = o.Nombre
+            }))
+
+            cmbOficina.DataSource = _oficinas
+            cmbOficina.DisplayMember = "Nombre"
+            cmbOficina.ValueMember = "IdOficina"
+        End Using
+    End Function
+
     ' 2. CARGA LA GRILLA DE RANGOS (Desde Mae_NumeracionRangos)
     Private Async Function CargarGrillaAsync() As Task
         Using uow As New UnitOfWork()
             Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
-            Dim lista = Await repoRangos.GetQueryable("Cat_TipoDocumento") _
-                          .Select(Function(r) New With {
-                              .Id = r.IdRango,
-                              .Tipo = r.Cat_TipoDocumento.Codigo & " - " & r.Cat_TipoDocumento.Nombre,
-                              .Nombre = r.NombreRango,
-                              .Inicio = r.NumeroInicio,
-                              .Fin = r.NumeroFin,
-                              .Actual = r.UltimoUtilizado,
-                              .Vigente = r.Activo
-                          }).OrderByDescending(Function(r) r.Id).ToListAsync()
+            Dim repoOficinas = uow.Repository(Of Cat_Oficina)()
+            Dim lista = Await (From r In repoRangos.GetQueryable("Cat_TipoDocumento")
+                               Join o In repoOficinas.GetQueryable()
+                                   On r.IdOficina Equals o.IdOficina Into oficinaJoin = Group
+                               From o In oficinaJoin.DefaultIfEmpty()
+                               Select New With {
+                                   .Id = r.IdRango,
+                                   .Tipo = r.Cat_TipoDocumento.Codigo & " - " & r.Cat_TipoDocumento.Nombre,
+                                   .Oficina = If(r.IdOficina.HasValue, o.Nombre, "BANDEJA DE ENTRADA"),
+                                   .Nombre = r.NombreRango,
+                                   .Inicio = r.NumeroInicio,
+                                   .Fin = r.NumeroFin,
+                                   .Actual = r.UltimoUtilizado,
+                                   .Vigente = r.Activo
+                               }).OrderByDescending(Function(r) r.Id).ToListAsync()
 
             dgvRangos.DataSource = lista
 
@@ -48,6 +80,7 @@ Public Class frmGestionRangos
             If dgvRangos.Columns.Count > 0 Then
                 dgvRangos.Columns("Id").Visible = False
                 dgvRangos.Columns("Tipo").Width = 150
+                dgvRangos.Columns("Oficina").Width = 180
                 dgvRangos.Columns("Nombre").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 dgvRangos.Columns("Inicio").Width = 80
                 dgvRangos.Columns("Fin").Width = 80
@@ -71,6 +104,9 @@ Public Class frmGestionRangos
             txtFin.Text = "1000"
             txtUltimo.Text = "0"
             cmbTipo.SelectedIndex = -1
+            If cmbOficina.Items.Count > 0 Then
+                cmbOficina.SelectedIndex = 0
+            End If
             chkActivo.Checked = True
             _idEdicion = 0
         End If
@@ -96,6 +132,7 @@ Public Class frmGestionRangos
             Dim r = Await repoRangos.GetByIdAsync(_idEdicion)
             If r IsNot Nothing Then
                 cmbTipo.SelectedValue = r.IdTipo
+                cmbOficina.SelectedValue = If(r.IdOficina.HasValue, CType(r.IdOficina, Object), Nothing)
                 txtNombre.Text = r.NombreRango
                 txtInicio.Text = r.NumeroInicio.ToString()
                 txtFin.Text = r.NumeroFin.ToString()
@@ -160,6 +197,7 @@ Public Class frmGestionRangos
 
                 ' Asignar valores
                 rango.IdTipo = Convert.ToInt32(cmbTipo.SelectedValue)
+                rango.IdOficina = If(cmbOficina.SelectedValue Is Nothing, Nothing, CType(cmbOficina.SelectedValue, Integer?))
                 rango.NombreRango = txtNombre.Text.Trim()
                 rango.NumeroInicio = ini
                 rango.NumeroFin = fin
@@ -175,7 +213,8 @@ Public Class frmGestionRangos
                 If rango.Activo Then
                     Dim otros = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And
                                                                           x.IdRango <> rango.IdRango And
-                                                                          x.Activo = True).ToListAsync()
+                                                                          x.Activo = True And
+                                                                          x.IdOficina = rango.IdOficina).ToListAsync()
                     For Each o In otros
                         o.Activo = False
                     Next
@@ -184,7 +223,10 @@ Public Class frmGestionRangos
                 Await uow.CommitAsync()
 
                 Dim accion As String = If(esNuevo, "Creación", "Edición")
-                AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Activo: {rango.Activo}.", "RANGOS")
+                Dim oficinaNombre As String = If(rango.IdOficina.HasValue,
+                                                 _oficinas.FirstOrDefault(Function(o) o.IdOficina = rango.IdOficina)?.Nombre,
+                                                 "BANDEJA DE ENTRADA")
+                AuditoriaSistema.RegistrarEvento($"{accion} de rango {rango.NombreRango} ({rango.NumeroInicio}-{rango.NumeroFin}) para tipo {cmbTipo.Text}. Oficina: {oficinaNombre}. Activo: {rango.Activo}.", "RANGOS")
                 Toast.Show(Me, "Rango guardado correctamente.", ToastType.Success)
 
                 ModoEdicion(False)

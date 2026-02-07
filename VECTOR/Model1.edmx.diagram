@@ -33,6 +33,9 @@
         <AssociationConnector Association="SecretariaDBModel.FK__Mae_Docum__IdDoc__32E0915F" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdDoc__398D8EEE" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK_Tra_AdjuntoDocumento_Mae_Documento" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Mae_CuposSecretaria" Width="1.5" PointX="5.25" PointY="10.875" />
+        <AssociationConnector Association="SecretariaDBModel.FK_MaeCuposSecretaria_Tipo" />
+        <AssociationConnector Association="SecretariaDBModel.FK_MaeCuposSecretaria_Usuario" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

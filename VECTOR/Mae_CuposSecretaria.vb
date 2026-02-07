@@ -10,14 +10,14 @@
 Imports System
 Imports System.Collections.Generic
 
-Partial Public Class Cat_TipoDocumento
+Partial Public Class Mae_CuposSecretaria
+    Public Property IdCupo As Integer
+    Public Property Fecha As Date
+    Public Property IdUsuario As Nullable(Of Integer)
     Public Property IdTipo As Integer
-    Public Property Nombre As String
-    Public Property Codigo As String
-    Public Property EsInterno As Nullable(Of Boolean)
+    Public Property Cantidad As Integer
 
-    Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
-    Public Overridable Property Mae_NumeracionRangos As ICollection(Of Mae_NumeracionRangos) = New HashSet(Of Mae_NumeracionRangos)
-    Public Overridable Property Mae_CuposSecretaria As ICollection(Of Mae_CuposSecretaria) = New HashSet(Of Mae_CuposSecretaria)
+    Public Overridable Property Cat_TipoDocumento As Cat_TipoDocumento
+    Public Overridable Property Cat_Usuario As Cat_Usuario
 
 End Class

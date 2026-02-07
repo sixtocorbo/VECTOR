@@ -38,6 +38,8 @@ Public Class frmMesaEntrada
     Private _cerrandoFormulario As Boolean = False
     Private _seleccionandoOrigen As Boolean = False
     Private ReadOnly _lstSugerenciasOrigen As New ListBox()
+    Private _numeroReservadoAjeno As Boolean = False
+    Private _mensajeNumeroReservado As String = ""
 
     ' =======================================================
     ' CONSTRUCTORES (POLIMORFISMO)
@@ -267,6 +269,16 @@ Public Class frmMesaEntrada
         Return Integer.TryParse(parteNumero, numero)
     End Function
 
+    Private Function ObtenerAnioDesdeNumero(numeroTexto As String, anioFallback As Integer) As Integer
+        If String.IsNullOrWhiteSpace(numeroTexto) Then Return anioFallback
+        Dim partes = numeroTexto.Split("/"c)
+        If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
+            Dim dosDigitos = CInt(partes(1))
+            Return 2000 + dosDigitos
+        End If
+        Return anioFallback
+    End Function
+
     ' Eventos para disparar la verificación
     Private Sub cboTipo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTipo.SelectedIndexChanged
         VerificarRangoNumeracion()
@@ -285,7 +297,12 @@ Public Class frmMesaEntrada
         If _cerrandoFormulario OrElse versionActual <> _validacionNumeroVersion Then Return
 
         Dim numeroTexto = txtNumeroRef.Text.Trim()
-        If String.IsNullOrWhiteSpace(numeroTexto) Then Return
+        If String.IsNullOrWhiteSpace(numeroTexto) Then
+            _numeroReservadoAjeno = False
+            _mensajeNumeroReservado = ""
+            txtNumeroRef.ForeColor = Color.Black
+            Return
+        End If
 
         If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
         Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
@@ -296,40 +313,46 @@ Public Class frmMesaEntrada
         Dim numeroBase As Integer
         If Not TryObtenerNumeroBase(numeroTexto, numeroBase) Then
             ' No mostramos error mientras escribe texto parcial inválido, solo al final o si es válido numéricamente
+            _numeroReservadoAjeno = False
+            _mensajeNumeroReservado = ""
+            txtNumeroRef.ForeColor = Color.Black
             Return
         End If
 
-        Dim anioManual As Integer = DateTime.Now.Year
-        Dim partes = numeroTexto.Split("/"c)
-        If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
-            Dim dosDigitos = CInt(partes(1))
-            anioManual = 2000 + dosDigitos
+        Dim anioManual As Integer = ObtenerAnioDesdeNumero(numeroTexto, dtpFechaRecepcion.Value.Year)
+
+        Dim rangosOficina = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
+        If rangosOficina.Count = 0 Then
+            _numeroReservadoAjeno = False
+            _mensajeNumeroReservado = ""
+            txtNumeroRef.ForeColor = Color.Black
         Else
-            anioManual = dtpFechaRecepcion.Value.Year
-        End If
+            ' --- VALIDACIÓN DE PROPIEDAD DEL NÚMERO ---
+            ' Buscamos si este número pertenece a ALGÚN rango registrado en el sistema
+            Dim rangoPropietario = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
+                                           r.Anio = anioManual And
+                                           r.Activo = True And
+                                           numeroBase >= r.NumeroInicio And
+                                           numeroBase <= r.NumeroFin)
 
-        ' --- VALIDACIÓN DE PROPIEDAD DEL NÚMERO ---
-        ' Buscamos si este número pertenece a ALGÚN rango registrado en el sistema
-        Dim rangoPropietario = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-            FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
-                                       r.Anio = anioManual And
-                                       r.Activo = True And
-                                       numeroBase >= r.NumeroInicio And
-                                       numeroBase <= r.NumeroFin)
-
-        If rangoPropietario IsNot Nothing Then
-            ' Si el número cae en un rango, VERIFICAMOS que el rango sea de la oficina seleccionada
-            If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
-                Dim nombrePropietario = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
-                Toast.Show(Me, $"El número {numeroBase} está reservado para: {nombrePropietario}.", ToastType.Warning)
-                txtNumeroRef.ForeColor = Color.Red
+            _numeroReservadoAjeno = False
+            _mensajeNumeroReservado = ""
+            If rangoPropietario IsNot Nothing Then
+                ' Si el número cae en un rango, VERIFICAMOS que el rango sea de la oficina seleccionada
+                If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
+                    Dim nombrePropietario = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
+                    _numeroReservadoAjeno = True
+                    _mensajeNumeroReservado = $"El número {numeroBase} está reservado para: {nombrePropietario}."
+                    txtNumeroRef.ForeColor = Color.Red
+                Else
+                    txtNumeroRef.ForeColor = Color.Black
+                End If
             Else
+                ' El número no está en ningún rango. Es "Tierra de nadie".
+                ' En este modelo, permitimos su uso manual.
                 txtNumeroRef.ForeColor = Color.Black
             End If
-        Else
-            ' El número no está en ningún rango. Es "Tierra de nadie". 
-            ' En este modelo, permitimos su uso manual.
-            txtNumeroRef.ForeColor = Color.Black
         End If
 
         ' Validación de duplicados (Scope: Misma Oficina)
@@ -341,6 +364,18 @@ Public Class frmMesaEntrada
 
         If existeNumero Then
             Toast.Show(Me, $"El número {numeroTexto} ya fue utilizado por esta oficina.", ToastType.Warning)
+        End If
+    End Sub
+
+    Private Sub txtNumeroRef_Validating(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles txtNumeroRef.Validating
+        If _cerrandoFormulario OrElse _generacionAutomatica Then Return
+        If _numeroReservadoAjeno Then
+            Dim mensaje = If(String.IsNullOrWhiteSpace(_mensajeNumeroReservado),
+                             "El número ingresado está reservado para otra oficina.",
+                             _mensajeNumeroReservado)
+            Toast.Show(Me, mensaje, ToastType.Warning)
+            e.Cancel = True
+            txtNumeroRef.SelectAll()
         End If
     End Sub
 
@@ -655,14 +690,7 @@ Public Class frmMesaEntrada
             Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
 
             ' A. Deducción del Año del documento
-            Dim anioManual As Integer = DateTime.Now.Year
-            Dim partes = txtNumeroRef.Text.Split("/"c)
-            If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
-                Dim dosDigitos = CInt(partes(1))
-                anioManual = 2000 + dosDigitos
-            Else
-                anioManual = dtpFechaRecepcion.Value.Year
-            End If
+            Dim anioManual As Integer = ObtenerAnioDesdeNumero(txtNumeroRef.Text, dtpFechaRecepcion.Value.Year)
 
             Dim numeroBase As Integer
             If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
@@ -670,25 +698,27 @@ Public Class frmMesaEntrada
                 Return
             End If
 
-            ' B. VALIDACIÓN DE PROPIEDAD: ¿Estoy 'robando' un número reservado a otra oficina?
-            '    Consultamos si el número cae en CUALQUIER rango activo.
-            Dim rangoPropietario As Mae_NumeracionRangos = Nothing
+            Dim rangosOficina = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
 
             Using uowCheck As New UnitOfWork()
-                rangoPropietario = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-                    FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
-                                               r.Anio = anioManual And
-                                               r.Activo = True And
-                                               numeroBase >= r.NumeroInicio And
-                                               numeroBase <= r.NumeroFin)
+                ' B. VALIDACIÓN DE PROPIEDAD: ¿Estoy 'robando' un número reservado a otra oficina?
+                '    Solo aplica si la oficina tiene rangos vigentes para este tipo/año.
+                If rangosOficina.Count > 0 Then
+                    Dim rangoPropietario = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                        FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
+                                                   r.Anio = anioManual And
+                                                   r.Activo = True And
+                                                   numeroBase >= r.NumeroInicio And
+                                                   numeroBase <= r.NumeroFin)
 
-                ' Si existe un rango dueño de este número...
-                If rangoPropietario IsNot Nothing Then
-                    ' ... y el dueño NO es la oficina que seleccioné (Bandeja u otra):
-                    If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
-                        Dim nombreOficinaDueña = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
-                        Toast.Show(Me, $"ERROR DE NUMERACIÓN: El número {numeroBase} pertenece al rango reservado exclusivamente para: {nombreOficinaDueña}.", ToastType.Error)
-                        Return
+                    ' Si existe un rango dueño de este número...
+                    If rangoPropietario IsNot Nothing Then
+                        ' ... y el dueño NO es la oficina que seleccioné (Bandeja u otra):
+                        If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
+                            Dim nombreOficinaDueña = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
+                            Toast.Show(Me, $"ERROR DE NUMERACIÓN: El número {numeroBase} pertenece al rango reservado exclusivamente para: {nombreOficinaDueña}.", ToastType.Error)
+                            Return
+                        End If
                     End If
                 End If
 

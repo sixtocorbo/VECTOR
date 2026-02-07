@@ -19,8 +19,6 @@ Partial Class frmGestionRangos
     Private Sub InitializeComponent()
         Me.pnlEditor = New System.Windows.Forms.GroupBox()
         Me.chkActivo = New System.Windows.Forms.CheckBox()
-        Me.btnCancelar = New System.Windows.Forms.Button()
-        Me.btnGuardar = New System.Windows.Forms.Button()
         Me.txtUltimo = New System.Windows.Forms.TextBox()
         Me.lblUltimo = New System.Windows.Forms.Label()
         Me.txtFin = New System.Windows.Forms.TextBox()
@@ -35,6 +33,8 @@ Partial Class frmGestionRangos
         Me.lblOficina = New System.Windows.Forms.Label()
         Me.cmbTipo = New System.Windows.Forms.ComboBox()
         Me.lblTipo = New System.Windows.Forms.Label()
+        Me.btnCancelar = New System.Windows.Forms.Button()
+        Me.btnGuardar = New System.Windows.Forms.Button()
         Me.dgvRangos = New System.Windows.Forms.DataGridView()
         Me.btnNuevo = New System.Windows.Forms.Button()
         Me.btnEditar = New System.Windows.Forms.Button()
@@ -86,35 +86,13 @@ Partial Class frmGestionRangos
         Me.chkActivo.Text = "RANGO VIGENTE"
         Me.chkActivo.UseVisualStyleBackColor = True
         '
-        'btnCancelar
-        '
-        Me.btnCancelar.Location = New System.Drawing.Point(746, 269)
-        Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnCancelar.Name = "btnCancelar"
-        Me.btnCancelar.Size = New System.Drawing.Size(180, 54)
-        Me.btnCancelar.TabIndex = 11
-        Me.btnCancelar.Text = "Cancelar"
-        Me.btnCancelar.UseVisualStyleBackColor = True
-        '
-        'btnGuardar
-        '
-        Me.btnGuardar.BackColor = System.Drawing.Color.SteelBlue
-        Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(564, 269)
-        Me.btnGuardar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.btnGuardar.Name = "btnGuardar"
-        Me.btnGuardar.Size = New System.Drawing.Size(180, 54)
-        Me.btnGuardar.TabIndex = 10
-        Me.btnGuardar.Text = "GUARDAR"
-        Me.btnGuardar.UseVisualStyleBackColor = False
-        '
         'txtUltimo
         '
         Me.txtUltimo.Location = New System.Drawing.Point(504, 126)
         Me.txtUltimo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtUltimo.Name = "txtUltimo"
         Me.txtUltimo.Size = New System.Drawing.Size(148, 26)
+        Me.txtUltimo.TabIndex = 6
         Me.txtUltimo.TabStop = False
         Me.txtUltimo.Text = "0"
         Me.txtUltimo.Visible = False
@@ -126,6 +104,7 @@ Partial Class frmGestionRangos
         Me.lblUltimo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblUltimo.Name = "lblUltimo"
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
+        Me.lblUltimo.TabIndex = 7
         Me.lblUltimo.Text = "Último Usado:"
         Me.lblUltimo.Visible = False
         '
@@ -191,8 +170,8 @@ Partial Class frmGestionRangos
         Me.txtNombre.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombre.Name = "txtNombre"
         Me.txtNombre.Size = New System.Drawing.Size(508, 26)
-        Me.txtNombre.TabStop = False
         Me.txtNombre.TabIndex = 99
+        Me.txtNombre.TabStop = False
         Me.txtNombre.Visible = False
         '
         'lblNombre
@@ -202,6 +181,7 @@ Partial Class frmGestionRangos
         Me.lblNombre.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblNombre.Name = "lblNombre"
         Me.lblNombre.Size = New System.Drawing.Size(193, 20)
+        Me.lblNombre.TabIndex = 100
         Me.lblNombre.Text = "Nombre (Ej: Oficios 2026):"
         Me.lblNombre.Visible = False
         '
@@ -244,6 +224,29 @@ Partial Class frmGestionRangos
         Me.lblTipo.Size = New System.Drawing.Size(43, 20)
         Me.lblTipo.TabIndex = 0
         Me.lblTipo.Text = "Tipo:"
+        '
+        'btnCancelar
+        '
+        Me.btnCancelar.Location = New System.Drawing.Point(746, 269)
+        Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnCancelar.Name = "btnCancelar"
+        Me.btnCancelar.Size = New System.Drawing.Size(180, 54)
+        Me.btnCancelar.TabIndex = 11
+        Me.btnCancelar.Text = "Cancelar"
+        Me.btnCancelar.UseVisualStyleBackColor = True
+        '
+        'btnGuardar
+        '
+        Me.btnGuardar.BackColor = System.Drawing.Color.SteelBlue
+        Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnGuardar.ForeColor = System.Drawing.Color.White
+        Me.btnGuardar.Location = New System.Drawing.Point(564, 269)
+        Me.btnGuardar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnGuardar.Name = "btnGuardar"
+        Me.btnGuardar.Size = New System.Drawing.Size(180, 54)
+        Me.btnGuardar.TabIndex = 10
+        Me.btnGuardar.Text = "GUARDAR"
+        Me.btnGuardar.UseVisualStyleBackColor = False
         '
         'dgvRangos
         '

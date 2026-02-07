@@ -12,7 +12,7 @@ Public NotInheritable Class Toast
     Inherits Form
 
     ' === Constantes de estilo/comportamiento ===
-    Private Const DefaultDurationMs As Integer = 6000
+    Private Const DefaultDurationMs As Integer = 3000
     Private Const CornerRadius As Integer = 12
     Private Const PaddingPx As Integer = 12
     Private Const MaxWidthPx As Integer = 420

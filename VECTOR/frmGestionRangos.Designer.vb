@@ -29,6 +29,8 @@ Partial Class frmGestionRangos
         Me.lblInicio = New System.Windows.Forms.Label()
         Me.txtNombre = New System.Windows.Forms.TextBox()
         Me.lblNombre = New System.Windows.Forms.Label()
+        Me.cmbOficina = New System.Windows.Forms.ComboBox()
+        Me.lblOficina = New System.Windows.Forms.Label()
         Me.cmbTipo = New System.Windows.Forms.ComboBox()
         Me.lblTipo = New System.Windows.Forms.Label()
         Me.dgvRangos = New System.Windows.Forms.DataGridView()
@@ -52,6 +54,8 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Controls.Add(Me.lblInicio)
         Me.pnlEditor.Controls.Add(Me.txtNombre)
         Me.pnlEditor.Controls.Add(Me.lblNombre)
+        Me.pnlEditor.Controls.Add(Me.cmbOficina)
+        Me.pnlEditor.Controls.Add(Me.lblOficina)
         Me.pnlEditor.Controls.Add(Me.cmbTipo)
         Me.pnlEditor.Controls.Add(Me.lblTipo)
         Me.pnlEditor.Enabled = False
@@ -176,6 +180,26 @@ Partial Class frmGestionRangos
         Me.lblNombre.TabIndex = 2
         Me.lblNombre.Text = "Nombre (Ej: Oficios 2026):"
         '
+        'cmbOficina
+        '
+        Me.cmbOficina.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbOficina.FormattingEnabled = True
+        Me.cmbOficina.Location = New System.Drawing.Point(780, 122)
+        Me.cmbOficina.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.cmbOficina.Name = "cmbOficina"
+        Me.cmbOficina.Size = New System.Drawing.Size(330, 28)
+        Me.cmbOficina.TabIndex = 4
+        '
+        'lblOficina
+        '
+        Me.lblOficina.AutoSize = True
+        Me.lblOficina.Location = New System.Drawing.Point(776, 96)
+        Me.lblOficina.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblOficina.Name = "lblOficina"
+        Me.lblOficina.Size = New System.Drawing.Size(63, 20)
+        Me.lblOficina.TabIndex = 3
+        Me.lblOficina.Text = "Oficina:"
+        '
         'cmbTipo
         '
         Me.cmbTipo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
@@ -258,6 +282,8 @@ Partial Class frmGestionRangos
     Friend WithEvents pnlEditor As System.Windows.Forms.GroupBox
     Friend WithEvents txtNombre As System.Windows.Forms.TextBox
     Friend WithEvents lblNombre As System.Windows.Forms.Label
+    Friend WithEvents cmbOficina As System.Windows.Forms.ComboBox
+    Friend WithEvents lblOficina As System.Windows.Forms.Label
     Friend WithEvents cmbTipo As System.Windows.Forms.ComboBox
     Friend WithEvents lblTipo As System.Windows.Forms.Label
     Friend WithEvents txtUltimo As System.Windows.Forms.TextBox

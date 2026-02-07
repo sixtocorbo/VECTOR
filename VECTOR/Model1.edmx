@@ -102,6 +102,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           </Key>
           <Property Name="IdRango" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="IdTipo" Type="int" Nullable="false" />
+          <Property Name="IdOficina" Type="int" />
           <Property Name="NombreRango" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="NumeroInicio" Type="int" Nullable="false" />
           <Property Name="NumeroFin" Type="int" Nullable="false" />
@@ -516,6 +517,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           </Key>
           <Property Name="IdRango" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="IdTipo" Type="Int32" Nullable="false" />
+          <Property Name="IdOficina" Type="Int32" Nullable="true" />
           <Property Name="NombreRango" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="NumeroInicio" Type="Int32" Nullable="false" />
           <Property Name="NumeroFin" Type="Int32" Nullable="false" />
@@ -928,6 +930,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               <MappingFragment StoreEntitySet="Mae_NumeracionRangos">
                 <ScalarProperty Name="IdRango" ColumnName="IdRango" />
                 <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
+                <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
                 <ScalarProperty Name="NombreRango" ColumnName="NombreRango" />
                 <ScalarProperty Name="NumeroInicio" ColumnName="NumeroInicio" />
                 <ScalarProperty Name="NumeroFin" ColumnName="NumeroFin" />

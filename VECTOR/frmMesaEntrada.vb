@@ -8,6 +8,7 @@ Imports System.Threading.Tasks
 Public Class frmMesaEntrada
 
     Private ReadOnly _unitOfWork As IUnitOfWork
+    Private Const IdBandejaEntrada As Integer = 13
 
     ' =======================================================
     ' VARIABLES DE ESTADO
@@ -170,19 +171,33 @@ Public Class frmMesaEntrada
         ' Ahora es seguro convertir a Integer
         Dim idOrigenSeleccionado As Integer = CInt(cboOrigen.SelectedValue)
 
-        ' Si el origen NO es mi oficina (ej: viene de Gerencia), debo escribir manual
-        If idOrigenSeleccionado <> SesionGlobal.OficinaID Then
-            HabilitarEscrituraManual()
-            Return
-        End If
-
         ' 2. Validación del Tipo
         If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
 
         Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
 
-        ' 3. Buscamos si hay un rango activo
-        Dim rangoActivo = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+        ' 3. Si la oficina tiene un rango propio, el número debe ingresarse dentro de ese rango.
+        Dim rangoOficina = ObtenerRangoActivo(idTipo, idOrigenSeleccionado)
+        If rangoOficina IsNot Nothing Then
+            HabilitarEscrituraManual()
+            txtNumeroRef.BackColor = Color.MistyRose
+            Return
+        End If
+
+        ' 4. Si el origen NO es mi oficina (ej: viene de Gerencia), debo escribir manual
+        If idOrigenSeleccionado <> SesionGlobal.OficinaID Then
+            HabilitarEscrituraManual()
+            Return
+        End If
+
+        ' 5. Solo BANDEJA DE ENTRADA usa numeración automática general
+        If idOrigenSeleccionado <> IdBandejaEntrada Then
+            HabilitarEscrituraManual()
+            Return
+        End If
+
+        ' 6. Buscamos si hay un rango activo general (sin oficina)
+        Dim rangoActivo = ObtenerRangoActivo(idTipo, Nothing)
 
         If rangoActivo IsNot Nothing Then
             ' CASO A: HAY RANGO AUTOMÁTICO
@@ -203,6 +218,19 @@ Public Class frmMesaEntrada
         ' Si tenía texto automático, lo limpiamos
         If txtNumeroRef.Text.StartsWith("(Auto") Then txtNumeroRef.Clear()
     End Sub
+
+    Private Function ObtenerRangoActivo(idTipo As Integer, idOficina As Integer?) As Mae_NumeracionRangos
+        Return _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).
+            FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True And r.IdOficina = idOficina)
+    End Function
+
+    Private Function TryObtenerNumeroBase(numeroTexto As String, ByRef numero As Integer) As Boolean
+        numero = 0
+        If String.IsNullOrWhiteSpace(numeroTexto) Then Return False
+
+        Dim parteNumero As String = numeroTexto.Trim().Split("/"c)(0).Trim()
+        Return Integer.TryParse(parteNumero, numero)
+    End Function
 
     ' Eventos para disparar la verificación
     Private Sub cboTipo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTipo.SelectedIndexChanged
@@ -518,6 +546,24 @@ Public Class frmMesaEntrada
             Return
         End If
 
+        If Not _idEdicion.HasValue Then
+            Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
+            Dim rangoOficinaAsignado = ObtenerRangoActivo(idTipoSeleccionado, idOrigenSeleccionado.Value)
+            If rangoOficinaAsignado IsNot Nothing Then
+                Dim numeroBase As Integer
+                If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
+                    Toast.Show(Me, "Ingrese un número válido dentro del rango asignado.", ToastType.Warning)
+                    Return
+                End If
+
+                If numeroBase < rangoOficinaAsignado.NumeroInicio OrElse numeroBase > rangoOficinaAsignado.NumeroFin Then
+                    Toast.Show(Me, $"El número ingresado está fuera del rango asignado ({rangoOficinaAsignado.NumeroInicio}-{rangoOficinaAsignado.NumeroFin}). " &
+                                   "Solicite más numeración a BANDEJA DE ENTRADA.", ToastType.Warning)
+                    Return
+                End If
+            End If
+        End If
+
         Try
             Dim doc As Mae_Documento
 
@@ -553,7 +599,7 @@ Public Class frmMesaEntrada
                     Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
 
                     ' Volvemos a consultar el rango para asegurar concurrencia
-                    Dim rango = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True)
+                    Dim rango = ObtenerRangoActivo(idTipo, Nothing)
 
                     If rango Is Nothing Then
                         Toast.Show(Me, "El rango de numeración se desactivó o no existe. Guarde manualmente.", ToastType.Error)

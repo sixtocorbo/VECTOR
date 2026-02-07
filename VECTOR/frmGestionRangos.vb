@@ -6,10 +6,18 @@ Public Class frmGestionRangos
     ' Variable para controlar si estamos editando (0 = Nuevo, >0 = ID del rango)
     Private _idEdicion As Integer = 0
     Private _oficinas As List(Of OficinaOption)
+    Private _ultimoInicioSugerido As Integer? = Nothing
+    Private _sugerenciaEnCurso As Boolean = False
 
     Private Class OficinaOption
         Public Property IdOficina As Integer?
         Public Property Nombre As String
+    End Class
+
+    Private Class RangoSimple
+        Public Property Inicio As Integer
+        Public Property Fin As Integer
+        Public Property IdOficina As Integer?
     End Class
 
     Private Async Sub frmGestionRangos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -51,8 +59,17 @@ Public Class frmGestionRangos
         ActualizarFinDesdeCantidad()
     End Sub
 
-    Private Sub txtCantidad_TextChanged(sender As Object, e As EventArgs) Handles txtCantidad.TextChanged
+    Private Async Sub txtCantidad_TextChanged(sender As Object, e As EventArgs) Handles txtCantidad.TextChanged
         ActualizarFinDesdeCantidad()
+        Await SugerirInicioDisponibleAsync()
+    End Sub
+
+    Private Async Sub cmbTipo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbTipo.SelectedIndexChanged
+        Await SugerirInicioDisponibleAsync()
+    End Sub
+
+    Private Async Sub cmbOficina_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbOficina.SelectedIndexChanged
+        Await SugerirInicioDisponibleAsync()
     End Sub
 
     ' 1. CARGA EL COMBO DE TIPOS DE DOCUMENTO (Desde Cat_TipoDocumento)
@@ -129,6 +146,83 @@ Public Class frmGestionRangos
                 dgvRangos.Columns("Vigente").Width = 60
             End If
         End Using
+    End Function
+
+    Private Async Function SugerirInicioDisponibleAsync() As Task
+        If _idEdicion <> 0 Then Return
+        If _sugerenciaEnCurso Then Return
+        If cmbTipo.SelectedIndex = -1 Then Return
+
+        Dim cantidad As Integer
+        If Not Integer.TryParse(txtCantidad.Text, cantidad) Then Return
+        If cantidad < 0 Then Return
+
+        Dim puedeReemplazar As Boolean = String.IsNullOrWhiteSpace(txtInicio.Text)
+        If _ultimoInicioSugerido.HasValue AndAlso txtInicio.Text.Trim() = _ultimoInicioSugerido.Value.ToString() Then
+            puedeReemplazar = True
+        End If
+        If Not puedeReemplazar Then Return
+
+        _sugerenciaEnCurso = True
+        Try
+            Dim idTipo As Integer = Convert.ToInt32(cmbTipo.SelectedValue)
+            Dim esGeneral As Boolean = EsOficinaGeneralSeleccionada()
+
+            Using uow As New UnitOfWork()
+                Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
+                Dim rangos = Await repoRangos.GetQueryable().
+                    Where(Function(x) x.IdTipo = idTipo And x.Activo = True).
+                    Select(Function(x) New RangoSimple With {
+                        .Inicio = x.NumeroInicio,
+                        .Fin = x.NumeroFin,
+                        .IdOficina = x.IdOficina
+                    }).ToListAsync()
+
+                Dim rangosFiltrados = If(esGeneral,
+                    rangos.Where(Function(r) Not r.IdOficina.HasValue),
+                    rangos.Where(Function(r) r.IdOficina.HasValue)).ToList()
+
+                Dim sugerido As Integer = CalcularInicioDisponible(rangosFiltrados, cantidad)
+                _ultimoInicioSugerido = sugerido
+                txtInicio.Text = sugerido.ToString()
+            End Using
+        Catch
+            ' No interrumpir al usuario si falla la sugerencia automática.
+        Finally
+            _sugerenciaEnCurso = False
+        End Try
+    End Function
+
+    Private Function CalcularInicioDisponible(rangos As List(Of RangoSimple), cantidad As Integer) As Integer
+        If rangos Is Nothing OrElse rangos.Count = 0 Then
+            Return 1
+        End If
+
+        Dim ordenados = rangos.OrderBy(Function(r) r.Inicio).ToList()
+        Dim inicioBase As Integer = 1
+        Dim actualInicio As Integer = ordenados(0).Inicio
+        Dim actualFin As Integer = ordenados(0).Fin
+
+        If inicioBase + cantidad <= actualInicio - 1 Then
+            Return inicioBase
+        End If
+
+        For i As Integer = 1 To ordenados.Count - 1
+            Dim rango = ordenados(i)
+            If rango.Inicio <= actualFin + 1 Then
+                actualFin = Math.Max(actualFin, rango.Fin)
+            Else
+                Dim gapInicio As Integer = actualFin + 1
+                Dim gapFin As Integer = rango.Inicio - 1
+                If gapInicio + cantidad <= gapFin Then
+                    Return gapInicio
+                End If
+                actualInicio = rango.Inicio
+                actualFin = rango.Fin
+            End If
+        Next
+
+        Return actualFin + 1
     End Function
 
     ' 3. CONTROLA EL ESTADO DE LOS BOTONES (Habilitar/Deshabilitar)
@@ -422,6 +516,11 @@ Public Class frmGestionRangos
 
         Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina.HasValue AndAlso o.IdOficina.Value = idOficina.Value)
         Return If(oficina?.Nombre, "BANDEJA DE ENTRADA")
+    End Function
+
+    Private Function EsOficinaGeneralSeleccionada() As Boolean
+        Dim selectedValue = cmbOficina.SelectedValue
+        Return selectedValue Is Nothing OrElse selectedValue Is DBNull.Value
     End Function
 
 End Class

@@ -78,11 +78,11 @@ Partial Class frmGestionRangos
         Me.chkActivo.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkActivo.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.chkActivo.ForeColor = System.Drawing.Color.Green
-        Me.chkActivo.Location = New System.Drawing.Point(370, 188)
+        Me.chkActivo.Location = New System.Drawing.Point(32, 188)
         Me.chkActivo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkActivo.Name = "chkActivo"
         Me.chkActivo.Size = New System.Drawing.Size(186, 24)
-        Me.chkActivo.TabIndex = 12
+        Me.chkActivo.TabIndex = 5
         Me.chkActivo.Text = "RANGO VIGENTE"
         Me.chkActivo.UseVisualStyleBackColor = True
         '
@@ -115,8 +115,9 @@ Partial Class frmGestionRangos
         Me.txtUltimo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtUltimo.Name = "txtUltimo"
         Me.txtUltimo.Size = New System.Drawing.Size(148, 26)
-        Me.txtUltimo.TabIndex = 9
+        Me.txtUltimo.TabStop = False
         Me.txtUltimo.Text = "0"
+        Me.txtUltimo.Visible = False
         '
         'lblUltimo
         '
@@ -125,8 +126,8 @@ Partial Class frmGestionRangos
         Me.lblUltimo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblUltimo.Name = "lblUltimo"
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
-        Me.lblUltimo.TabIndex = 8
         Me.lblUltimo.Text = "Último Usado:"
+        Me.lblUltimo.Visible = False
         '
         'txtFin
         '
@@ -135,7 +136,7 @@ Partial Class frmGestionRangos
         Me.txtFin.Name = "txtFin"
         Me.txtFin.ReadOnly = True
         Me.txtFin.Size = New System.Drawing.Size(148, 26)
-        Me.txtFin.TabIndex = 7
+        Me.txtFin.TabIndex = 4
         '
         'lblFin
         '
@@ -144,7 +145,7 @@ Partial Class frmGestionRangos
         Me.lblFin.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFin.Name = "lblFin"
         Me.lblFin.Size = New System.Drawing.Size(95, 20)
-        Me.lblFin.TabIndex = 6
+        Me.lblFin.TabIndex = 4
         Me.lblFin.Text = "Número Fin:"
         '
         'txtCantidad
@@ -153,7 +154,7 @@ Partial Class frmGestionRangos
         Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtCantidad.Name = "txtCantidad"
         Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
-        Me.txtCantidad.TabIndex = 13
+        Me.txtCantidad.TabIndex = 3
         '
         'lblCantidad
         '
@@ -162,7 +163,7 @@ Partial Class frmGestionRangos
         Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCantidad.Name = "lblCantidad"
         Me.lblCantidad.Size = New System.Drawing.Size(143, 20)
-        Me.lblCantidad.TabIndex = 12
+        Me.lblCantidad.TabIndex = 3
         Me.lblCantidad.Text = "Cantidad números:"
         '
         'txtInicio
@@ -171,7 +172,7 @@ Partial Class frmGestionRangos
         Me.txtInicio.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtInicio.Name = "txtInicio"
         Me.txtInicio.Size = New System.Drawing.Size(148, 26)
-        Me.txtInicio.TabIndex = 5
+        Me.txtInicio.TabIndex = 2
         '
         'lblInicio
         '
@@ -180,7 +181,7 @@ Partial Class frmGestionRangos
         Me.lblInicio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblInicio.Name = "lblInicio"
         Me.lblInicio.Size = New System.Drawing.Size(110, 20)
-        Me.lblInicio.TabIndex = 4
+        Me.lblInicio.TabIndex = 2
         Me.lblInicio.Text = "Número Inicio:"
         '
         'txtNombre
@@ -190,7 +191,9 @@ Partial Class frmGestionRangos
         Me.txtNombre.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombre.Name = "txtNombre"
         Me.txtNombre.Size = New System.Drawing.Size(508, 26)
-        Me.txtNombre.TabIndex = 3
+        Me.txtNombre.TabStop = False
+        Me.txtNombre.TabIndex = 99
+        Me.txtNombre.Visible = False
         '
         'lblNombre
         '
@@ -199,27 +202,27 @@ Partial Class frmGestionRangos
         Me.lblNombre.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblNombre.Name = "lblNombre"
         Me.lblNombre.Size = New System.Drawing.Size(193, 20)
-        Me.lblNombre.TabIndex = 2
         Me.lblNombre.Text = "Nombre (Ej: Oficios 2026):"
+        Me.lblNombre.Visible = False
         '
         'cmbOficina
         '
         Me.cmbOficina.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbOficina.FormattingEnabled = True
-        Me.cmbOficina.Location = New System.Drawing.Point(32, 184)
+        Me.cmbOficina.Location = New System.Drawing.Point(240, 58)
         Me.cmbOficina.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cmbOficina.Name = "cmbOficina"
         Me.cmbOficina.Size = New System.Drawing.Size(330, 28)
-        Me.cmbOficina.TabIndex = 4
+        Me.cmbOficina.TabIndex = 1
         '
         'lblOficina
         '
         Me.lblOficina.AutoSize = True
-        Me.lblOficina.Location = New System.Drawing.Point(28, 158)
+        Me.lblOficina.Location = New System.Drawing.Point(236, 33)
         Me.lblOficina.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblOficina.Name = "lblOficina"
         Me.lblOficina.Size = New System.Drawing.Size(62, 20)
-        Me.lblOficina.TabIndex = 3
+        Me.lblOficina.TabIndex = 1
         Me.lblOficina.Text = "Oficina:"
         '
         'cmbTipo
@@ -230,7 +233,7 @@ Partial Class frmGestionRangos
         Me.cmbTipo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cmbTipo.Name = "cmbTipo"
         Me.cmbTipo.Size = New System.Drawing.Size(178, 28)
-        Me.cmbTipo.TabIndex = 1
+        Me.cmbTipo.TabIndex = 0
         '
         'lblTipo
         '

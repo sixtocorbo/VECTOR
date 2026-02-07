@@ -177,7 +177,7 @@ Public Class frmMesaEntrada
         Dim reservas As List(Of Mae_NumeracionRangos) = Nothing
         If esRangoGeneral Then
             reservas = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-                       Where(Function(r) r.IdTipo = idTipo And r.Anio = anio And r.Activo = True And r.IdOficina IsNot Nothing).ToList()
+                       Where(Function(r) r.IdTipo = idTipo And r.Anio = anio And r.Activo = True And r.IdOficina IsNot Nothing And r.IdOficina <> IdBandejaEntrada).ToList()
         End If
 
         ' 3. ITERAR POR MIS RANGOS PARA BUSCAR HUECO
@@ -291,22 +291,29 @@ Public Class frmMesaEntrada
     ' Mantenemos esta función para validaciones puntuales de existencia, aunque usamos la nueva para calcular
     Private Function ObtenerRangoActivo(idTipo As Integer, idOficina As Integer?) As Mae_NumeracionRangos
         Dim buscaPorOficinaEspecifica As Integer? = idOficina
+        Dim usarRangoBandeja As Boolean = False
         If idOficina.HasValue AndAlso idOficina.Value = IdBandejaEntrada Then
             buscaPorOficinaEspecifica = Nothing
+            usarRangoBandeja = True
         End If
+
         Return _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).
-            FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True And r.IdOficina = buscaPorOficinaEspecifica)
+            FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True And
+                           If(usarRangoBandeja, (r.IdOficina Is Nothing OrElse r.IdOficina = IdBandejaEntrada), r.IdOficina = buscaPorOficinaEspecifica))
     End Function
     ' Nueva función que trae TODOS los rangos, no solo el primero
     Private Function ObtenerTodosLosRangosActivos(idTipo As Integer, idOficina As Integer?, anio As Integer) As List(Of Mae_NumeracionRangos)
         Dim buscaPorOficinaEspecifica As Integer? = idOficina
+        Dim usarRangoBandeja As Boolean = False
         If idOficina.HasValue AndAlso idOficina.Value = IdBandejaEntrada Then
             buscaPorOficinaEspecifica = Nothing
+            usarRangoBandeja = True
         End If
 
         ' Ordenamos por NumeroInicio para que el sistema intente llenar en orden
         Return _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).
-            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.Anio = anio And r.IdOficina = buscaPorOficinaEspecifica).
+            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.Anio = anio And
+                   If(usarRangoBandeja, (r.IdOficina Is Nothing OrElse r.IdOficina = IdBandejaEntrada), r.IdOficina = buscaPorOficinaEspecifica)).
             OrderBy(Function(r) r.NumeroInicio).
             ToList()
     End Function

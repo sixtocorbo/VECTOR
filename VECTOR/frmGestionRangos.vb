@@ -97,6 +97,7 @@ Public Class frmGestionRangos
         pnlEditor.Enabled = habilitar
         btnNuevo.Enabled = Not habilitar
         btnEditar.Enabled = Not habilitar
+        btnEliminar.Enabled = Not habilitar
         dgvRangos.Enabled = Not habilitar
 
         If Not habilitar Then
@@ -173,6 +174,35 @@ Public Class frmGestionRangos
 
     Private Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
         ModoEdicion(False)
+    End Sub
+
+    Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
+        If dgvRangos.SelectedRows.Count = 0 Then
+            Toast.Show(Me, "Seleccione un rango para eliminar.", ToastType.Warning)
+            Return
+        End If
+
+        Dim idRango As Integer = Convert.ToInt32(dgvRangos.SelectedRows(0).Cells("Id").Value)
+
+        If MessageBox.Show("¿Eliminar rango seleccionado?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) <> DialogResult.Yes Then
+            Return
+        End If
+
+        Using uow As New UnitOfWork()
+            Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
+            Dim rango = Await repoRangos.GetByIdAsync(idRango)
+
+            If rango Is Nothing Then
+                Toast.Show(Me, "Rango no encontrado.", ToastType.Warning)
+                Return
+            End If
+
+            repoRangos.Remove(rango)
+            Await uow.CommitAsync()
+        End Using
+
+        Toast.Show(Me, "Rango eliminado correctamente.", ToastType.Success)
+        Await CargarGrillaAsync()
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click

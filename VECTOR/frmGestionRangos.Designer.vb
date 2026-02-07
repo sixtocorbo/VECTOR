@@ -36,6 +36,7 @@ Partial Class frmGestionRangos
         Me.dgvRangos = New System.Windows.Forms.DataGridView()
         Me.btnNuevo = New System.Windows.Forms.Button()
         Me.btnEditar = New System.Windows.Forms.Button()
+        Me.btnEliminar = New System.Windows.Forms.Button()
         Me.pnlEditor.SuspendLayout()
         CType(Me.dgvRangos, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -258,11 +259,25 @@ Partial Class frmGestionRangos
         Me.btnEditar.Text = "EDITAR / VER"
         Me.btnEditar.UseVisualStyleBackColor = True
         '
+        'btnEliminar
+        '
+        Me.btnEliminar.BackColor = System.Drawing.Color.IndianRed
+        Me.btnEliminar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnEliminar.ForeColor = System.Drawing.Color.White
+        Me.btnEliminar.Location = New System.Drawing.Point(402, 269)
+        Me.btnEliminar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnEliminar.Name = "btnEliminar"
+        Me.btnEliminar.Size = New System.Drawing.Size(180, 54)
+        Me.btnEliminar.TabIndex = 4
+        Me.btnEliminar.Text = "ELIMINAR"
+        Me.btnEliminar.UseVisualStyleBackColor = False
+        '
         'frmGestionRangos
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1176, 709)
+        Me.Controls.Add(Me.btnEliminar)
         Me.Controls.Add(Me.btnEditar)
         Me.Controls.Add(Me.btnNuevo)
         Me.Controls.Add(Me.dgvRangos)
@@ -298,4 +313,5 @@ Partial Class frmGestionRangos
     Friend WithEvents dgvRangos As System.Windows.Forms.DataGridView
     Friend WithEvents btnNuevo As System.Windows.Forms.Button
     Friend WithEvents btnEditar As System.Windows.Forms.Button
+    Friend WithEvents btnEliminar As System.Windows.Forms.Button
 End Class

@@ -25,6 +25,8 @@ Partial Class frmGestionRangos
         Me.lblFin = New System.Windows.Forms.Label()
         Me.txtCantidad = New System.Windows.Forms.TextBox()
         Me.lblCantidad = New System.Windows.Forms.Label()
+        Me.numAnio = New System.Windows.Forms.NumericUpDown()
+        Me.lblAnio = New System.Windows.Forms.Label()
         Me.txtInicio = New System.Windows.Forms.TextBox()
         Me.lblInicio = New System.Windows.Forms.Label()
         Me.txtNombre = New System.Windows.Forms.TextBox()
@@ -40,6 +42,7 @@ Partial Class frmGestionRangos
         Me.btnEditar = New System.Windows.Forms.Button()
         Me.btnEliminar = New System.Windows.Forms.Button()
         Me.pnlEditor.SuspendLayout()
+        CType(Me.numAnio, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvRangos, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -51,6 +54,8 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Controls.Add(Me.lblUltimo)
         Me.pnlEditor.Controls.Add(Me.txtFin)
         Me.pnlEditor.Controls.Add(Me.lblFin)
+        Me.pnlEditor.Controls.Add(Me.numAnio)
+        Me.pnlEditor.Controls.Add(Me.lblAnio)
         Me.pnlEditor.Controls.Add(Me.txtCantidad)
         Me.pnlEditor.Controls.Add(Me.lblCantidad)
         Me.pnlEditor.Controls.Add(Me.txtInicio)
@@ -88,7 +93,7 @@ Partial Class frmGestionRangos
         '
         'txtUltimo
         '
-        Me.txtUltimo.Location = New System.Drawing.Point(563, 126)
+        Me.txtUltimo.Location = New System.Drawing.Point(740, 126)
         Me.txtUltimo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtUltimo.Name = "txtUltimo"
         Me.txtUltimo.Size = New System.Drawing.Size(148, 26)
@@ -100,7 +105,7 @@ Partial Class frmGestionRangos
         'lblUltimo
         '
         Me.lblUltimo.AutoSize = True
-        Me.lblUltimo.Location = New System.Drawing.Point(559, 101)
+        Me.lblUltimo.Location = New System.Drawing.Point(736, 101)
         Me.lblUltimo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblUltimo.Name = "lblUltimo"
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
@@ -110,7 +115,7 @@ Partial Class frmGestionRangos
         '
         'txtFin
         '
-        Me.txtFin.Location = New System.Drawing.Point(386, 126)
+        Me.txtFin.Location = New System.Drawing.Point(563, 126)
         Me.txtFin.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtFin.Name = "txtFin"
         Me.txtFin.ReadOnly = True
@@ -120,7 +125,7 @@ Partial Class frmGestionRangos
         'lblFin
         '
         Me.lblFin.AutoSize = True
-        Me.lblFin.Location = New System.Drawing.Point(382, 101)
+        Me.lblFin.Location = New System.Drawing.Point(559, 101)
         Me.lblFin.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFin.Name = "lblFin"
         Me.lblFin.Size = New System.Drawing.Size(95, 20)
@@ -145,9 +150,30 @@ Partial Class frmGestionRangos
         Me.lblCantidad.TabIndex = 3
         Me.lblCantidad.Text = "Cantidad números:"
         '
+        'numAnio
+        '
+        Me.numAnio.Location = New System.Drawing.Point(209, 126)
+        Me.numAnio.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.numAnio.Maximum = New Decimal(New Integer() {2100, 0, 0, 0})
+        Me.numAnio.Minimum = New Decimal(New Integer() {2000, 0, 0, 0})
+        Me.numAnio.Name = "numAnio"
+        Me.numAnio.Size = New System.Drawing.Size(148, 26)
+        Me.numAnio.TabIndex = 8
+        Me.numAnio.Value = New Decimal(New Integer() {2000, 0, 0, 0})
+        '
+        'lblAnio
+        '
+        Me.lblAnio.AutoSize = True
+        Me.lblAnio.Location = New System.Drawing.Point(205, 101)
+        Me.lblAnio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblAnio.Name = "lblAnio"
+        Me.lblAnio.Size = New System.Drawing.Size(41, 20)
+        Me.lblAnio.TabIndex = 8
+        Me.lblAnio.Text = "Año:"
+        '
         'txtInicio
         '
-        Me.txtInicio.Location = New System.Drawing.Point(209, 126)
+        Me.txtInicio.Location = New System.Drawing.Point(386, 126)
         Me.txtInicio.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtInicio.Name = "txtInicio"
         Me.txtInicio.Size = New System.Drawing.Size(148, 26)
@@ -156,7 +182,7 @@ Partial Class frmGestionRangos
         'lblInicio
         '
         Me.lblInicio.AutoSize = True
-        Me.lblInicio.Location = New System.Drawing.Point(205, 101)
+        Me.lblInicio.Location = New System.Drawing.Point(382, 101)
         Me.lblInicio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblInicio.Name = "lblInicio"
         Me.lblInicio.Size = New System.Drawing.Size(110, 20)
@@ -318,6 +344,7 @@ Partial Class frmGestionRangos
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.pnlEditor.ResumeLayout(False)
         Me.pnlEditor.PerformLayout()
+        CType(Me.numAnio, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvRangos, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
@@ -336,6 +363,8 @@ Partial Class frmGestionRangos
     Friend WithEvents lblFin As System.Windows.Forms.Label
     Friend WithEvents txtCantidad As System.Windows.Forms.TextBox
     Friend WithEvents lblCantidad As System.Windows.Forms.Label
+    Friend WithEvents numAnio As System.Windows.Forms.NumericUpDown
+    Friend WithEvents lblAnio As System.Windows.Forms.Label
     Friend WithEvents txtInicio As System.Windows.Forms.TextBox
     Friend WithEvents lblInicio As System.Windows.Forms.Label
     Friend WithEvents chkActivo As System.Windows.Forms.CheckBox

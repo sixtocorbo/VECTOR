@@ -162,9 +162,9 @@ Public Class frmMesaEntrada
     ''' Calcula el próximo número disponible saltando reservas de otras oficinas.
     ''' </summary>
     ''' <returns>Número positivo si hay disponible, -1 si no hay rango, -2 si se agotó.</returns>
-    Private Function CalcularSiguienteNumero(idTipo As Integer, idOficinaContexto As Integer) As Integer
+    Private Function CalcularSiguienteNumero(idTipo As Integer, idOficinaContexto As Integer, anio As Integer) As Integer
         ' 1. Obtener TODOS mis rangos (ordenados por inicio)
-        Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOficinaContexto)
+        Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOficinaContexto, anio)
 
         If misRangos.Count = 0 Then Return -1 ' No hay rango configurado
 
@@ -176,7 +176,7 @@ Public Class frmMesaEntrada
         Dim reservas As List(Of Mae_NumeracionRangos) = Nothing
         If esRangoGeneral Then
             reservas = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-                       Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.IdOficina IsNot Nothing).ToList()
+                       Where(Function(r) r.IdTipo = idTipo And r.Anio = anio And r.Activo = True And r.IdOficina IsNot Nothing).ToList()
         End If
 
         ' 3. ITERAR POR MIS RANGOS PARA BUSCAR HUECO
@@ -231,6 +231,7 @@ Public Class frmMesaEntrada
         Dim idOrigenSeleccionado As Integer = CInt(cboOrigen.SelectedValue)
         If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
         Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
+        Dim anioObjetivo As Integer = DateTime.Now.Year
 
         ' 2. Validación: ¿Estoy escribiendo a nombre de otra oficina?
         ' Si el origen NO es mi oficina (ej: viene de Gerencia), debo escribir manual
@@ -245,7 +246,7 @@ Public Class frmMesaEntrada
         ' Por ahora mantenemos la lógica original: solo ID 13 tiene el privilegio.
         If idOrigenSeleccionado <> IdBandejaEntrada Then
             ' VERIFICAR SI TIENE RANGO PROPIO ESPECIFICO
-            Dim proximoPropio = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado)
+            Dim proximoPropio = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado, anioObjetivo)
             If proximoPropio > 0 Then
                 _generacionAutomatica = True
                 txtNumeroRef.Text = "(Automático - Próx: " & proximoPropio & ")"
@@ -259,7 +260,7 @@ Public Class frmMesaEntrada
         End If
 
         ' 4. CÁLCULO INTELIGENTE (BANDEJA DE ENTRADA)
-        Dim proximoNumero = CalcularSiguienteNumero(idTipo, IdBandejaEntrada)
+        Dim proximoNumero = CalcularSiguienteNumero(idTipo, IdBandejaEntrada, anioObjetivo)
 
         If proximoNumero > 0 Then
             ' CASO A: HAY RANGO AUTOMÁTICO DISPONIBLE
@@ -296,7 +297,7 @@ Public Class frmMesaEntrada
             FirstOrDefault(Function(r) r.IdTipo = idTipo And r.Activo = True And r.IdOficina = buscaPorOficinaEspecifica)
     End Function
     ' Nueva función que trae TODOS los rangos, no solo el primero
-    Private Function ObtenerTodosLosRangosActivos(idTipo As Integer, idOficina As Integer?) As List(Of Mae_NumeracionRangos)
+    Private Function ObtenerTodosLosRangosActivos(idTipo As Integer, idOficina As Integer?, anio As Integer) As List(Of Mae_NumeracionRangos)
         Dim buscaPorOficinaEspecifica As Integer? = idOficina
         If idOficina.HasValue AndAlso idOficina.Value = IdBandejaEntrada Then
             buscaPorOficinaEspecifica = Nothing
@@ -304,7 +305,7 @@ Public Class frmMesaEntrada
 
         ' Ordenamos por NumeroInicio para que el sistema intente llenar en orden
         Return _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).
-            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.IdOficina = buscaPorOficinaEspecifica).
+            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.Anio = anio And r.IdOficina = buscaPorOficinaEspecifica).
             OrderBy(Function(r) r.NumeroInicio).
             ToList()
     End Function
@@ -635,8 +636,17 @@ Public Class frmMesaEntrada
         If Not _idEdicion.HasValue AndAlso Not _generacionAutomatica Then
             Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
 
-            ' CAMBIO 1: Traemos TODOS los rangos activos para esta oficina
-            Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value)
+            Dim anioManual As Integer = DateTime.Now.Year
+            Dim partes = txtNumeroRef.Text.Split("/"c)
+            If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
+                Dim dosDigitos = CInt(partes(1))
+                anioManual = 2000 + dosDigitos
+            Else
+                anioManual = dtpFechaRecepcion.Value.Year
+            End If
+
+            ' CAMBIO 1: Traemos TODOS los rangos activos para esta oficina y año
+            Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
 
             If misRangos.Count > 0 Then
                 Dim numeroBase As Integer
@@ -649,7 +659,7 @@ Public Class frmMesaEntrada
                 Dim estaEnAlgunRango As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
 
                 If Not estaEnAlgunRango Then
-                    Toast.Show(Me, $"El número {numeroBase} no pertenece a ninguno de los rangos asignados a su oficina.", ToastType.Warning)
+                    Toast.Show(Me, $"El número {numeroBase} no es válido para el año {anioManual} según los rangos configurados.", ToastType.Warning)
                     Return
                 End If
             End If
@@ -690,7 +700,8 @@ Public Class frmMesaEntrada
                     Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
 
                     ' 1. Calculamos el número FINAL usando la lógica de salto inteligente
-                    Dim nuevoNumero As Integer = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado.Value)
+                    Dim anioObjetivo As Integer = DateTime.Now.Year
+                    Dim nuevoNumero As Integer = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
 
                     If nuevoNumero <= 0 Then
                         Toast.Show(Me, "Error: No se pudo obtener un número válido o el rango se agotó.", ToastType.Error)
@@ -699,7 +710,7 @@ Public Class frmMesaEntrada
 
                     ' 2. Actualizamos el contador en la BD (DEL RANGO CORRECTO)
                     '    Buscamos cuál de mis rangos contiene este nuevoNumero para actualizar su UltimoUtilizado
-                    Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOrigenSeleccionado.Value)
+                    Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
                     Dim rangoA_Actualizar = misRangos.FirstOrDefault(Function(r) nuevoNumero >= r.NumeroInicio And nuevoNumero <= r.NumeroFin)
 
                     If rangoA_Actualizar IsNot Nothing Then
@@ -868,4 +879,3 @@ Public Class frmMesaEntrada
         ShowFormInMdi(Me, f)
     End Sub
 End Class
-

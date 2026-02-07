@@ -23,6 +23,14 @@ Public Class frmGestionRangos
 
     Private Async Sub frmGestionRangos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        Dim anioActual As Integer = DateTime.Now.Year
+        If anioActual < numAnio.Minimum Then
+            numAnio.Value = numAnio.Minimum
+        ElseIf anioActual > numAnio.Maximum Then
+            numAnio.Value = numAnio.Maximum
+        Else
+            numAnio.Value = anioActual
+        End If
         Await CargarOficinasAsync()
         Await CargarTiposAsync()
         Await CargarGrillaAsync()
@@ -73,6 +81,10 @@ Public Class frmGestionRangos
 
     Private Async Sub cmbOficina_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbOficina.SelectedIndexChanged
         ActualizarModoEntrada()
+        Await SugerirInicioDisponibleAsync()
+    End Sub
+
+    Private Async Sub numAnio_ValueChanged(sender As Object, e As EventArgs) Handles numAnio.ValueChanged
         Await SugerirInicioDisponibleAsync()
     End Sub
 
@@ -185,12 +197,13 @@ Public Class frmGestionRangos
         _sugerenciaEnCurso = True
         Try
             Dim idTipo As Integer = Convert.ToInt32(cmbTipo.SelectedValue)
+            Dim anio As Integer = CInt(numAnio.Value)
             Dim esGeneral As Boolean = EsOficinaGeneralSeleccionada()
 
             Using uow As New UnitOfWork()
                 Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
                 Dim rangos = Await repoRangos.GetQueryable().
-                    Where(Function(x) x.IdTipo = idTipo And x.Activo = True).
+                    Where(Function(x) x.IdTipo = idTipo And x.Anio = anio And x.Activo = True).
                     Select(Function(x) New RangoSimple With {
                         .Inicio = x.NumeroInicio,
                         .Fin = x.NumeroFin,
@@ -309,6 +322,14 @@ Public Class frmGestionRangos
             txtCantidad.Text = "50"
             ActualizarFinDesdeCantidad()
             txtUltimo.Text = "0"
+            Dim anioActual As Integer = DateTime.Now.Year
+            If anioActual < numAnio.Minimum Then
+                numAnio.Value = numAnio.Minimum
+            ElseIf anioActual > numAnio.Maximum Then
+                numAnio.Value = numAnio.Maximum
+            Else
+                numAnio.Value = anioActual
+            End If
             cmbTipo.SelectedIndex = -1
             If cmbOficina.Items.Count > 0 Then
                 cmbOficina.SelectedIndex = 0
@@ -365,6 +386,14 @@ Public Class frmGestionRangos
 
                 txtNombre.Text = r.NombreRango
                 txtInicio.Text = r.NumeroInicio.ToString()
+                Dim anioCargado As Integer = If(r.Anio > 0, r.Anio, DateTime.Now.Year)
+                If anioCargado < numAnio.Minimum Then
+                    numAnio.Value = numAnio.Minimum
+                ElseIf anioCargado > numAnio.Maximum Then
+                    numAnio.Value = numAnio.Maximum
+                Else
+                    numAnio.Value = anioCargado
+                End If
 
                 ' --- CORRECCIÓN MATEMÁTICA 4: Recuperar cantidad correcta (+1) ---
                 ' Rango 1 a 10 son 10 números. (10 - 1) + 1 = 10.
@@ -491,6 +520,7 @@ Public Class frmGestionRangos
                 End If
 
                 rango.NombreRango = txtNombre.Text.Trim()
+                rango.Anio = CInt(numAnio.Value)
                 rango.NumeroInicio = ini
                 rango.NumeroFin = fin
                 rango.UltimoUtilizado = ult
@@ -501,7 +531,7 @@ Public Class frmGestionRangos
                 ' =====================================================================
                 Dim soyGeneral As Boolean = Not rango.IdOficina.HasValue
 
-                Dim rangosExistentes = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.Activo = True And x.IdRango <> rango.IdRango).ToListAsync()
+                Dim rangosExistentes = Await repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.Anio = rango.Anio And x.Activo = True And x.IdRango <> rango.IdRango).ToListAsync()
 
                 For Each existente In rangosExistentes
                     Dim existenteEsGeneral As Boolean = Not existente.IdOficina.HasValue
@@ -531,7 +561,7 @@ Public Class frmGestionRangos
 
                 ' Si paso la validación, desactivo SOLO mis versiones anteriores exactas
                 If rango.Activo Then
-                    Dim otrosQuery = repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.IdRango <> rango.IdRango And x.Activo = True)
+                    Dim otrosQuery = repoRangos.GetQueryable().Where(Function(x) x.IdTipo = rango.IdTipo And x.Anio = rango.Anio And x.IdRango <> rango.IdRango And x.Activo = True)
                     Dim otros As List(Of Mae_NumeracionRangos)
 
                     If rango.IdOficina.HasValue Then
@@ -562,7 +592,7 @@ Public Class frmGestionRangos
     Private Function GenerarNombreRango(ini As Integer, fin As Integer) As String
         Dim tipo As String = cmbTipo.Text?.Trim()
         Dim oficina As String = ObtenerNombreOficinaSeleccionada()
-        Dim anio As String = DateTime.Now.Year.ToString()
+        Dim anio As String = CInt(numAnio.Value).ToString()
         Dim rango As String = $"{ini}-{fin}"
 
         Return $"{tipo} {anio} - {oficina} ({rango})".Trim()

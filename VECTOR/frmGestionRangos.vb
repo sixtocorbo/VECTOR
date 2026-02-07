@@ -24,6 +24,37 @@ Public Class frmGestionRangos
         Me.ShowIcon = False
     End Sub
 
+    Private Sub ActualizarFinDesdeCantidad()
+        Dim ini As Integer
+        Dim cantidad As Integer
+
+        If Not Integer.TryParse(txtInicio.Text, ini) Then
+            txtFin.Clear()
+            Return
+        End If
+
+        If Not Integer.TryParse(txtCantidad.Text, cantidad) Then
+            txtFin.Clear()
+            Return
+        End If
+
+        If cantidad < 0 Then
+            txtFin.Clear()
+            Return
+        End If
+
+        Dim finCalculado As Integer = ini + cantidad
+        txtFin.Text = finCalculado.ToString()
+    End Sub
+
+    Private Sub txtInicio_TextChanged(sender As Object, e As EventArgs) Handles txtInicio.TextChanged
+        ActualizarFinDesdeCantidad()
+    End Sub
+
+    Private Sub txtCantidad_TextChanged(sender As Object, e As EventArgs) Handles txtCantidad.TextChanged
+        ActualizarFinDesdeCantidad()
+    End Sub
+
     ' 1. CARGA EL COMBO DE TIPOS DE DOCUMENTO (Desde Cat_TipoDocumento)
     Private Async Function CargarTiposAsync() As Task
         Using uow As New UnitOfWork()
@@ -112,7 +143,8 @@ Public Class frmGestionRangos
             ' Limpiar campos al salir del modo edición
             txtNombre.Clear()
             txtInicio.Text = "1"
-            txtFin.Text = "1000"
+            txtCantidad.Text = "1000"
+            ActualizarFinDesdeCantidad()
             txtUltimo.Text = "0"
             cmbTipo.SelectedIndex = -1
             If cmbOficina.Items.Count > 0 Then
@@ -168,6 +200,7 @@ Public Class frmGestionRangos
 
                 txtNombre.Text = r.NombreRango
                 txtInicio.Text = r.NumeroInicio.ToString()
+                txtCantidad.Text = Math.Max(0, r.NumeroFin - r.NumeroInicio).ToString()
                 txtFin.Text = r.NumeroFin.ToString()
                 txtUltimo.Text = r.UltimoUtilizado.ToString()
                 chkActivo.Checked = r.Activo
@@ -221,10 +254,28 @@ Public Class frmGestionRangos
         End If
 
         Dim ini, fin, ult As Integer
-        Integer.TryParse(txtInicio.Text, ini)
-        Integer.TryParse(txtFin.Text, fin)
+        Dim cantidad As Integer
+        Dim inicioValido As Boolean = Integer.TryParse(txtInicio.Text, ini)
+        Dim cantidadValida As Boolean = Integer.TryParse(txtCantidad.Text, cantidad)
         Integer.TryParse(txtUltimo.Text, ult)
 
+        If Not inicioValido Then
+            Toast.Show(Me, "Ingrese un número de Inicio válido.", ToastType.Warning)
+            Return
+        End If
+
+        If Not cantidadValida Then
+            Toast.Show(Me, "Ingrese una cantidad válida.", ToastType.Warning)
+            Return
+        End If
+
+        fin = ini + cantidad
+        txtFin.Text = fin.ToString()
+
+        If cantidad < 0 Then
+            Toast.Show(Me, "La cantidad de números debe ser mayor o igual a cero.", ToastType.Warning)
+            Return
+        End If
         If ini >= fin Then
             Toast.Show(Me, "El número de Inicio debe ser menor al número Fin.", ToastType.Warning)
             Return

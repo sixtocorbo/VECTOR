@@ -36,6 +36,7 @@ Partial Class frmGestionRangos
         Me.cmbTipo = New System.Windows.Forms.ComboBox()
         Me.lblTipo = New System.Windows.Forms.Label()
         Me.lblStockInfo = New System.Windows.Forms.Label()
+        Me.btnCupos = New System.Windows.Forms.Button()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.dgvRangos = New System.Windows.Forms.DataGridView()
@@ -68,6 +69,7 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Controls.Add(Me.cmbTipo)
         Me.pnlEditor.Controls.Add(Me.lblTipo)
         Me.pnlEditor.Controls.Add(Me.lblStockInfo)
+        Me.pnlEditor.Controls.Add(Me.btnCupos)
         Me.pnlEditor.Enabled = False
         Me.pnlEditor.Location = New System.Drawing.Point(18, 18)
         Me.pnlEditor.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -265,6 +267,16 @@ Partial Class frmGestionRangos
         Me.lblStockInfo.TabIndex = 101
         Me.lblStockInfo.Text = "Cupo: ---"
         '
+        'btnCupos
+        '
+        Me.btnCupos.Location = New System.Drawing.Point(646, 160)
+        Me.btnCupos.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnCupos.Name = "btnCupos"
+        Me.btnCupos.Size = New System.Drawing.Size(242, 35)
+        Me.btnCupos.TabIndex = 102
+        Me.btnCupos.Text = "ADMINISTRAR CUPOS"
+        Me.btnCupos.UseVisualStyleBackColor = True
+        '
         'btnCancelar
         '
         Me.btnCancelar.Location = New System.Drawing.Point(746, 269)
@@ -389,4 +401,5 @@ Partial Class frmGestionRangos
     Friend WithEvents btnEditar As System.Windows.Forms.Button
     Friend WithEvents btnEliminar As System.Windows.Forms.Button
     Friend WithEvents lblStockInfo As System.Windows.Forms.Label
+    Friend WithEvents btnCupos As System.Windows.Forms.Button
 End Class

@@ -131,7 +131,7 @@ Public Class frmCuposSecretaria
             Try
                 Dim sql As String = "SELECT c.IdCupo, c.Fecha, c.IdUsuario, c.IdTipo, c.Cantidad, " &
                                     "t.Nombre AS TipoNombre, " &
-                                    "u.Nombre AS UsuarioNombre " &
+                                    "u.NombreCompleto AS UsuarioNombre " &
                                     "FROM Mae_CuposSecretaria c " &
                                     "LEFT JOIN Cat_TipoDocumento t ON t.IdTipo = c.IdTipo " &
                                     "LEFT JOIN Cat_Usuario u ON u.IdUsuario = c.IdUsuario " &

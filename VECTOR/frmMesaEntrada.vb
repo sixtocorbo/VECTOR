@@ -159,65 +159,32 @@ Public Class frmMesaEntrada
     ' LÓGICA DE RANGOS Y NUMERACIÓN (INTELIGENTE)
     ' =======================================================
 
+
     ''' <summary>
-    ''' Calcula el próximo número disponible saltando reservas de otras oficinas.
+    ''' Calcula el próximo número disponible basándose únicamente en los rangos asignados a la oficina.
     ''' </summary>
-    ''' <returns>Número positivo si hay disponible, -1 si no hay rango, -2 si se agotó.</returns>
     Private Function CalcularSiguienteNumero(idTipo As Integer, idOficinaContexto As Integer, anio As Integer) As Integer
-        ' 1. Obtener TODOS mis rangos (ordenados por inicio)
+        ' 1. Obtener los rangos asignados EXCLUSIVAMENTE a esta oficina
         Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOficinaContexto, anio)
 
-        If misRangos.Count = 0 Then Return -1 ' No hay rango configurado
+        If misRangos.Count = 0 Then Return -1 ' No tiene números asignados
 
-        ' 2. Detectar si soy General para cargar reservas de otros
-        Dim busquedaIdOficina As Integer? = idOficinaContexto
-        If idOficinaContexto = IdBandejaEntrada Then busquedaIdOficina = Nothing
-        Dim esRangoGeneral As Boolean = (busquedaIdOficina Is Nothing)
+        ' 2. Iterar por mis rangos asignados para encontrar el siguiente hueco
+        For Each rango In misRangos
+            Dim candidato As Integer = rango.UltimoUtilizado
 
-        Dim reservas As List(Of Mae_NumeracionRangos) = Nothing
-        If esRangoGeneral Then
-            reservas = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-                       Where(Function(r) r.IdTipo = idTipo And r.Anio = anio And r.Activo = True And r.IdOficina IsNot Nothing And r.IdOficina <> IdBandejaEntrada).ToList()
-        End If
+            ' Si nunca se usó, arrancamos antes del inicio para que al sumar 1 dé el inicio
+            If candidato < rango.NumeroInicio Then candidato = rango.NumeroInicio - 1
 
-        ' 3. ITERAR POR MIS RANGOS PARA BUSCAR HUECO
-        ' La estrategia es: Buscamos en el primer rango. Si está lleno, pasamos al segundo.
+            ' Verificar si el siguiente número entra en este lote
+            If (candidato + 1) <= rango.NumeroFin Then
+                Return candidato + 1
+            End If
 
-        For Each rangoPropio In misRangos
-            Dim candidato As Integer = rangoPropio.UltimoUtilizado
-
-            ' Si este rango nunca se usó, arrancamos desde Inicio - 1 para que el bucle sume 1 y dé Inicio.
-            If candidato < rangoPropio.NumeroInicio Then candidato = rangoPropio.NumeroInicio - 1
-
-            ' Bucle de búsqueda DENTRO de este rango específico
-            While True
-                candidato += 1
-
-                ' Si nos salimos de ESTE rango, rompemos el While para ir al siguiente Rango del For
-                If candidato > rangoPropio.NumeroFin Then
-                    Exit While ' Salta al siguiente rango en 'misRangos'
-                End If
-
-                ' Chequeo de Reservas (Solo si soy Bandeja General)
-                Dim chocaConReserva As Boolean = False
-                If esRangoGeneral AndAlso reservas IsNot Nothing Then
-                    Dim obstaculo = reservas.FirstOrDefault(Function(r) candidato >= r.NumeroInicio And candidato <= r.NumeroFin)
-                    If obstaculo IsNot Nothing Then
-                        ' Si choca, saltamos al final del obstáculo
-                        candidato = obstaculo.NumeroFin
-                        chocaConReserva = True
-                        ' Al volver arriba del While, se suma 1 y probamos el siguiente
-                    End If
-                End If
-
-                ' Si no chocó, ¡ENCONTRAMOS UNO VÁLIDO!
-                If Not chocaConReserva Then
-                    Return candidato
-                End If
-            End While
+            ' Si este lote está lleno, el bucle pasa al siguiente lote asignado
         Next
 
-        ' Si pasamos por todos los rangos y no retornamos nada, estamos agotados
+        ' Si pasamos todos los lotes y están llenos
         Return -2
     End Function
 
@@ -231,51 +198,30 @@ Public Class frmMesaEntrada
 
         Dim idOrigenSeleccionado As Integer = CInt(cboOrigen.SelectedValue)
         If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
+
         Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
         Dim anioObjetivo As Integer = DateTime.Now.Year
 
-        ' 2. Validación: ¿Estoy escribiendo a nombre de otra oficina?
-        ' Si el origen NO es mi oficina (ej: viene de Gerencia), debo escribir manual
-        If idOrigenSeleccionado <> SesionGlobal.OficinaID Then
-            HabilitarEscrituraManual()
-            Return
-        End If
-
-        ' 3. Validación: Solo BANDEJA DE ENTRADA usa numeración automática general
-        ' (OJO: Aquí asumimos que si selecciono MI oficina y es Bandeja, uso auto.
-        ' Si tu lógica permite que otras oficinas tengan auto-numeración, ajusta esta línea).
-        ' Por ahora mantenemos la lógica original: solo ID 13 tiene el privilegio.
-        If idOrigenSeleccionado <> IdBandejaEntrada Then
-            ' VERIFICAR SI TIENE RANGO PROPIO ESPECIFICO
-            Dim proximoPropio = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado, anioObjetivo)
-            If proximoPropio > 0 Then
-                _generacionAutomatica = True
-                txtNumeroRef.Text = "(Automático - Próx: " & proximoPropio & ")"
-                txtNumeroRef.Enabled = False
-                txtNumeroRef.BackColor = Color.LightGoldenrodYellow
-                Return
-            End If
-
-            HabilitarEscrituraManual()
-            Return
-        End If
-
-        ' 4. CÁLCULO INTELIGENTE (BANDEJA DE ENTRADA)
-        Dim proximoNumero = CalcularSiguienteNumero(idTipo, IdBandejaEntrada, anioObjetivo)
+        ' 2. LÓGICA UNIFICADA (Secretaría General)
+        ' Consultamos si la oficina seleccionada (Sea Bandeja o sea Remota) tiene números disponibles.
+        Dim proximoNumero = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado, anioObjetivo)
 
         If proximoNumero > 0 Then
-            ' CASO A: HAY RANGO AUTOMÁTICO DISPONIBLE
+            ' CASO A: TIENE RANGO ASIGNADO Y ESPACIO DISPONIBLE
             _generacionAutomatica = True
             txtNumeroRef.Text = "(Automático - Próx: " & proximoNumero & ")"
             txtNumeroRef.Enabled = False
             txtNumeroRef.BackColor = Color.LightGoldenrodYellow
+
         ElseIf proximoNumero = -2 Then
-            ' CASO B: AGOTADO
+            ' CASO B: TIENE RANGO PERO SE AGOTÓ
             HabilitarEscrituraManual()
-            txtNumeroRef.Text = "AGOTADO"
+            txtNumeroRef.Text = "AGOTADO - SOLICITAR NUEVO RANGO"
             txtNumeroRef.BackColor = Color.MistyRose
-        Else
-            ' CASO C: NO HAY RANGO (Escritura manual)
+
+        Else ' Retorna -1
+            ' CASO C: NO TIENE RANGO ASIGNADO
+            ' Permitimos escritura manual (Libre albedrío para oficinas externas sin control numérico)
             HabilitarEscrituraManual()
         End If
     End Sub
@@ -302,18 +248,14 @@ Public Class frmMesaEntrada
                            If(usarRangoBandeja, (r.IdOficina Is Nothing OrElse r.IdOficina = IdBandejaEntrada), r.IdOficina = buscaPorOficinaEspecifica))
     End Function
     ' Nueva función que trae TODOS los rangos, no solo el primero
+    ' Nueva función simplificada: Busca rangos asignados estrictamente a la oficina solicitada
     Private Function ObtenerTodosLosRangosActivos(idTipo As Integer, idOficina As Integer?, anio As Integer) As List(Of Mae_NumeracionRangos)
-        Dim buscaPorOficinaEspecifica As Integer? = idOficina
-        Dim usarRangoBandeja As Boolean = False
-        If idOficina.HasValue AndAlso idOficina.Value = IdBandejaEntrada Then
-            buscaPorOficinaEspecifica = Nothing
-            usarRangoBandeja = True
-        End If
+        ' En el modelo Secretaría General, idOficina SIEMPRE debe tener valor (incluso para Bandeja = 13).
+        ' Si llega Nothing, es un error de lógica upstream, pero lo manejamos devolviendo lista vacía.
+        If Not idOficina.HasValue Then Return New List(Of Mae_NumeracionRangos)()
 
-        ' Ordenamos por NumeroInicio para que el sistema intente llenar en orden
         Return _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=True).
-            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.Anio = anio And
-                   If(usarRangoBandeja, (r.IdOficina Is Nothing OrElse r.IdOficina = IdBandejaEntrada), r.IdOficina = buscaPorOficinaEspecifica)).
+            Where(Function(r) r.IdTipo = idTipo And r.Activo = True And r.Anio = anio And r.IdOficina = idOficina.Value).
             OrderBy(Function(r) r.NumeroInicio).
             ToList()
     End Function
@@ -353,7 +295,7 @@ Public Class frmMesaEntrada
 
         Dim numeroBase As Integer
         If Not TryObtenerNumeroBase(numeroTexto, numeroBase) Then
-            Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
+            ' No mostramos error mientras escribe texto parcial inválido, solo al final o si es válido numéricamente
             Return
         End If
 
@@ -366,31 +308,39 @@ Public Class frmMesaEntrada
             anioManual = dtpFechaRecepcion.Value.Year
         End If
 
-        Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
-        Dim rangosBandeja As New List(Of Mae_NumeracionRangos)()
-        If idOrigenSeleccionado.Value <> IdBandejaEntrada Then
-            rangosBandeja = ObtenerTodosLosRangosActivos(idTipoSeleccionado, IdBandejaEntrada, anioManual)
+        ' --- VALIDACIÓN DE PROPIEDAD DEL NÚMERO ---
+        ' Buscamos si este número pertenece a ALGÚN rango registrado en el sistema
+        Dim rangoPropietario = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+            FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
+                                       r.Anio = anioManual And
+                                       r.Activo = True And
+                                       numeroBase >= r.NumeroInicio And
+                                       numeroBase <= r.NumeroFin)
+
+        If rangoPropietario IsNot Nothing Then
+            ' Si el número cae en un rango, VERIFICAMOS que el rango sea de la oficina seleccionada
+            If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
+                Dim nombrePropietario = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
+                Toast.Show(Me, $"El número {numeroBase} está reservado para: {nombrePropietario}.", ToastType.Warning)
+                txtNumeroRef.ForeColor = Color.Red
+            Else
+                txtNumeroRef.ForeColor = Color.Black
+            End If
+        Else
+            ' El número no está en ningún rango. Es "Tierra de nadie". 
+            ' En este modelo, permitimos su uso manual.
+            txtNumeroRef.ForeColor = Color.Black
         End If
 
-        If misRangos.Count = 0 AndAlso rangosBandeja.Count = 0 Then
-            Toast.Show(Me, $"No hay rangos configurados para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
-            Return
-        End If
-
-        Dim estaEnRangoOficina As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
-        Dim estaEnRangoBandeja As Boolean = rangosBandeja.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
-        If Not (estaEnRangoOficina OrElse estaEnRangoBandeja) Then
-            Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
-            Return
-        End If
-
+        ' Validación de duplicados (Scope: Misma Oficina)
         Dim existeNumero = _unitOfWork.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
             Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
-                         d.NumeroOficial = numeroTexto AndAlso
-                         (Not _idEdicion.HasValue OrElse d.IdDocumento <> _idEdicion.Value))
+                            d.NumeroOficial = numeroTexto AndAlso
+                            (Not _idEdicion.HasValue OrElse d.IdDocumento <> _idEdicion.Value) AndAlso
+                            d.Tra_Movimiento.OrderBy(Function(m) m.IdMovimiento).FirstOrDefault().IdOficinaOrigen = idOrigenSeleccionado.Value)
 
         If existeNumero Then
-            Toast.Show(Me, $"El número {numeroTexto} ya está en uso.", ToastType.Warning)
+            Toast.Show(Me, $"El número {numeroTexto} ya fue utilizado por esta oficina.", ToastType.Warning)
         End If
     End Sub
 
@@ -679,7 +629,7 @@ Public Class frmMesaEntrada
     ' =======================================================
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
 
-        ' 1. Validaciones básicas de la interfaz
+        ' 1. VALIDACIONES BÁSICAS DE INTERFAZ
         If cboTipo.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione el TIPO de documento.", ToastType.Warning)
             Return
@@ -699,7 +649,7 @@ Public Class frmMesaEntrada
         End If
 
         ' =========================================================================================
-        ' VALIDACIÓN DE RANGO EN EDICIÓN MANUAL (LÓGICA MULTI-RANGO)
+        ' VALIDACIÓN DE RANGO EN EDICIÓN MANUAL (MODELO SECRETARÍA GENERAL)
         ' =========================================================================================
         If Not _idEdicion.HasValue AndAlso Not _generacionAutomatica Then
             Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
@@ -714,45 +664,46 @@ Public Class frmMesaEntrada
                 anioManual = dtpFechaRecepcion.Value.Year
             End If
 
-            ' B. Validación contra Rangos de la OFICINA SELECCIONADA (AREAS SGC, etc.)
-            '    Nota: idOrigenSeleccionado.Value viene del combo, así que usa la oficina ajena correctamente.
-            Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
-            Dim rangosBandeja As New List(Of Mae_NumeracionRangos)()
-            If idOrigenSeleccionado.Value <> IdBandejaEntrada Then
-                rangosBandeja = ObtenerTodosLosRangosActivos(idTipoSeleccionado, IdBandejaEntrada, anioManual)
-            End If
-
-            If misRangos.Count > 0 OrElse rangosBandeja.Count > 0 Then
-                Dim numeroBase As Integer
-                If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
-                    Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
-                    Return
-                End If
-
-                Dim estaEnRangoOficina As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
-                Dim estaEnRangoBandeja As Boolean = rangosBandeja.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
-
-                If Not (estaEnRangoOficina OrElse estaEnRangoBandeja) Then
-                    Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
-                    Return
-                End If
-            End If
-
-            ' C. Validación de UNICIDAD (Evitar error "Está en uso")
-            '    Verificamos si ya existe un documento con ese mismo Tipo y Número Oficial.
-            '    NOTA: Si tu sistema permite repetir números entre oficinas, habría que agregar "And d.Tra_Movimiento...IdOficinaOrigen"
-            '    Pero por defecto, asumimos que el número es único globalmente para el tipo.
-            Dim yaExiste As Boolean = False
-            Using uowCheck As New UnitOfWork()
-                yaExiste = uowCheck.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
-                    Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
-                                    d.NumeroOficial = txtNumeroRef.Text.Trim())
-            End Using
-
-            If yaExiste Then
-                Toast.Show(Me, $"El número '{txtNumeroRef.Text}' ya fue registrado previamente en el sistema.", ToastType.Error)
+            Dim numeroBase As Integer
+            If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
+                Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
                 Return
             End If
+
+            ' B. VALIDACIÓN DE PROPIEDAD: ¿Estoy 'robando' un número reservado a otra oficina?
+            '    Consultamos si el número cae en CUALQUIER rango activo.
+            Dim rangoPropietario As Mae_NumeracionRangos = Nothing
+
+            Using uowCheck As New UnitOfWork()
+                rangoPropietario = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                    FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
+                                               r.Anio = anioManual And
+                                               r.Activo = True And
+                                               numeroBase >= r.NumeroInicio And
+                                               numeroBase <= r.NumeroFin)
+
+                ' Si existe un rango dueño de este número...
+                If rangoPropietario IsNot Nothing Then
+                    ' ... y el dueño NO es la oficina que seleccioné (Bandeja u otra):
+                    If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
+                        Dim nombreOficinaDueña = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
+                        Toast.Show(Me, $"ERROR DE NUMERACIÓN: El número {numeroBase} pertenece al rango reservado exclusivamente para: {nombreOficinaDueña}.", ToastType.Error)
+                        Return
+                    End If
+                End If
+
+                ' C. VALIDACIÓN DE UNICIDAD (Scope: Misma Oficina)
+                '    Verificamos si ESTA oficina ya usó este número.
+                Dim yaExiste As Boolean = uowCheck.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
+                    Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
+                                    d.NumeroOficial = txtNumeroRef.Text.Trim() AndAlso
+                                    d.Tra_Movimiento.Any(Function(m) m.IdOficinaOrigen = idOrigenSeleccionado.Value))
+
+                If yaExiste Then
+                    Toast.Show(Me, $"El número '{txtNumeroRef.Text}' ya fue registrado previamente por esta oficina.", ToastType.Error)
+                    Return
+                End If
+            End Using
         End If
 
         ' =========================================================================================
@@ -762,7 +713,7 @@ Public Class frmMesaEntrada
             Dim doc As Mae_Documento
 
             If _idEdicion.HasValue Then
-                ' ... (Código de EDICIÓN se mantiene igual) ...
+                ' --- MODO EDICIÓN (UPDATE) ---
                 doc = _unitOfWork.Context.Set(Of Mae_Documento)().Find(_idEdicion.Value)
                 doc.IdTipo = CInt(cboTipo.SelectedValue)
                 doc.NumeroOficial = txtNumeroRef.Text.Trim()
@@ -778,21 +729,23 @@ Public Class frmMesaEntrada
                 Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
 
             Else
-                ' ... (Código de NUEVO INGRESO se mantiene igual) ...
+                ' --- MODO NUEVO (INSERT) ---
                 doc = New Mae_Documento()
 
-                ' --- LÓGICA DE NUMERACIÓN (AUTO vs MANUAL) ---
+                ' 1. Generación / Asignación de Número
                 If _generacionAutomatica Then
                     Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
                     Dim anioObjetivo As Integer = DateTime.Now.Year
+
+                    ' Cálculo estricto basado en la oficina seleccionada
                     Dim nuevoNumero As Integer = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
 
                     If nuevoNumero <= 0 Then
-                        Toast.Show(Me, "Error: No se pudo obtener un número válido o el rango se agotó.", ToastType.Error)
+                        Toast.Show(Me, "Error: No se pudo obtener un número válido o el rango de la oficina se agotó.", ToastType.Error)
                         Return
                     End If
 
-                    ' Actualizamos el contador del rango
+                    ' Actualizamos el contador del rango específico
                     Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
                     Dim rangoA_Actualizar = misRangos.FirstOrDefault(Function(r) nuevoNumero >= r.NumeroInicio And nuevoNumero <= r.NumeroFin)
 
@@ -806,11 +759,11 @@ Public Class frmMesaEntrada
                     Dim anioCorto As String = DateTime.Now.ToString("yy")
                     doc.NumeroOficial = nuevoNumero.ToString() & "/" & anioCorto
                 Else
-                    ' Manual (Aquí entra lo que escribiste para AREAS SGC)
+                    ' Manual (Validado previamente)
                     doc.NumeroOficial = txtNumeroRef.Text.Trim()
                 End If
 
-                ' Asignación de propiedades del documento
+                ' 2. Propiedades del Documento
                 doc.IdTipo = CInt(cboTipo.SelectedValue)
                 doc.Asunto = txtAsunto.Text.ToUpper().Trim()
                 doc.Descripcion = txtDescripcion.Text.Trim()
@@ -831,11 +784,11 @@ Public Class frmMesaEntrada
 
                 _unitOfWork.Repository(Of Mae_Documento)().Add(doc)
 
-                ' Trazabilidad
+                ' 3. Trazabilidad (Primer Movimiento)
                 Dim mov As New Tra_Movimiento()
                 mov.IdDocumento = doc.IdDocumento
                 mov.FechaMovimiento = DateTime.Now
-                mov.IdOficinaOrigen = idOrigenSeleccionado.Value ' <-- IMPORTANTE: Guarda el ID de AREAS SGC
+                mov.IdOficinaOrigen = idOrigenSeleccionado.Value ' <-- CRÍTICO: Define el origen lógico del documento
                 mov.IdOficinaDestino = SesionGlobal.OficinaID
 
                 If _modoRespuesta Then
@@ -850,7 +803,7 @@ Public Class frmMesaEntrada
 
                 _unitOfWork.Commit()
 
-                ' Manejo de Adjuntos
+                ' 4. Manejo de Adjuntos
                 Try
                     GuardarAdjuntos(doc.IdDocumento)
                 Catch exAdjuntos As Exception
@@ -882,6 +835,7 @@ Public Class frmMesaEntrada
 
                 Toast.Show(Me, sb.ToString(), ToastType.Success)
             End If
+
             Me.ShowIcon = False
             Me.Close()
 

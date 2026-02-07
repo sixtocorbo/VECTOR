@@ -17,7 +17,7 @@ Partial Public Class Cat_TipoDocumento
     Public Property EsInterno As Nullable(Of Boolean)
 
     Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
-    Public Overridable Property Mae_NumeracionRangos As ICollection(Of Mae_NumeracionRangos) = New HashSet(Of Mae_NumeracionRangos)
     Public Overridable Property Mae_CuposSecretaria As ICollection(Of Mae_CuposSecretaria) = New HashSet(Of Mae_CuposSecretaria)
+    Public Overridable Property Mae_NumeracionRangos As ICollection(Of Mae_NumeracionRangos) = New HashSet(Of Mae_NumeracionRangos)
 
 End Class

@@ -34,6 +34,7 @@ Public Class frmMesaEntrada
     Private _todasLasOficinas As List(Of Cat_Oficina)
     Private _oficinaOrigenSeleccionada As Cat_Oficina
     Private _filtroVersionOrigen As Integer = 0
+    Private _validacionNumeroVersion As Integer = 0
     Private _cerrandoFormulario As Boolean = False
     Private _seleccionandoOrigen As Boolean = False
     Private ReadOnly _lstSugerenciasOrigen As New ListBox()
@@ -324,6 +325,60 @@ Public Class frmMesaEntrada
 
     Private Sub cboOrigen_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOrigen.SelectedIndexChanged
         VerificarRangoNumeracion()
+    End Sub
+
+    Private Async Sub txtNumeroRef_TextChanged(sender As Object, e As EventArgs) Handles txtNumeroRef.TextChanged
+        If _generacionAutomatica OrElse Not txtNumeroRef.Focused Then Return
+
+        Dim versionActual = Interlocked.Increment(_validacionNumeroVersion)
+        Await Task.Delay(400)
+
+        If _cerrandoFormulario OrElse versionActual <> _validacionNumeroVersion Then Return
+
+        Dim numeroTexto = txtNumeroRef.Text.Trim()
+        If String.IsNullOrWhiteSpace(numeroTexto) Then Return
+
+        If cboTipo.SelectedValue Is Nothing OrElse Not IsNumeric(cboTipo.SelectedValue) Then Return
+        Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
+
+        Dim idOrigenSeleccionado = ObtenerIdOrigenSeleccionado()
+        If Not idOrigenSeleccionado.HasValue Then Return
+
+        Dim numeroBase As Integer
+        If Not TryObtenerNumeroBase(numeroTexto, numeroBase) Then
+            Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
+            Return
+        End If
+
+        Dim anioManual As Integer = DateTime.Now.Year
+        Dim partes = numeroTexto.Split("/"c)
+        If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
+            Dim dosDigitos = CInt(partes(1))
+            anioManual = 2000 + dosDigitos
+        Else
+            anioManual = dtpFechaRecepcion.Value.Year
+        End If
+
+        Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
+        If misRangos.Count = 0 Then
+            Toast.Show(Me, $"No hay rangos configurados para el año {anioManual}.", ToastType.Warning)
+            Return
+        End If
+
+        Dim estaEnAlgunRango As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
+        If Not estaEnAlgunRango Then
+            Toast.Show(Me, $"El número {numeroBase} no es válido para el año {anioManual} según los rangos configurados.", ToastType.Warning)
+            Return
+        End If
+
+        Dim existeNumero = _unitOfWork.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
+            Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
+                         d.NumeroOficial = numeroTexto AndAlso
+                         (Not _idEdicion.HasValue OrElse d.IdDocumento <> _idEdicion.Value))
+
+        If existeNumero Then
+            Toast.Show(Me, $"El número {numeroTexto} ya está en uso.", ToastType.Warning)
+        End If
     End Sub
 
     Private Async Sub txtBuscarOrigen_TextChanged(sender As Object, e As EventArgs) Handles txtBuscarOrigen.TextChanged

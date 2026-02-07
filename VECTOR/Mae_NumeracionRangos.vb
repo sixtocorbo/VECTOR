@@ -13,14 +13,15 @@ Imports System.Collections.Generic
 Partial Public Class Mae_NumeracionRangos
     Public Property IdRango As Integer
     Public Property IdTipo As Integer
-    Public Property IdOficina As Nullable(Of Integer)
     Public Property NombreRango As String
     Public Property NumeroInicio As Integer
     Public Property NumeroFin As Integer
     Public Property UltimoUtilizado As Integer
     Public Property Activo As Boolean
     Public Property FechaCreacion As Nullable(Of Date)
+    Public Property IdOficina As Nullable(Of Integer)
 
+    Public Overridable Property Cat_Oficina As Cat_Oficina
     Public Overridable Property Cat_TipoDocumento As Cat_TipoDocumento
 
 End Class

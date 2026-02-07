@@ -121,14 +121,6 @@
     <Compile Include="AppTheme.vb" />
     <Compile Include="AttachmentStore.vb" />
     <Compile Include="AuditoriaSistema.vb" />
-    <Compile Include="frmVincular.Designer.vb">
-      <DependentUpon>frmVincular.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmVincular.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="IRepository.vb" />
-    <Compile Include="IUnitOfWork.vb" />
     <Compile Include="Cat_Estado.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -150,6 +142,14 @@
     <Compile Include="EventosSistema.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="frmVincular.Designer.vb">
+      <DependentUpon>frmVincular.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmVincular.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IRepository.vb" />
+    <Compile Include="IUnitOfWork.vb" />
     <Compile Include="frmAuditoria.Designer.vb">
       <DependentUpon>frmAuditoria.vb</DependentUpon>
     </Compile>
@@ -222,7 +222,6 @@
     <Compile Include="frmUsuarios.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Repository.vb" />
     <Compile Include="Mae_Documento.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -247,6 +246,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Repository.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -354,7 +354,6 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="VECTOR_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

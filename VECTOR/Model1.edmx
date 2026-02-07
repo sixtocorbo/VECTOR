@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Cat_Estado">
           <Key>
             <PropertyRef Name="IdEstado" />
@@ -102,13 +102,13 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           </Key>
           <Property Name="IdRango" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="IdTipo" Type="int" Nullable="false" />
-          <Property Name="IdOficina" Type="int" />
           <Property Name="NombreRango" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="NumeroInicio" Type="int" Nullable="false" />
           <Property Name="NumeroFin" Type="int" Nullable="false" />
           <Property Name="UltimoUtilizado" Type="int" Nullable="false" />
           <Property Name="Activo" Type="bit" Nullable="false" />
           <Property Name="FechaCreacion" Type="datetime" />
+          <Property Name="IdOficina" Type="int" />
         </EntityType>
         <EntityType Name="Mae_Reclusos">
           <Key>
@@ -284,6 +284,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Numeracion_Oficina">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="0..1" />
+          <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Mae_NumeracionRangos">
+              <PropertyRef Name="IdOficina" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Numeracion_Tipo">
           <End Role="Cat_TipoDocumento" Type="Self.Cat_TipoDocumento" Multiplicity="1" />
           <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
@@ -394,6 +406,10 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
             <End Role="EventosSistema" EntitySet="EventosSistema" />
           </AssociationSet>
+          <AssociationSet Name="FK_Numeracion_Oficina" Association="Self.FK_Numeracion_Oficina">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
+          </AssociationSet>
           <AssociationSet Name="FK_Numeracion_Tipo" Association="Self.FK_Numeracion_Tipo">
             <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
             <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
@@ -407,7 +423,8 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SecretariaDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -432,6 +449,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Mae_Documento" Relationship="Self.FK__Mae_Docum__IdOfi__35BCFE0A" FromRole="Cat_Oficina" ToRole="Mae_Documento" />
           <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdOfi__3B75D760" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
           <NavigationProperty Name="Tra_Movimiento1" Relationship="Self.FK__Tra_Movim__IdOfi__3C69FB99" FromRole="Cat_Oficina" ToRole="Tra_Movimiento" />
+          <NavigationProperty Name="Mae_NumeracionRangos" Relationship="Self.FK_Numeracion_Oficina" FromRole="Cat_Oficina" ToRole="Mae_NumeracionRangos" />
           <NavigationProperty Name="Cat_Usuario" Relationship="Self.FK_Usuario_Oficina" FromRole="Cat_Oficina" ToRole="Cat_Usuario" />
         </EntityType>
         <EntityType Name="Cat_Oficina_MergeLog">
@@ -509,7 +527,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Mae_Documento1" Relationship="Self.FK__Mae_Docum__IdDoc__32E0915F" FromRole="Mae_Documento" ToRole="Mae_Documento1" />
           <NavigationProperty Name="Mae_Documento2" Relationship="Self.FK__Mae_Docum__IdDoc__32E0915F" FromRole="Mae_Documento1" ToRole="Mae_Documento" />
           <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdDoc__398D8EEE" FromRole="Mae_Documento" ToRole="Tra_Movimiento" />
-          <NavigationProperty Name="Tra_AdjuntoDocumento" Relationship="SecretariaDBModel.FK_Tra_AdjuntoDocumento_Mae_Documento" FromRole="Mae_Documento" ToRole="Tra_AdjuntoDocumento" />
+          <NavigationProperty Name="Tra_AdjuntoDocumento" Relationship="Self.FK_Tra_AdjuntoDocumento_Mae_Documento" FromRole="Mae_Documento" ToRole="Tra_AdjuntoDocumento" />
         </EntityType>
         <EntityType Name="Mae_NumeracionRangos">
           <Key>
@@ -517,13 +535,14 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           </Key>
           <Property Name="IdRango" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="IdTipo" Type="Int32" Nullable="false" />
-          <Property Name="IdOficina" Type="Int32" Nullable="true" />
           <Property Name="NombreRango" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="NumeroInicio" Type="Int32" Nullable="false" />
           <Property Name="NumeroFin" Type="Int32" Nullable="false" />
           <Property Name="UltimoUtilizado" Type="Int32" Nullable="false" />
           <Property Name="Activo" Type="Boolean" Nullable="false" />
           <Property Name="FechaCreacion" Type="DateTime" Precision="3" />
+          <Property Name="IdOficina" Type="Int32" />
+          <NavigationProperty Name="Cat_Oficina" Relationship="Self.FK_Numeracion_Oficina" FromRole="Mae_NumeracionRangos" ToRole="Cat_Oficina" />
           <NavigationProperty Name="Cat_TipoDocumento" Relationship="Self.FK_Numeracion_Tipo" FromRole="Mae_NumeracionRangos" ToRole="Cat_TipoDocumento" />
         </EntityType>
         <EntityType Name="Mae_Reclusos">
@@ -533,6 +552,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="IdRecluso" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NombreCompleto" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Activo" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Tra_AdjuntoDocumento">
+          <Key>
+            <PropertyRef Name="IdAdjunto" />
+          </Key>
+          <Property Name="IdAdjunto" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdDocumento" Type="Int64" Nullable="false" />
+          <Property Name="StoredName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DisplayName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AddedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Content" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <NavigationProperty Name="Mae_Documento" Relationship="Self.FK_Tra_AdjuntoDocumento_Mae_Documento" FromRole="Tra_AdjuntoDocumento" ToRole="Mae_Documento" />
         </EntityType>
         <EntityType Name="Tra_Movimiento">
           <Key>
@@ -632,6 +663,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Numeracion_Oficina">
+          <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="0..1" />
+          <End Role="Mae_NumeracionRangos" Type="Self.Mae_NumeracionRangos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cat_Oficina">
+              <PropertyRef Name="IdOficina" />
+            </Principal>
+            <Dependent Role="Mae_NumeracionRangos">
+              <PropertyRef Name="IdOficina" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Usuario_Oficina">
           <End Role="Cat_Oficina" Type="Self.Cat_Oficina" Multiplicity="0..1" />
           <End Role="Cat_Usuario" Type="Self.Cat_Usuario" Multiplicity="*" />
@@ -728,6 +771,20 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Tra_AdjuntoDocumento_Mae_Documento">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Tra_AdjuntoDocumento" Type="Self.Tra_AdjuntoDocumento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Tra_AdjuntoDocumento">
+              <PropertyRef Name="IdDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="SecretariaDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Cat_Estado" EntityType="Self.Cat_Estado" />
           <EntitySet Name="Cat_Oficina" EntityType="Self.Cat_Oficina" />
@@ -738,6 +795,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySet Name="Mae_Documento" EntityType="Self.Mae_Documento" />
           <EntitySet Name="Mae_NumeracionRangos" EntityType="Self.Mae_NumeracionRangos" />
           <EntitySet Name="Mae_Reclusos" EntityType="Self.Mae_Reclusos" />
+          <EntitySet Name="Tra_AdjuntoDocumento" EntityType="Self.Tra_AdjuntoDocumento" />
           <EntitySet Name="Tra_Movimiento" EntityType="Self.Tra_Movimiento" />
           <EntitySet Name="Usuarios" EntityType="Self.Usuarios" />
           <EntitySet Name="Cat_Oficina_Backup_20260203_093509" EntityType="Self.Cat_Oficina_Backup_20260203_093509" />
@@ -760,6 +818,10 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <AssociationSet Name="FK__Tra_Movim__IdOfi__3C69FB99" Association="Self.FK__Tra_Movim__IdOfi__3C69FB99">
             <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
             <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Numeracion_Oficina" Association="Self.FK_Numeracion_Oficina">
+            <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
+            <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
           </AssociationSet>
           <AssociationSet Name="FK_Usuario_Oficina" Association="Self.FK_Usuario_Oficina">
             <End Role="Cat_Oficina" EntitySet="Cat_Oficina" />
@@ -793,46 +855,19 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
             <End Role="Tra_Movimiento" EntitySet="Tra_Movimiento" />
           </AssociationSet>
+          <AssociationSet Name="FK_Tra_AdjuntoDocumento_Mae_Documento" Association="Self.FK_Tra_AdjuntoDocumento_Mae_Documento">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Tra_AdjuntoDocumento" EntitySet="Tra_AdjuntoDocumento" />
+          </AssociationSet>
           <FunctionImport Name="sp_UnificarOficinas" ReturnType="Collection(SecretariaDBModel.sp_UnificarOficinas_Result)">
             <Parameter Name="NombreDestino" Mode="In" Type="String" />
             <Parameter Name="ListaIdsBorrar" Mode="In" Type="String" />
           </FunctionImport>
-          <EntitySet Name="Tra_AdjuntoDocumento" EntityType="SecretariaDBModel.Tra_AdjuntoDocumento" />
-          <AssociationSet Name="FK_Tra_AdjuntoDocumento_Mae_Documento" Association="SecretariaDBModel.FK_Tra_AdjuntoDocumento_Mae_Documento">
-            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
-            <End Role="Tra_AdjuntoDocumento" EntitySet="Tra_AdjuntoDocumento" />
-          </AssociationSet>
         </EntityContainer>
         <ComplexType Name="sp_UnificarOficinas_Result">
           <Property Type="Int32" Name="Resultado" Nullable="false" />
           <Property Type="String" Name="Mensaje" Nullable="false" MaxLength="14" />
         </ComplexType>
-        <EntityType Name="Tra_AdjuntoDocumento">
-          <Key>
-            <PropertyRef Name="IdAdjunto" />
-          </Key>
-          <Property Name="IdAdjunto" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="IdDocumento" Type="Int64" Nullable="false" />
-          <Property Name="StoredName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="DisplayName" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="AddedAt" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Content" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
-          <NavigationProperty Name="Mae_Documento" Relationship="SecretariaDBModel.FK_Tra_AdjuntoDocumento_Mae_Documento" FromRole="Tra_AdjuntoDocumento" ToRole="Mae_Documento" />
-        </EntityType>
-        <Association Name="FK_Tra_AdjuntoDocumento_Mae_Documento">
-          <End Type="SecretariaDBModel.Mae_Documento" Role="Mae_Documento" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="SecretariaDBModel.Tra_AdjuntoDocumento" Role="Tra_AdjuntoDocumento" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Mae_Documento">
-              <PropertyRef Name="IdDocumento" />
-            </Principal>
-            <Dependent Role="Tra_AdjuntoDocumento">
-              <PropertyRef Name="IdDocumento" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -930,13 +965,13 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               <MappingFragment StoreEntitySet="Mae_NumeracionRangos">
                 <ScalarProperty Name="IdRango" ColumnName="IdRango" />
                 <ScalarProperty Name="IdTipo" ColumnName="IdTipo" />
-                <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
                 <ScalarProperty Name="NombreRango" ColumnName="NombreRango" />
                 <ScalarProperty Name="NumeroInicio" ColumnName="NumeroInicio" />
                 <ScalarProperty Name="NumeroFin" ColumnName="NumeroFin" />
                 <ScalarProperty Name="UltimoUtilizado" ColumnName="UltimoUtilizado" />
                 <ScalarProperty Name="Activo" ColumnName="Activo" />
                 <ScalarProperty Name="FechaCreacion" ColumnName="FechaCreacion" />
+                <ScalarProperty Name="IdOficina" ColumnName="IdOficina" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -946,6 +981,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
                 <ScalarProperty Name="IdRecluso" ColumnName="IdRecluso" />
                 <ScalarProperty Name="NombreCompleto" ColumnName="NombreCompleto" />
                 <ScalarProperty Name="Activo" ColumnName="Activo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tra_AdjuntoDocumento">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Tra_AdjuntoDocumento">
+              <MappingFragment StoreEntitySet="Tra_AdjuntoDocumento">
+                <ScalarProperty Name="IdAdjunto" ColumnName="IdAdjunto" />
+                <ScalarProperty Name="IdDocumento" ColumnName="IdDocumento" />
+                <ScalarProperty Name="StoredName" ColumnName="StoredName" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="AddedAt" ColumnName="AddedAt" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -992,18 +1039,6 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <EntitySetMapping Name="Tra_AdjuntoDocumento">
-            <EntityTypeMapping TypeName="SecretariaDBModel.Tra_AdjuntoDocumento">
-              <MappingFragment StoreEntitySet="Tra_AdjuntoDocumento">
-                <ScalarProperty Name="Content" ColumnName="Content" />
-                <ScalarProperty Name="AddedAt" ColumnName="AddedAt" />
-                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
-                <ScalarProperty Name="StoredName" ColumnName="StoredName" />
-                <ScalarProperty Name="IdDocumento" ColumnName="IdDocumento" />
-                <ScalarProperty Name="IdAdjunto" ColumnName="IdAdjunto" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

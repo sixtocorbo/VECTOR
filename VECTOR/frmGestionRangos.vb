@@ -306,6 +306,7 @@ Public Class frmGestionRangos
                 dgvRangos.Columns("Oficina").Width = 200
                 dgvRangos.Columns("Nombre").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 dgvRangos.Columns("Anio").Width = 50
+                dgvRangos.Columns("Anio").HeaderText = "Año"
                 dgvRangos.Columns("Inicio").Width = 70
                 dgvRangos.Columns("Fin").Width = 70
                 dgvRangos.Columns("Actual").Width = 70

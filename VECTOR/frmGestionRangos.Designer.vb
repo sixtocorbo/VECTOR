@@ -23,10 +23,10 @@ Partial Class frmGestionRangos
         Me.lblUltimo = New System.Windows.Forms.Label()
         Me.txtFin = New System.Windows.Forms.TextBox()
         Me.lblFin = New System.Windows.Forms.Label()
-        Me.txtCantidad = New System.Windows.Forms.TextBox()
-        Me.lblCantidad = New System.Windows.Forms.Label()
         Me.numAnio = New System.Windows.Forms.NumericUpDown()
         Me.lblAnio = New System.Windows.Forms.Label()
+        Me.txtCantidad = New System.Windows.Forms.TextBox()
+        Me.lblCantidad = New System.Windows.Forms.Label()
         Me.txtInicio = New System.Windows.Forms.TextBox()
         Me.lblInicio = New System.Windows.Forms.Label()
         Me.txtNombre = New System.Windows.Forms.TextBox()
@@ -136,24 +136,6 @@ Partial Class frmGestionRangos
         Me.lblFin.TabIndex = 4
         Me.lblFin.Text = "Número Fin:"
         '
-        'txtCantidad
-        '
-        Me.txtCantidad.Location = New System.Drawing.Point(32, 126)
-        Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.txtCantidad.Name = "txtCantidad"
-        Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
-        Me.txtCantidad.TabIndex = 3
-        '
-        'lblCantidad
-        '
-        Me.lblCantidad.AutoSize = True
-        Me.lblCantidad.Location = New System.Drawing.Point(32, 101)
-        Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblCantidad.Name = "lblCantidad"
-        Me.lblCantidad.Size = New System.Drawing.Size(143, 20)
-        Me.lblCantidad.TabIndex = 3
-        Me.lblCantidad.Text = "Cantidad números:"
-        '
         'numAnio
         '
         Me.numAnio.Location = New System.Drawing.Point(209, 126)
@@ -171,9 +153,27 @@ Partial Class frmGestionRangos
         Me.lblAnio.Location = New System.Drawing.Point(205, 101)
         Me.lblAnio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblAnio.Name = "lblAnio"
-        Me.lblAnio.Size = New System.Drawing.Size(41, 20)
+        Me.lblAnio.Size = New System.Drawing.Size(42, 20)
         Me.lblAnio.TabIndex = 8
         Me.lblAnio.Text = "Año:"
+        '
+        'txtCantidad
+        '
+        Me.txtCantidad.Location = New System.Drawing.Point(32, 126)
+        Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.txtCantidad.Name = "txtCantidad"
+        Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
+        Me.txtCantidad.TabIndex = 3
+        '
+        'lblCantidad
+        '
+        Me.lblCantidad.AutoSize = True
+        Me.lblCantidad.Location = New System.Drawing.Point(32, 101)
+        Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCantidad.Name = "lblCantidad"
+        Me.lblCantidad.Size = New System.Drawing.Size(143, 20)
+        Me.lblCantidad.TabIndex = 3
+        Me.lblCantidad.Text = "Cantidad números:"
         '
         'txtInicio
         '
@@ -196,10 +196,10 @@ Partial Class frmGestionRangos
         'txtNombre
         '
         Me.txtNombre.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtNombre.Location = New System.Drawing.Point(240, 58)
+        Me.txtNombre.Location = New System.Drawing.Point(792, 27)
         Me.txtNombre.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNombre.Name = "txtNombre"
-        Me.txtNombre.Size = New System.Drawing.Size(508, 26)
+        Me.txtNombre.Size = New System.Drawing.Size(96, 26)
         Me.txtNombre.TabIndex = 99
         Me.txtNombre.TabStop = False
         Me.txtNombre.Visible = False
@@ -222,7 +222,7 @@ Partial Class frmGestionRangos
         Me.cmbOficina.Location = New System.Drawing.Point(240, 58)
         Me.cmbOficina.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.cmbOficina.Name = "cmbOficina"
-        Me.cmbOficina.Size = New System.Drawing.Size(330, 28)
+        Me.cmbOficina.Size = New System.Drawing.Size(648, 28)
         Me.cmbOficina.TabIndex = 1
         '
         'lblOficina
@@ -263,7 +263,7 @@ Partial Class frmGestionRangos
         Me.lblStockInfo.Location = New System.Drawing.Point(30, 165)
         Me.lblStockInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblStockInfo.Name = "lblStockInfo"
-        Me.lblStockInfo.Size = New System.Drawing.Size(115, 20)
+        Me.lblStockInfo.Size = New System.Drawing.Size(85, 20)
         Me.lblStockInfo.TabIndex = 101
         Me.lblStockInfo.Text = "Cupo: ---"
         '

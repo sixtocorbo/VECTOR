@@ -19,6 +19,7 @@ Public Class frmGestionRangos
     Private _stockTotalNotas As Integer = 2000        ' Cupo: 2.000 Notas
     Private _stockTotalResoluciones As Integer = 1000 ' Cupo: 1.000 Resoluciones
     Private _stockTotalDictamenes As Integer = 500    ' Cupo: 500 Dictámenes
+    Private _stockTotalOficios As Integer = 2000      ' Cupo: 2.000 Oficios
     Private _stockDefault As Integer = 500            ' Cupo base para otros tipos
 
     ' Diccionario para mapear (IdTipo -> CantidadTotal)
@@ -76,6 +77,7 @@ Public Class frmGestionRangos
                     If nombreUpper.Contains("NOTA") Then cantidad = _stockTotalNotas
                     If nombreUpper.Contains("RESOLUCION") Then cantidad = _stockTotalResoluciones
                     If nombreUpper.Contains("DICTAMEN") Then cantidad = _stockTotalDictamenes
+                    If nombreUpper.Contains("OFICIO") Then cantidad = _stockTotalOficios
 
                     _limitesPorTipo.Add(t.IdTipo, cantidad)
                 Next
@@ -83,12 +85,18 @@ Public Class frmGestionRangos
         End If
     End Sub
 
-    Private Async Function ObtenerStockRestanteAsync(idTipo As Integer, anio As Integer) As Task(Of Integer)
-        ' 1. ¿Cuánto nos dio Secretaría General?
+    Private Function ObtenerLimiteTotal(idTipo As Integer) As Integer
         Dim limiteTotal As Integer = _stockDefault
         If _limitesPorTipo IsNot Nothing AndAlso _limitesPorTipo.ContainsKey(idTipo) Then
             limiteTotal = _limitesPorTipo(idTipo)
         End If
+
+        Return limiteTotal
+    End Function
+
+    Private Async Function ObtenerStockRestanteAsync(idTipo As Integer, anio As Integer) As Task(Of Integer)
+        ' 1. ¿Cuánto nos dio Secretaría General?
+        Dim limiteTotal As Integer = ObtenerLimiteTotal(idTipo)
 
         ' 2. ¿Cuánto ya hemos repartido entre todas las oficinas?
         Dim asignadoEnBD As Integer = 0
@@ -127,7 +135,13 @@ Public Class frmGestionRangos
 
         Dim restante = Await ObtenerStockRestanteAsync(idTipo, anio)
 
-        lblStock.Text = $"Cupo Secretaría: {restante} disponibles"
+        Dim limiteTotal As Integer = ObtenerLimiteTotal(idTipo)
+        Dim nombreTipo As String = cmbTipo.Text.Trim().ToUpperInvariant()
+        If String.IsNullOrWhiteSpace(nombreTipo) Then
+            nombreTipo = "DOCUMENTOS"
+        End If
+
+        lblStock.Text = $"Restan {restante} {nombreTipo} de {limiteTotal} otorgados por Secretaría General"
 
         If restante <= 0 Then
             lblStock.ForeColor = Color.Red

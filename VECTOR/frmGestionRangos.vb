@@ -60,13 +60,13 @@ Public Class frmGestionRangos
             Dim repoRangos = uow.Repository(Of Mae_NumeracionRangos)()
             Dim repoOficinas = uow.Repository(Of Cat_Oficina)()
             Dim lista = Await (From r In repoRangos.GetQueryable("Cat_TipoDocumento")
-                               Join o In repoOficinas.GetQueryable()
+                               Group Join o In repoOficinas.GetQueryable()
                                    On r.IdOficina Equals o.IdOficina Into oficinaJoin = Group
                                From o In oficinaJoin.DefaultIfEmpty()
                                Select New With {
                                    .Id = r.IdRango,
                                    .Tipo = r.Cat_TipoDocumento.Codigo & " - " & r.Cat_TipoDocumento.Nombre,
-                                   .Oficina = If(r.IdOficina.HasValue, o.Nombre, "BANDEJA DE ENTRADA"),
+                                   .Oficina = If(r.IdOficina.HasValue AndAlso o IsNot Nothing, o.Nombre, "BANDEJA DE ENTRADA"),
                                    .Nombre = r.NombreRango,
                                    .Inicio = r.NumeroInicio,
                                    .Fin = r.NumeroFin,

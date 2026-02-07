@@ -360,14 +360,20 @@ Public Class frmMesaEntrada
         End If
 
         Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
-        If misRangos.Count = 0 Then
-            Toast.Show(Me, $"No hay rangos configurados para el año {anioManual}.", ToastType.Warning)
+        Dim rangosBandeja As New List(Of Mae_NumeracionRangos)()
+        If idOrigenSeleccionado.Value <> IdBandejaEntrada Then
+            rangosBandeja = ObtenerTodosLosRangosActivos(idTipoSeleccionado, IdBandejaEntrada, anioManual)
+        End If
+
+        If misRangos.Count = 0 AndAlso rangosBandeja.Count = 0 Then
+            Toast.Show(Me, $"No hay rangos configurados para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
             Return
         End If
 
-        Dim estaEnAlgunRango As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
-        If Not estaEnAlgunRango Then
-            Toast.Show(Me, $"El número {numeroBase} no es válido para el año {anioManual} según los rangos configurados.", ToastType.Warning)
+        Dim estaEnRangoOficina As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
+        Dim estaEnRangoBandeja As Boolean = rangosBandeja.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
+        If Not (estaEnRangoOficina OrElse estaEnRangoBandeja) Then
+            Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
             Return
         End If
 
@@ -704,19 +710,23 @@ Public Class frmMesaEntrada
             ' B. Validación contra Rangos de la OFICINA SELECCIONADA (AREAS SGC, etc.)
             '    Nota: idOrigenSeleccionado.Value viene del combo, así que usa la oficina ajena correctamente.
             Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
+            Dim rangosBandeja As New List(Of Mae_NumeracionRangos)()
+            If idOrigenSeleccionado.Value <> IdBandejaEntrada Then
+                rangosBandeja = ObtenerTodosLosRangosActivos(idTipoSeleccionado, IdBandejaEntrada, anioManual)
+            End If
 
-            If misRangos.Count > 0 Then
+            If misRangos.Count > 0 OrElse rangosBandeja.Count > 0 Then
                 Dim numeroBase As Integer
                 If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
                     Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
                     Return
                 End If
 
-                ' Verificamos si el número encaja en ALGUNO de los rangos de esa oficina
-                Dim estaEnAlgunRango As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
+                Dim estaEnRangoOficina As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
+                Dim estaEnRangoBandeja As Boolean = rangosBandeja.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
 
-                If Not estaEnAlgunRango Then
-                    Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada en el año {anioManual}.", ToastType.Warning)
+                If Not (estaEnRangoOficina OrElse estaEnRangoBandeja) Then
+                    Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada ni para Bandeja de Entrada en el año {anioManual}.", ToastType.Warning)
                     Return
                 End If
             End If

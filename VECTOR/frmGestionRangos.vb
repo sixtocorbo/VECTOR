@@ -7,6 +7,7 @@ Public Class frmGestionRangos
     Private _idEdicion As Integer = 0
     Private _oficinas As List(Of OficinaOption)
     Private _ultimoInicioSugerido As Integer? = Nothing
+    Private _ultimoUltimoSugerido As Integer? = Nothing
     Private _sugerenciaEnCurso As Boolean = False
 
     Private Class OficinaOption
@@ -69,6 +70,7 @@ Public Class frmGestionRangos
     End Sub
 
     Private Async Sub cmbOficina_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbOficina.SelectedIndexChanged
+        ActualizarModoEntrada()
         Await SugerirInicioDisponibleAsync()
     End Sub
 
@@ -178,13 +180,19 @@ Public Class frmGestionRangos
                         .IdOficina = x.IdOficina
                     }).ToListAsync()
 
-                Dim rangosFiltrados = If(esGeneral,
-                    rangos.Where(Function(r) Not r.IdOficina.HasValue),
-                    rangos.Where(Function(r) r.IdOficina.HasValue)).ToList()
+                If esGeneral Then
+                    Dim rangosFiltrados = rangos.Where(Function(r) Not r.IdOficina.HasValue).ToList()
+                    Dim sugerido As Integer = CalcularInicioDisponible(rangosFiltrados, cantidad)
+                    AplicarSugerencia(sugerido)
+                Else
+                    Dim rangoBase = rangos.Where(Function(r) Not r.IdOficina.HasValue).
+                        OrderBy(Function(r) r.Inicio).
+                        FirstOrDefault()
 
-                Dim sugerido As Integer = CalcularInicioDisponible(rangosFiltrados, cantidad)
-                _ultimoInicioSugerido = sugerido
-                txtInicio.Text = sugerido.ToString()
+                    Dim rangosOcupados = rangos.Where(Function(r) r.IdOficina.HasValue).ToList()
+                    Dim sugerido = CalcularInicioDisponibleEnRango(rangoBase, rangosOcupados, cantidad)
+                    AplicarSugerencia(sugerido)
+                End If
             End Using
         Catch
             ' No interrumpir al usuario si falla la sugerencia automática.
@@ -225,6 +233,41 @@ Public Class frmGestionRangos
         Return actualFin + 1
     End Function
 
+    Private Function CalcularInicioDisponibleEnRango(rangoBase As RangoSimple, rangosOcupados As List(Of RangoSimple), cantidad As Integer) As Integer?
+        If rangoBase Is Nothing Then Return Nothing
+        If cantidad < 0 Then Return Nothing
+
+        Dim baseInicio As Integer = rangoBase.Inicio
+        Dim baseFin As Integer = rangoBase.Fin
+
+        If baseInicio + cantidad > baseFin Then Return Nothing
+
+        Dim ocupados = rangosOcupados.
+            Where(Function(r) r.Fin >= baseInicio AndAlso r.Inicio <= baseFin).
+            OrderBy(Function(r) r.Inicio).
+            ToList()
+
+        Dim cursor As Integer = baseInicio
+
+        For Each ocupado In ocupados
+            Dim ocupadoInicio As Integer = Math.Max(ocupado.Inicio, baseInicio)
+            Dim ocupadoFin As Integer = Math.Min(ocupado.Fin, baseFin)
+
+            If cursor + cantidad <= ocupadoInicio - 1 Then
+                Return cursor
+            End If
+
+            cursor = Math.Max(cursor, ocupadoFin + 1)
+            If cursor + cantidad > baseFin Then Return Nothing
+        Next
+
+        If cursor + cantidad <= baseFin Then
+            Return cursor
+        End If
+
+        Return Nothing
+    End Function
+
     ' 3. CONTROLA EL ESTADO DE LOS BOTONES (Habilitar/Deshabilitar)
     Private Sub ModoEdicion(habilitar As Boolean)
         pnlEditor.Enabled = habilitar
@@ -246,6 +289,8 @@ Public Class frmGestionRangos
             End If
             chkActivo.Checked = True
             _idEdicion = 0
+        Else
+            ActualizarModoEntrada()
         End If
     End Sub
 
@@ -522,5 +567,44 @@ Public Class frmGestionRangos
         Dim selectedValue = cmbOficina.SelectedValue
         Return selectedValue Is Nothing OrElse selectedValue Is DBNull.Value
     End Function
+
+    Private Sub ActualizarModoEntrada()
+        Dim esGeneral As Boolean = EsOficinaGeneralSeleccionada()
+        Dim soloCantidad As Boolean = Not esGeneral AndAlso _idEdicion = 0
+
+        txtInicio.ReadOnly = soloCantidad
+        txtUltimo.ReadOnly = soloCantidad
+
+        Dim colorEdicion As Color = If(soloCantidad, Color.LightGoldenrodYellow, Color.White)
+        txtInicio.BackColor = colorEdicion
+        txtUltimo.BackColor = colorEdicion
+    End Sub
+
+    Private Sub AplicarSugerencia(sugerido As Integer?)
+        If sugerido.HasValue Then
+            Dim puedeReemplazarUltimo As Boolean = String.IsNullOrWhiteSpace(txtUltimo.Text)
+            If _ultimoUltimoSugerido.HasValue AndAlso txtUltimo.Text.Trim() = _ultimoUltimoSugerido.Value.ToString() Then
+                puedeReemplazarUltimo = True
+            End If
+
+            _ultimoInicioSugerido = sugerido.Value
+            txtInicio.Text = sugerido.Value.ToString()
+
+            Dim ult As Integer = Math.Max(0, sugerido.Value - 1)
+            _ultimoUltimoSugerido = ult
+
+            If txtUltimo.ReadOnly OrElse puedeReemplazarUltimo Then
+                txtUltimo.Text = ult.ToString()
+            End If
+        Else
+            _ultimoInicioSugerido = Nothing
+            _ultimoUltimoSugerido = Nothing
+            txtInicio.Clear()
+            txtFin.Clear()
+            If txtUltimo.ReadOnly Then
+                txtUltimo.Text = "0"
+            End If
+        End If
+    End Sub
 
 End Class

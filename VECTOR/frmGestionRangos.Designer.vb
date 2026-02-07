@@ -35,6 +35,7 @@ Partial Class frmGestionRangos
         Me.lblOficina = New System.Windows.Forms.Label()
         Me.cmbTipo = New System.Windows.Forms.ComboBox()
         Me.lblTipo = New System.Windows.Forms.Label()
+        Me.lblStockInfo = New System.Windows.Forms.Label()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.dgvRangos = New System.Windows.Forms.DataGridView()
@@ -66,6 +67,7 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Controls.Add(Me.lblOficina)
         Me.pnlEditor.Controls.Add(Me.cmbTipo)
         Me.pnlEditor.Controls.Add(Me.lblTipo)
+        Me.pnlEditor.Controls.Add(Me.lblStockInfo)
         Me.pnlEditor.Enabled = False
         Me.pnlEditor.Location = New System.Drawing.Point(18, 18)
         Me.pnlEditor.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -251,6 +253,18 @@ Partial Class frmGestionRangos
         Me.lblTipo.TabIndex = 0
         Me.lblTipo.Text = "Tipo:"
         '
+        'lblStockInfo
+        '
+        Me.lblStockInfo.AutoSize = True
+        Me.lblStockInfo.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblStockInfo.ForeColor = System.Drawing.Color.DimGray
+        Me.lblStockInfo.Location = New System.Drawing.Point(30, 165)
+        Me.lblStockInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStockInfo.Name = "lblStockInfo"
+        Me.lblStockInfo.Size = New System.Drawing.Size(115, 20)
+        Me.lblStockInfo.TabIndex = 101
+        Me.lblStockInfo.Text = "Cupo: ---"
+        '
         'btnCancelar
         '
         Me.btnCancelar.Location = New System.Drawing.Point(746, 269)
@@ -374,4 +388,5 @@ Partial Class frmGestionRangos
     Friend WithEvents btnNuevo As System.Windows.Forms.Button
     Friend WithEvents btnEditar As System.Windows.Forms.Button
     Friend WithEvents btnEliminar As System.Windows.Forms.Button
+    Friend WithEvents lblStockInfo As System.Windows.Forms.Label
 End Class

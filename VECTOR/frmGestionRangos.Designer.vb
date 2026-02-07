@@ -25,6 +25,8 @@ Partial Class frmGestionRangos
         Me.lblUltimo = New System.Windows.Forms.Label()
         Me.txtFin = New System.Windows.Forms.TextBox()
         Me.lblFin = New System.Windows.Forms.Label()
+        Me.txtCantidad = New System.Windows.Forms.TextBox()
+        Me.lblCantidad = New System.Windows.Forms.Label()
         Me.txtInicio = New System.Windows.Forms.TextBox()
         Me.lblInicio = New System.Windows.Forms.Label()
         Me.txtNombre = New System.Windows.Forms.TextBox()
@@ -51,6 +53,8 @@ Partial Class frmGestionRangos
         Me.pnlEditor.Controls.Add(Me.lblUltimo)
         Me.pnlEditor.Controls.Add(Me.txtFin)
         Me.pnlEditor.Controls.Add(Me.lblFin)
+        Me.pnlEditor.Controls.Add(Me.txtCantidad)
+        Me.pnlEditor.Controls.Add(Me.lblCantidad)
         Me.pnlEditor.Controls.Add(Me.txtInicio)
         Me.pnlEditor.Controls.Add(Me.lblInicio)
         Me.pnlEditor.Controls.Add(Me.txtNombre)
@@ -131,6 +135,7 @@ Partial Class frmGestionRangos
         Me.txtFin.Location = New System.Drawing.Point(420, 166)
         Me.txtFin.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtFin.Name = "txtFin"
+        Me.txtFin.ReadOnly = True
         Me.txtFin.Size = New System.Drawing.Size(148, 26)
         Me.txtFin.TabIndex = 7
         '
@@ -143,6 +148,24 @@ Partial Class frmGestionRangos
         Me.lblFin.Size = New System.Drawing.Size(95, 20)
         Me.lblFin.TabIndex = 6
         Me.lblFin.Text = "Número Fin:"
+        '
+        'txtCantidad
+        '
+        Me.txtCantidad.Location = New System.Drawing.Point(600, 106)
+        Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.txtCantidad.Name = "txtCantidad"
+        Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
+        Me.txtCantidad.TabIndex = 13
+        '
+        'lblCantidad
+        '
+        Me.lblCantidad.AutoSize = True
+        Me.lblCantidad.Location = New System.Drawing.Point(596, 82)
+        Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCantidad.Name = "lblCantidad"
+        Me.lblCantidad.Size = New System.Drawing.Size(145, 20)
+        Me.lblCantidad.TabIndex = 12
+        Me.lblCantidad.Text = "Cantidad números:"
         '
         'txtInicio
         '
@@ -305,6 +328,8 @@ Partial Class frmGestionRangos
     Friend WithEvents lblUltimo As System.Windows.Forms.Label
     Friend WithEvents txtFin As System.Windows.Forms.TextBox
     Friend WithEvents lblFin As System.Windows.Forms.Label
+    Friend WithEvents txtCantidad As System.Windows.Forms.TextBox
+    Friend WithEvents lblCantidad As System.Windows.Forms.Label
     Friend WithEvents txtInicio As System.Windows.Forms.TextBox
     Friend WithEvents lblInicio As System.Windows.Forms.Label
     Friend WithEvents chkActivo As System.Windows.Forms.CheckBox

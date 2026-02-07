@@ -119,7 +119,7 @@ Public Class frmGestionRangos
         cmbTipo.Focus()
         chkActivo.Checked = True
         txtUltimo.Text = "0"
-        txtUltimo.Enabled = False ' En uno nuevo, el último siempre es 0 (o inicio - 1)
+        txtUltimo.Enabled = True ' Permitimos ajustar manualmente el último utilizado al crear.
     End Sub
 
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
@@ -157,10 +157,6 @@ Public Class frmGestionRangos
             Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
             Return
         End If
-        If String.IsNullOrWhiteSpace(txtNombre.Text) Then
-            Toast.Show(Me, "Falta el nombre del rango (Ej: 'Resoluciones 2026').", ToastType.Warning)
-            Return
-        End If
 
         Dim ini, fin, ult As Integer
         Integer.TryParse(txtInicio.Text, ini)
@@ -174,6 +170,10 @@ Public Class frmGestionRangos
         If ult < (ini - 1) Or ult > fin Then
             Toast.Show(Me, "El 'Último Utilizado' es incoherente con el rango Inicio-Fin.", ToastType.Warning)
             Return
+        End If
+
+        If String.IsNullOrWhiteSpace(txtNombre.Text) Then
+            txtNombre.Text = GenerarNombreRango(ini, fin)
         End If
 
         ' B. GUARDADO EN BASE DE DATOS
@@ -247,5 +247,24 @@ Public Class frmGestionRangos
             Toast.Show(Me, "Ocurrió un error inesperado: " & ex.Message, ToastType.Error)
         End Try
     End Sub
+
+    Private Function GenerarNombreRango(ini As Integer, fin As Integer) As String
+        Dim tipo As String = cmbTipo.Text?.Trim()
+        Dim oficina As String = ObtenerNombreOficinaSeleccionada()
+        Dim anio As String = DateTime.Now.Year.ToString()
+        Dim rango As String = $"{ini}-{fin}"
+
+        Return $"{tipo} {anio} - {oficina} ({rango})".Trim()
+    End Function
+
+    Private Function ObtenerNombreOficinaSeleccionada() As String
+        If cmbOficina.SelectedValue Is Nothing Then
+            Return "BANDEJA DE ENTRADA"
+        End If
+
+        Dim idOficina = CType(cmbOficina.SelectedValue, Integer?)
+        Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina = idOficina)
+        Return If(oficina?.Nombre, "BANDEJA DE ENTRADA")
+    End Function
 
 End Class

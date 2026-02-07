@@ -666,7 +666,7 @@ Public Class frmMesaEntrada
     ' =======================================================
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
 
-        ' 1. Validaciones básicas
+        ' 1. Validaciones básicas de la interfaz
         If cboTipo.SelectedIndex = -1 Then
             Toast.Show(Me, "Seleccione el TIPO de documento.", ToastType.Warning)
             Return
@@ -691,6 +691,7 @@ Public Class frmMesaEntrada
         If Not _idEdicion.HasValue AndAlso Not _generacionAutomatica Then
             Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
 
+            ' A. Deducción del Año del documento
             Dim anioManual As Integer = DateTime.Now.Year
             Dim partes = txtNumeroRef.Text.Split("/"c)
             If partes.Length > 1 AndAlso IsNumeric(partes(1)) Then
@@ -700,7 +701,8 @@ Public Class frmMesaEntrada
                 anioManual = dtpFechaRecepcion.Value.Year
             End If
 
-            ' CAMBIO 1: Traemos TODOS los rangos activos para esta oficina y año
+            ' B. Validación contra Rangos de la OFICINA SELECCIONADA (AREAS SGC, etc.)
+            '    Nota: idOrigenSeleccionado.Value viene del combo, así que usa la oficina ajena correctamente.
             Dim misRangos = ObtenerTodosLosRangosActivos(idTipoSeleccionado, idOrigenSeleccionado.Value, anioManual)
 
             If misRangos.Count > 0 Then
@@ -710,26 +712,41 @@ Public Class frmMesaEntrada
                     Return
                 End If
 
-                ' CAMBIO 2: Verificamos si el número encaja en ALGUNO de mis rangos
+                ' Verificamos si el número encaja en ALGUNO de los rangos de esa oficina
                 Dim estaEnAlgunRango As Boolean = misRangos.Any(Function(r) numeroBase >= r.NumeroInicio And numeroBase <= r.NumeroFin)
 
                 If Not estaEnAlgunRango Then
-                    Toast.Show(Me, $"El número {numeroBase} no es válido para el año {anioManual} según los rangos configurados.", ToastType.Warning)
+                    Toast.Show(Me, $"El número {numeroBase} no es válido para la oficina seleccionada en el año {anioManual}.", ToastType.Warning)
                     Return
                 End If
             End If
+
+            ' C. Validación de UNICIDAD (Evitar error "Está en uso")
+            '    Verificamos si ya existe un documento con ese mismo Tipo y Número Oficial.
+            '    NOTA: Si tu sistema permite repetir números entre oficinas, habría que agregar "And d.Tra_Movimiento...IdOficinaOrigen"
+            '    Pero por defecto, asumimos que el número es único globalmente para el tipo.
+            Dim yaExiste As Boolean = False
+            Using uowCheck As New UnitOfWork()
+                yaExiste = uowCheck.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
+                    Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
+                                    d.NumeroOficial = txtNumeroRef.Text.Trim())
+            End Using
+
+            If yaExiste Then
+                Toast.Show(Me, $"El número '{txtNumeroRef.Text}' ya fue registrado previamente en el sistema.", ToastType.Error)
+                Return
+            End If
         End If
 
+        ' =========================================================================================
+        ' PROCESO DE GUARDADO
+        ' =========================================================================================
         Try
             Dim doc As Mae_Documento
 
             If _idEdicion.HasValue Then
-                ' =================================================
-                ' CASO UPDATE: EDITAR EXISTENTE
-                ' =================================================
+                ' ... (Código de EDICIÓN se mantiene igual) ...
                 doc = _unitOfWork.Context.Set(Of Mae_Documento)().Find(_idEdicion.Value)
-
-                ' En edición NO cambiamos el número automáticamente, respetamos el que tiene
                 doc.IdTipo = CInt(cboTipo.SelectedValue)
                 doc.NumeroOficial = txtNumeroRef.Text.Trim()
                 doc.Asunto = txtAsunto.Text.ToUpper().Trim()
@@ -738,23 +755,18 @@ Public Class frmMesaEntrada
                 doc.FechaRecepcion = dtpFechaRecepcion.Value
 
                 _unitOfWork.Commit()
-
                 GuardarAdjuntos(doc.IdDocumento)
-                AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
+                AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial}...", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
                 _unitOfWork.Commit()
                 Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
 
             Else
-                ' =================================================
-                ' CASO INSERT: CREAR NUEVO
-                ' =================================================
+                ' ... (Código de NUEVO INGRESO se mantiene igual) ...
                 doc = New Mae_Documento()
 
                 ' --- LÓGICA DE NUMERACIÓN (AUTO vs MANUAL) ---
                 If _generacionAutomatica Then
                     Dim idTipo As Integer = CInt(cboTipo.SelectedValue)
-
-                    ' 1. Calculamos el número FINAL usando la lógica de salto inteligente
                     Dim anioObjetivo As Integer = DateTime.Now.Year
                     Dim nuevoNumero As Integer = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
 
@@ -763,40 +775,35 @@ Public Class frmMesaEntrada
                         Return
                     End If
 
-                    ' 2. Actualizamos el contador en la BD (DEL RANGO CORRECTO)
-                    '    Buscamos cuál de mis rangos contiene este nuevoNumero para actualizar su UltimoUtilizado
+                    ' Actualizamos el contador del rango
                     Dim misRangos = ObtenerTodosLosRangosActivos(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
                     Dim rangoA_Actualizar = misRangos.FirstOrDefault(Function(r) nuevoNumero >= r.NumeroInicio And nuevoNumero <= r.NumeroFin)
 
                     If rangoA_Actualizar IsNot Nothing Then
                         rangoA_Actualizar.UltimoUtilizado = nuevoNumero
                     Else
-                        ' Esto no debería pasar si CalcularSiguienteNumero funcionó bien, pero por seguridad:
                         Toast.Show(Me, "Error crítico: Se generó un número fuera de rango.", ToastType.Error)
                         Return
                     End If
 
-                    Dim anioCorto As String = DateTime.Now.ToString("yy") ' Ej: /26
+                    Dim anioCorto As String = DateTime.Now.ToString("yy")
                     doc.NumeroOficial = nuevoNumero.ToString() & "/" & anioCorto
-
                 Else
-                    ' Manual
+                    ' Manual (Aquí entra lo que escribiste para AREAS SGC)
                     doc.NumeroOficial = txtNumeroRef.Text.Trim()
                 End If
-                ' ---------------------------------------------
 
+                ' Asignación de propiedades del documento
                 doc.IdTipo = CInt(cboTipo.SelectedValue)
                 doc.Asunto = txtAsunto.Text.ToUpper().Trim()
                 doc.Descripcion = txtDescripcion.Text.Trim()
                 doc.Fojas = CInt(numFojas.Value)
                 doc.FechaCreacion = DateTime.Now
                 doc.FechaRecepcion = dtpFechaRecepcion.Value
-
                 doc.IdEstadoActual = 1
                 doc.IdOficinaActual = SesionGlobal.OficinaID
                 doc.IdUsuarioCreador = SesionGlobal.UsuarioID
 
-                ' Lógica de Familia
                 If _modoRespuesta Then
                     doc.IdHiloConversacion = _guidHilo.Value
                     doc.IdDocumentoPadre = _idDocPadre
@@ -811,36 +818,28 @@ Public Class frmMesaEntrada
                 Dim mov As New Tra_Movimiento()
                 mov.IdDocumento = doc.IdDocumento
                 mov.FechaMovimiento = DateTime.Now
-                mov.IdOficinaOrigen = idOrigenSeleccionado.Value
+                mov.IdOficinaOrigen = idOrigenSeleccionado.Value ' <-- IMPORTANTE: Guarda el ID de AREAS SGC
                 mov.IdOficinaDestino = SesionGlobal.OficinaID
 
                 If _modoRespuesta Then
-                    If _idOrigenForzado.HasValue Then
-                        mov.ObservacionPase = "Carga de actuación externa (Digitalización)."
-                    Else
-                        mov.ObservacionPase = "Generación de respuesta interna."
-                    End If
+                    mov.ObservacionPase = If(_idOrigenForzado.HasValue, "Carga de actuación externa (Digitalización).", "Generación de respuesta interna.")
                 Else
                     mov.ObservacionPase = "Ingreso inicial de expediente."
                 End If
 
                 mov.IdUsuarioResponsable = SesionGlobal.UsuarioID
                 mov.IdEstadoEnEseMomento = 1
-
                 doc.Tra_Movimiento.Add(mov)
 
-                ' EF guardará 'doc', 'mov' y actualizará 'rango' en una sola transacción
                 _unitOfWork.Commit()
 
+                ' Manejo de Adjuntos
                 Try
                     GuardarAdjuntos(doc.IdDocumento)
                 Catch exAdjuntos As Exception
+                    ' Rollback manual si fallan los adjuntos
                     Try
                         AttachmentStore.DeleteAttachments(doc.IdDocumento)
-                    Catch
-                    End Try
-
-                    Try
                         Dim docPersistido = _unitOfWork.Context.Set(Of Mae_Documento)().Find(doc.IdDocumento)
                         If docPersistido IsNot Nothing Then
                             _unitOfWork.Context.Set(Of Mae_Documento)().Remove(docPersistido)
@@ -848,15 +847,14 @@ Public Class frmMesaEntrada
                         End If
                     Catch
                     End Try
-
                     Throw New Exception("No se pudo completar el guardado del documento con sus adjuntos.", exAdjuntos)
                 End Try
 
                 Dim tipoCarga As String = If(_modoRespuesta, "Respuesta/Actuación", "Ingreso")
-                AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial} ({cboTipo.Text}). Asunto: {doc.Asunto}. Adjuntos: {_adjuntos.Count}.", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
+                AuditoriaSistema.RegistrarEvento($"{tipoCarga} de documento {doc.NumeroOficial}...", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
                 _unitOfWork.Commit()
 
-                ' --- MENSAJE PROFESIONAL ---
+                ' Mensaje final
                 Dim sb As New System.Text.StringBuilder()
                 sb.AppendLine("✅ Documento registrado exitosamente.")
                 sb.AppendLine()

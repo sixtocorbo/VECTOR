@@ -140,6 +140,7 @@ Public Class frmGestionRangos
                                    .Tipo = r.Cat_TipoDocumento.Codigo & " - " & r.Cat_TipoDocumento.Nombre,
                                    .Oficina = If(r.IdOficina.HasValue AndAlso o IsNot Nothing, o.Nombre, "BANDEJA DE ENTRADA"),
                                    .Nombre = r.NombreRango,
+                                   .Anio = r.Anio,
                                    .Inicio = r.NumeroInicio,
                                    .Fin = r.NumeroFin,
                                    .Actual = r.UltimoUtilizado,
@@ -154,6 +155,8 @@ Public Class frmGestionRangos
                 dgvRangos.Columns("Tipo").Width = 150
                 dgvRangos.Columns("Oficina").Width = 180
                 dgvRangos.Columns("Nombre").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                dgvRangos.Columns("Anio").HeaderText = "Año"
+                dgvRangos.Columns("Anio").Width = 60
                 dgvRangos.Columns("Inicio").Width = 80
                 dgvRangos.Columns("Fin").Width = 80
                 dgvRangos.Columns("Actual").Width = 80

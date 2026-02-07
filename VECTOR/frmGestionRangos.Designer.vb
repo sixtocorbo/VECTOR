@@ -100,7 +100,7 @@ Partial Class frmGestionRangos
         'lblUltimo
         '
         Me.lblUltimo.AutoSize = True
-        Me.lblUltimo.Location = New System.Drawing.Point(500, 102)
+        Me.lblUltimo.Location = New System.Drawing.Point(504, 101)
         Me.lblUltimo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblUltimo.Name = "lblUltimo"
         Me.lblUltimo.Size = New System.Drawing.Size(109, 20)
@@ -120,7 +120,7 @@ Partial Class frmGestionRangos
         'lblFin
         '
         Me.lblFin.AutoSize = True
-        Me.lblFin.Location = New System.Drawing.Point(344, 102)
+        Me.lblFin.Location = New System.Drawing.Point(348, 101)
         Me.lblFin.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblFin.Name = "lblFin"
         Me.lblFin.Size = New System.Drawing.Size(95, 20)
@@ -129,7 +129,7 @@ Partial Class frmGestionRangos
         '
         'txtCantidad
         '
-        Me.txtCantidad.Location = New System.Drawing.Point(192, 126)
+        Me.txtCantidad.Location = New System.Drawing.Point(32, 126)
         Me.txtCantidad.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtCantidad.Name = "txtCantidad"
         Me.txtCantidad.Size = New System.Drawing.Size(148, 26)
@@ -138,7 +138,7 @@ Partial Class frmGestionRangos
         'lblCantidad
         '
         Me.lblCantidad.AutoSize = True
-        Me.lblCantidad.Location = New System.Drawing.Point(188, 102)
+        Me.lblCantidad.Location = New System.Drawing.Point(32, 101)
         Me.lblCantidad.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblCantidad.Name = "lblCantidad"
         Me.lblCantidad.Size = New System.Drawing.Size(143, 20)
@@ -147,7 +147,7 @@ Partial Class frmGestionRangos
         '
         'txtInicio
         '
-        Me.txtInicio.Location = New System.Drawing.Point(32, 126)
+        Me.txtInicio.Location = New System.Drawing.Point(188, 126)
         Me.txtInicio.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtInicio.Name = "txtInicio"
         Me.txtInicio.Size = New System.Drawing.Size(148, 26)
@@ -156,7 +156,7 @@ Partial Class frmGestionRangos
         'lblInicio
         '
         Me.lblInicio.AutoSize = True
-        Me.lblInicio.Location = New System.Drawing.Point(28, 102)
+        Me.lblInicio.Location = New System.Drawing.Point(188, 101)
         Me.lblInicio.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblInicio.Name = "lblInicio"
         Me.lblInicio.Size = New System.Drawing.Size(110, 20)

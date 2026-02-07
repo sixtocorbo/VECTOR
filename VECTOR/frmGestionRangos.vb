@@ -150,6 +150,9 @@ Public Class frmGestionRangos
         End Using
     End Function
 
+    ' =========================================================================
+    '  LÓGICA CENTRAL DE SUGERENCIA (MODIFICADA PARA COMPORTAMIENTO HÍBRIDO)
+    ' =========================================================================
     Private Async Function SugerirInicioDisponibleAsync() As Task
         If _idEdicion <> 0 Then Return
         If _sugerenciaEnCurso Then Return
@@ -159,10 +162,24 @@ Public Class frmGestionRangos
         If Not Integer.TryParse(txtCantidad.Text, cantidad) Then Return
         If cantidad < 0 Then Return
 
-        Dim puedeReemplazar As Boolean = String.IsNullOrWhiteSpace(txtInicio.Text)
-        If _ultimoInicioSugerido.HasValue AndAlso txtInicio.Text.Trim() = _ultimoInicioSugerido.Value.ToString() Then
+        ' --- REGLAS DE DECISIÓN: ¿DEBO SOBRESCRIBIR EL CAMPO INICIO? ---
+        Dim puedeReemplazar As Boolean = False
+
+        ' 1. Si está vacío, siempre sugerimos (ayuda inicial)
+        If String.IsNullOrWhiteSpace(txtInicio.Text) Then
+            puedeReemplazar = True
+
+            ' 2. Si el campo es ReadOnly (Oficina Específica), el sistema tiene el control total
+        ElseIf txtInicio.ReadOnly Then
+            puedeReemplazar = True
+
+            ' 3. Si es Editable (Bandeja General), solo sugerimos si el valor actual
+            '    coincide con la última sugerencia del sistema (el usuario no lo tocó).
+        ElseIf _ultimoInicioSugerido.HasValue AndAlso txtInicio.Text.Trim() = _ultimoInicioSugerido.Value.ToString() Then
             puedeReemplazar = True
         End If
+        ' ----------------------------------------------------------------
+
         If Not puedeReemplazar Then Return
 
         _sugerenciaEnCurso = True
@@ -289,7 +306,7 @@ Public Class frmGestionRangos
             ' Limpiar campos al salir del modo edición
             txtNombre.Clear()
             txtInicio.Text = "1"
-            txtCantidad.Text = "1000"
+            txtCantidad.Text = "50"
             ActualizarFinDesdeCantidad()
             txtUltimo.Text = "0"
             cmbTipo.SelectedIndex = -1
@@ -308,13 +325,11 @@ Public Class frmGestionRangos
     Private Sub btnNuevo_Click(sender As Object, e As EventArgs) Handles btnNuevo.Click
         ModoEdicion(True)
 
-        ' --- CORRECCIÓN CLAVE ---
         ' Limpiamos estos campos para que el sistema sepa que puede 
         ' sobrescribirlos con la sugerencia automática.
-        txtInicio.Text = ""   ' <--- Esto es lo que faltaba
+        txtInicio.Text = ""
         txtFin.Text = ""
         _ultimoInicioSugerido = Nothing
-        ' ------------------------
 
         cmbTipo.Focus()
         chkActivo.Checked = True
@@ -576,14 +591,20 @@ Public Class frmGestionRangos
         Return selectedValue Is Nothing OrElse selectedValue Is DBNull.Value
     End Function
 
+    ' =========================================================================
+    ' ACTUALIZACIÓN DE UI: Bloquea campos si es Oficina Específica
+    ' =========================================================================
     Private Sub ActualizarModoEntrada()
         Dim esGeneral As Boolean = EsOficinaGeneralSeleccionada()
-        Dim soloCantidad As Boolean = Not esGeneral AndAlso _idEdicion = 0
 
-        txtInicio.ReadOnly = soloCantidad
-        txtUltimo.ReadOnly = soloCantidad
+        ' REGLA DE EXCEPCIÓN:
+        ' Si es General -> Usuario puede editar (ReadOnly = False)
+        ' Si es Oficina Específica -> Usuario NO puede editar (ReadOnly = True)
+        txtInicio.ReadOnly = Not esGeneral
+        txtUltimo.ReadOnly = Not esGeneral
 
-        Dim colorEdicion As Color = If(soloCantidad, Color.LightGoldenrodYellow, Color.White)
+        ' Feedback visual
+        Dim colorEdicion As Color = If(esGeneral, Color.White, Color.LightGoldenrodYellow)
         txtInicio.BackColor = colorEdicion
         txtUltimo.BackColor = colorEdicion
     End Sub

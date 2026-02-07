@@ -263,14 +263,12 @@ Public Class frmGestionRangos
             Return "BANDEJA DE ENTRADA"
         End If
 
-        Dim idOficina As Integer? = TryCast(selectedValue, Integer?)
-        If Not idOficina.HasValue Then
-            Dim parsedId As Integer
-            If Integer.TryParse(selectedValue.ToString(), parsedId) Then
-                idOficina = parsedId
-            Else
-                Return "BANDEJA DE ENTRADA"
-            End If
+        Dim idOficina As Integer? = Nothing
+        Dim parsedId As Integer
+        If Integer.TryParse(selectedValue.ToString(), parsedId) Then
+            idOficina = parsedId
+        Else
+            Return "BANDEJA DE ENTRADA"
         End If
 
         Dim oficina = _oficinas?.FirstOrDefault(Function(o) o.IdOficina.HasValue AndAlso o.IdOficina.Value = idOficina.Value)

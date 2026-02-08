@@ -9,6 +9,7 @@ Public Class frmBuscadorReclusos
 
     Private Async Sub frmBuscadorReclusos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        UIUtils.SetPlaceholder(txtBuscar, "Escriba para buscar por apellido, nombre o documento...")
         Await CargarGrillaAsync()
         txtBuscar.Focus()
     End Sub

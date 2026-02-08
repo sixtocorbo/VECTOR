@@ -22,6 +22,7 @@ Public Class frmBandeja
     Private Async Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             AppTheme.Aplicar(Me)
+            UIUtils.SetPlaceholder(txtBuscar, "Escriba para filtrar documentos...")
             ' --- TRUCO PRO: DOBLE BUFFER ---
             Dim typeDGV As Type = dgvPendientes.GetType()
             Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)

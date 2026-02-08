@@ -10,6 +10,8 @@ Public Class frmAuditoria
     Private Async Sub frmAuditoria_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         InicializarFechas()
         CargarCombos()
+        UIUtils.SetPlaceholder(txtAuditoriaBuscar, "Escriba para buscar eventos...")
+        UIUtils.SetPlaceholder(txtTransaccionesBuscar, "Escriba para buscar transacciones...")
 
         ' Cargar datos iniciales
         Await CargarAuditoriaAsync()

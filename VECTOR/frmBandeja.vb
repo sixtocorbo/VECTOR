@@ -175,10 +175,15 @@ Public Class frmBandeja
         End If
         ActualizarBotonesPorSeleccion()
 
-        Dim totalExpedientes As Integer = resultado.Select(Function(item As Object)
-                                                              If(item.EsHijo, item.IdDocumentoPadre, item.ID)
-                                                          End Function).Distinct().Count()
+        Dim totalExpedientes As Integer =
+    resultado.Select(Function(item)
+                         Return If(CBool(item.EsHijo), item.IdDocumentoPadre, item.ID)
+                     End Function).
+              Distinct().
+              Count()
+
         lblContador.Text = "Expedientes: " & totalExpedientes
+
         dgvPendientes.Refresh()
     End Sub
 

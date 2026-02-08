@@ -25,6 +25,8 @@ Partial Class frmDetalleDocumento
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.pnlCabecera = New System.Windows.Forms.Panel()
         Me.gbDetalles = New System.Windows.Forms.GroupBox()
+        Me.lblUltimaActuacion = New System.Windows.Forms.Label()
+        Me.lblRelacion = New System.Windows.Forms.Label()
         Me.lblFecha = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.lblUbicacion = New System.Windows.Forms.Label()
@@ -52,11 +54,13 @@ Partial Class frmDetalleDocumento
         Me.pnlCabecera.Location = New System.Drawing.Point(0, 0)
         Me.pnlCabecera.Name = "pnlCabecera"
         Me.pnlCabecera.Padding = New System.Windows.Forms.Padding(10)
-        Me.pnlCabecera.Size = New System.Drawing.Size(784, 185)
+        Me.pnlCabecera.Size = New System.Drawing.Size(784, 225)
         Me.pnlCabecera.TabIndex = 0
         '
         'gbDetalles
         '
+        Me.gbDetalles.Controls.Add(Me.lblUltimaActuacion)
+        Me.gbDetalles.Controls.Add(Me.lblRelacion)
         Me.gbDetalles.Controls.Add(Me.lblFecha)
         Me.gbDetalles.Controls.Add(Me.Label5)
         Me.gbDetalles.Controls.Add(Me.lblUbicacion)
@@ -70,10 +74,36 @@ Partial Class frmDetalleDocumento
         Me.gbDetalles.Font = New System.Drawing.Font("Segoe UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.gbDetalles.Location = New System.Drawing.Point(10, 10)
         Me.gbDetalles.Name = "gbDetalles"
-        Me.gbDetalles.Size = New System.Drawing.Size(764, 165)
+        Me.gbDetalles.Size = New System.Drawing.Size(764, 205)
         Me.gbDetalles.TabIndex = 0
         Me.gbDetalles.TabStop = False
         Me.gbDetalles.Text = "Información del Expediente"
+        '
+        'lblUltimaActuacion
+        '
+        Me.lblUltimaActuacion.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblUltimaActuacion.AutoEllipsis = True
+        Me.lblUltimaActuacion.Font = New System.Drawing.Font("Segoe UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblUltimaActuacion.ForeColor = System.Drawing.Color.DimGray
+        Me.lblUltimaActuacion.Location = New System.Drawing.Point(18, 173)
+        Me.lblUltimaActuacion.Name = "lblUltimaActuacion"
+        Me.lblUltimaActuacion.Size = New System.Drawing.Size(727, 17)
+        Me.lblUltimaActuacion.TabIndex = 10
+        Me.lblUltimaActuacion.Text = "Última actuación: ---"
+        '
+        'lblRelacion
+        '
+        Me.lblRelacion.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblRelacion.AutoEllipsis = True
+        Me.lblRelacion.Font = New System.Drawing.Font("Segoe UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblRelacion.ForeColor = System.Drawing.Color.DimGray
+        Me.lblRelacion.Location = New System.Drawing.Point(18, 150)
+        Me.lblRelacion.Name = "lblRelacion"
+        Me.lblRelacion.Size = New System.Drawing.Size(727, 17)
+        Me.lblRelacion.TabIndex = 9
+        Me.lblRelacion.Text = "Documento independiente."
         '
         'lblFecha
         '
@@ -179,10 +209,10 @@ Partial Class frmDetalleDocumento
         '
         Me.pnlCuerpo.Controls.Add(Me.dgvMovimientos)
         Me.pnlCuerpo.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlCuerpo.Location = New System.Drawing.Point(0, 185)
+        Me.pnlCuerpo.Location = New System.Drawing.Point(0, 225)
         Me.pnlCuerpo.Name = "pnlCuerpo"
         Me.pnlCuerpo.Padding = New System.Windows.Forms.Padding(10)
-        Me.pnlCuerpo.Size = New System.Drawing.Size(784, 316)
+        Me.pnlCuerpo.Size = New System.Drawing.Size(784, 276)
         Me.pnlCuerpo.TabIndex = 1
         '
         'dgvMovimientos
@@ -269,6 +299,8 @@ Partial Class frmDetalleDocumento
     Friend WithEvents Label4 As Label
     Friend WithEvents lblFecha As Label
     Friend WithEvents Label5 As Label
+    Friend WithEvents lblRelacion As Label
+    Friend WithEvents lblUltimaActuacion As Label
     Friend WithEvents pnlCuerpo As Panel
     Friend WithEvents dgvMovimientos As DataGridView
     Friend WithEvents pnlPie As Panel

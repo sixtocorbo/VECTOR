@@ -36,6 +36,8 @@ Public Class frmDetalleDocumento
                                 .Include("Tra_Movimiento") _
                                 .Include("Tra_Movimiento.Cat_Oficina") _
                                 .Include("Tra_Movimiento.Cat_Usuario") _
+                                .Include("Mae_Documento2") _
+                                .Include("Mae_Documento2.Cat_TipoDocumento") _
                                 .FirstOrDefaultAsync(Function(d) d.IdDocumento = _idDocumento)
 
             If doc Is Nothing Then
@@ -61,6 +63,54 @@ Public Class frmDetalleDocumento
             Else
                 lblEstado.ForeColor = Color.DarkGreen
             End If
+
+            Dim infoRelacion As String = "Documento independiente."
+            Dim infoUltimaActuacion As String = "Última actuación: sin movimientos registrados."
+
+            If doc.IdDocumentoPadre.HasValue AndAlso doc.Mae_Documento2 IsNot Nothing Then
+                Dim padre = doc.Mae_Documento2
+                Dim padreEtiqueta = $"{padre.Cat_TipoDocumento.Nombre} {padre.NumeroOficial}"
+                Dim totalAdjuntos = Await repo.GetQueryable(tracking:=False) _
+                    .CountAsync(Function(h) h.IdDocumentoPadre = padre.IdDocumento AndAlso h.IdEstadoActual <> 5)
+
+                infoRelacion = $"Documento hijo de {padreEtiqueta}. Es parte de {totalAdjuntos} adjuntos a ese padre."
+
+                Dim idsFamilia = Await repo.GetQueryable(tracking:=False) _
+                    .Where(Function(h) h.IdDocumentoPadre = padre.IdDocumento OrElse h.IdDocumento = padre.IdDocumento) _
+                    .Select(Function(h) h.IdDocumento) _
+                    .ToListAsync()
+
+                Dim ultima = Await uow.Context.Set(Of Tra_Movimiento)() _
+                    .Include("Mae_Documento.Cat_TipoDocumento") _
+                    .Where(Function(m) idsFamilia.Contains(m.IdDocumento)) _
+                    .OrderByDescending(Function(m) m.FechaMovimiento) _
+                    .Select(Function(m) New With {
+                        .Fecha = m.FechaMovimiento,
+                        .Tipo = m.Mae_Documento.Cat_TipoDocumento.Nombre,
+                        .Numero = m.Mae_Documento.NumeroOficial
+                    }) _
+                    .FirstOrDefaultAsync()
+
+                If ultima IsNot Nothing Then
+                    infoUltimaActuacion = $"Última actuación ({ultima.Fecha:dd/MM/yyyy HH:mm}) en {ultima.Tipo} {ultima.Numero}."
+                End If
+            Else
+                Dim ultima = doc.Tra_Movimiento _
+                    .OrderByDescending(Function(m) m.FechaMovimiento) _
+                    .Select(Function(m) New With {
+                        .Fecha = m.FechaMovimiento,
+                        .Tipo = doc.Cat_TipoDocumento.Nombre,
+                        .Numero = doc.NumeroOficial
+                    }) _
+                    .FirstOrDefault()
+
+                If ultima IsNot Nothing Then
+                    infoUltimaActuacion = $"Última actuación ({ultima.Fecha:dd/MM/yyyy HH:mm}) en {ultima.Tipo} {ultima.Numero}."
+                End If
+            End If
+
+            lblRelacion.Text = infoRelacion
+            lblUltimaActuacion.Text = infoUltimaActuacion
 
             ' 3. Llenar Grilla de Movimientos (Historial)
             ' Proyectamos los datos para mostrar solo lo útil

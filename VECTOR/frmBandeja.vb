@@ -782,12 +782,7 @@ Public Class frmBandeja
         ' Instanciamos el formulario de detalle
         Dim fDetalle As New frmDetalleDocumento(idDoc)
 
-        ' Opción A: Abrirlo como diálogo MODAL (bloquea la bandeja hasta que cierras el detalle)
-        ' Es útil para consultas rápidas.
-        fDetalle.ShowDialog(Me)
-
-        ' Opción B: Abrirlo como ventana independiente (MDI) si quieres ver varios a la vez
-        ' ShowFormInMdi(Me, fDetalle) 
+        ' Abrirlo como ventana MDI cuando el formulario principal soporte MDI.
+        ShowFormInMdi(Me, fDetalle)
     End Sub
 End Class
-

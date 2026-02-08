@@ -75,6 +75,33 @@ Public Module AppTheme
         ElseIf TypeOf ctrl Is DataGridView Then
             StyleDataGridView(DirectCast(ctrl, DataGridView))
 
+        ElseIf TypeOf ctrl Is TextBoxBase Then
+            StyleTextBoxBase(DirectCast(ctrl, TextBoxBase))
+
+        ElseIf TypeOf ctrl Is ComboBox Then
+            StyleComboBox(DirectCast(ctrl, ComboBox))
+
+        ElseIf TypeOf ctrl Is DateTimePicker Then
+            StyleDateTimePicker(DirectCast(ctrl, DateTimePicker))
+
+        ElseIf TypeOf ctrl Is NumericUpDown Then
+            StyleNumericUpDown(DirectCast(ctrl, NumericUpDown))
+
+        ElseIf TypeOf ctrl Is CheckBox Then
+            StyleCheckBox(DirectCast(ctrl, CheckBox))
+
+        ElseIf TypeOf ctrl Is RadioButton Then
+            StyleRadioButton(DirectCast(ctrl, RadioButton))
+
+        ElseIf TypeOf ctrl Is ListBox Then
+            StyleListBox(DirectCast(ctrl, ListBox))
+
+        ElseIf TypeOf ctrl Is CheckedListBox Then
+            StyleCheckedListBox(DirectCast(ctrl, CheckedListBox))
+
+        ElseIf TypeOf ctrl Is TabControl Then
+            StyleTabControl(DirectCast(ctrl, TabControl))
+
         ElseIf TypeOf ctrl Is Label Then
             Dim nameLower = ctrl.Name.ToLower()
             If nameLower.Contains("header") OrElse nameLower.Contains("titulo") Then
@@ -292,6 +319,69 @@ Public Module AppTheme
         dgv.AlternatingRowsDefaultCellStyle.BackColor = Palette.Background
     End Sub
 
+    Private Sub StyleTextBoxBase(tb As TextBoxBase)
+        tb.BorderStyle = BorderStyle.FixedSingle
+        tb.Font = Palette.BaseFont
+        tb.ForeColor = Palette.Foreground
+        If tb.ReadOnly Then
+            tb.BackColor = Palette.Background
+        Else
+            tb.BackColor = Color.White
+        End If
+    End Sub
+
+    Private Sub StyleComboBox(cb As ComboBox)
+        cb.FlatStyle = FlatStyle.Flat
+        cb.Font = Palette.BaseFont
+        cb.ForeColor = Palette.Foreground
+        cb.BackColor = Color.White
+    End Sub
+
+    Private Sub StyleDateTimePicker(dtp As DateTimePicker)
+        dtp.Font = Palette.BaseFont
+        dtp.CalendarForeColor = Palette.Foreground
+        dtp.CalendarMonthBackground = Color.White
+        dtp.CalendarTitleBackColor = Palette.Background
+        dtp.CalendarTitleForeColor = Palette.Foreground
+    End Sub
+
+    Private Sub StyleNumericUpDown(nud As NumericUpDown)
+        nud.BorderStyle = BorderStyle.FixedSingle
+        nud.Font = Palette.BaseFont
+        nud.ForeColor = Palette.Foreground
+        nud.BackColor = Color.White
+    End Sub
+
+    Private Sub StyleCheckBox(cb As CheckBox)
+        cb.Font = Palette.BaseFont
+        cb.ForeColor = Palette.Foreground
+    End Sub
+
+    Private Sub StyleRadioButton(rb As RadioButton)
+        rb.Font = Palette.BaseFont
+        rb.ForeColor = Palette.Foreground
+    End Sub
+
+    Private Sub StyleListBox(lb As ListBox)
+        lb.BorderStyle = BorderStyle.FixedSingle
+        lb.Font = Palette.BaseFont
+        lb.ForeColor = Palette.Foreground
+        lb.BackColor = Color.White
+    End Sub
+
+    Private Sub StyleCheckedListBox(clb As CheckedListBox)
+        clb.BorderStyle = BorderStyle.FixedSingle
+        clb.Font = Palette.BaseFont
+        clb.ForeColor = Palette.Foreground
+        clb.BackColor = Color.White
+    End Sub
+
+    Private Sub StyleTabControl(tab As TabControl)
+        tab.Font = Palette.BaseFont
+        tab.BackColor = Palette.Background
+        tab.ForeColor = Palette.Foreground
+    End Sub
+
     Private Function Darken(c As Color, amount As Single) As Color
         Dim factor As Single = Math.Max(0.0F, Math.Min(1.0F, 1.0F - amount))
         Return Color.FromArgb(c.A, CInt(c.R * factor), CInt(c.G * factor), CInt(c.B * factor))
@@ -337,5 +427,4 @@ Public Module AppTheme
 
 
 End Module
-
 

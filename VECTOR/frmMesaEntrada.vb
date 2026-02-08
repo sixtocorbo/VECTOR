@@ -769,30 +769,40 @@ Public Class frmMesaEntrada
                 Return
             End If
 
-            ' B. VALIDACIÓN DE PROPIEDAD: ¿Estoy 'robando' un número reservado a otra oficina?
-            '    Consultamos si el número cae en CUALQUIER rango activo.
-            Dim rangoPropietario As Mae_NumeracionRangos = Nothing
-
+            ' B. VALIDACIÓN DE PROPIEDAD INTELIGENTE
             Using uowCheck As New UnitOfWork()
-                rangoPropietario = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
-                    FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
+                ' 1. Primero verificamos: ¿MI OFICINA ACTUAL usa rangos para este tipo de doc?
+                Dim yoUsoRangos As Boolean = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                    Any(Function(r) r.IdTipo = idTipoSeleccionado And
+                                    r.IdOficina = idOrigenSeleccionado.Value And
+                                    r.Anio = anioManual And
+                                    r.Activo = True)
+
+                If yoUsoRangos Then
+                    ' CASO 1: SOY UNA OFICINA CON RANGOS (Ej. Sub Dirección).
+                    ' Debo respetar la "Ley de Rangos". No puedo usar un número que pertenezca al rango de otro.
+
+                    Dim rangoPropietario = uowCheck.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                        FirstOrDefault(Function(r) r.IdTipo = idTipoSeleccionado And
                                                r.Anio = anioManual And
                                                r.Activo = True And
+                                               r.IdOficina <> idOrigenSeleccionado.Value And ' Que no sea mío
                                                numeroBase >= r.NumeroInicio And
                                                numeroBase <= r.NumeroFin)
 
-                ' Si existe un rango dueño de este número...
-                If rangoPropietario IsNot Nothing Then
-                    ' ... y el dueño NO es la oficina que seleccioné (Bandeja u otra):
-                    If rangoPropietario.IdOficina <> idOrigenSeleccionado.Value Then
+                    If rangoPropietario IsNot Nothing Then
                         Dim nombreOficinaDueña = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
-                        Toast.Show(Me, $"ERROR DE NUMERACIÓN: El número {numeroBase} pertenece al rango reservado exclusivamente para: {nombreOficinaDueña}.", ToastType.Error)
+                        Toast.Show(Me, $"ERROR DE NUMERACIÓN: Tu oficina trabaja con rangos y el número {numeroBase} invade el rango reservado de: {nombreOficinaDueña}.", ToastType.Error)
                         Return
                     End If
+                Else
+                    ' CASO 2: SOY UNA OFICINA SIN RANGOS (Ej. ARCHIVO, OFICINAS EXTERNAS).
+                    ' Soy libre. Puedo usar el número 10 aunque la Sub Dirección tenga reservado del 1 al 100.
+                    ' No hacemos la validación de propiedad ajena.
                 End If
 
                 ' C. VALIDACIÓN DE UNICIDAD (Scope: Misma Oficina)
-                '    Verificamos si ESTA oficina ya usó este número.
+                ' Esto SIEMPRE se ejecuta. No puedo tener dos documentos "Memo 10" en MI misma oficina, tenga rangos o no.
                 Dim yaExiste As Boolean = uowCheck.Repository(Of Mae_Documento)().GetQueryable(tracking:=False).
                     Any(Function(d) d.IdTipo = idTipoSeleccionado AndAlso
                                     d.NumeroOficial = txtNumeroRef.Text.Trim() AndAlso

@@ -737,10 +737,14 @@ Public Class frmBandeja
             Dim nombrePadre As String = If(padre IsNot Nothing, padre.NumeroOficial, "Desconocido")
 
             ' 3. CONFIRMACIÓN DE SEGURIDAD
-            If MessageBox.Show("¿Está seguro de DESVINCULAR (Sacar) este documento del expediente " & nombrePadre & "?" & vbCrLf & vbCrLf &
-                               "👉 El documento se volverá INDEPENDIENTE." & vbCrLf &
-                               "👉 Tendrá su propio historial separado." & vbCrLf &
-                               "👉 Aparecerá como una carpeta nueva en la bandeja.",
+            Dim mensajeConfirmacion As String =
+                "¿Está seguro de DESVINCULAR (Sacar) el documento " & doc.NumeroOficial & " (ID " & doc.IdDocumento & ")" & vbCrLf &
+                "del expediente " & nombrePadre & " (ID " & doc.IdDocumentoPadre.Value & ")?" & vbCrLf & vbCrLf &
+                "👉 El documento se volverá INDEPENDIENTE." & vbCrLf &
+                "👉 Tendrá su propio historial separado." & vbCrLf &
+                "👉 Aparecerá como una carpeta nueva en la bandeja."
+
+            If MessageBox.Show(mensajeConfirmacion,
                                "Confirmar Desvinculación", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
 
                 ' 4. EJECUCIÓN: ROMPER CADENAS

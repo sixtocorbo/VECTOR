@@ -8,6 +8,7 @@ Public Class frmAuditoria
     Private _cargandoCombos As Boolean = False
 
     Private Async Sub frmAuditoria_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AppTheme.Aplicar(Me)
         InicializarFechas()
         CargarCombos()
         UIUtils.SetPlaceholder(txtAuditoriaBuscar, "Escriba para buscar eventos...")

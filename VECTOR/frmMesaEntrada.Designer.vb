@@ -176,9 +176,9 @@ Partial Class frmMesaEntrada
         Me.Label4.Location = New System.Drawing.Point(334, 45)
         Me.Label4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(178, 25)
+        Me.Label4.Size = New System.Drawing.Size(130, 25)
         Me.Label4.TabIndex = 2
-        Me.Label4.Text = "N° Referencia (Papel):"
+        Me.Label4.Text = "N° (Ej.: 542/26)"
         '
         'cboTipo
         '

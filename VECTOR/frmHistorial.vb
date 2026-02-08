@@ -93,18 +93,7 @@ Public Class frmHistorial
             End If
 
             ' PASO 6: COLOREADO INTELIGENTE
-            For Each row As DataGridViewRow In dgvHistoria.Rows
-                ' Si es el documento que estamos rastreando
-                If CLng(row.Cells("ID_Doc").Value) = _idDocumento Then
-                    row.DefaultCellStyle.BackColor = Color.LightYellow
-                    row.DefaultCellStyle.ForeColor = Color.Black
-                    row.DefaultCellStyle.SelectionBackColor = Color.Gold
-                    row.DefaultCellStyle.SelectionForeColor = Color.Black
-                    row.DefaultCellStyle.Font = New Font(dgvHistoria.Font, FontStyle.Bold)
-                Else
-                    row.DefaultCellStyle.BackColor = Color.White
-                End If
-            Next
+            ResaltarDocumentoActual()
 
             ' PASO 7: QUITAR EL FOCO INICIAL
             dgvHistoria.ClearSelection()
@@ -113,6 +102,29 @@ Public Class frmHistorial
         Catch ex As Exception
             Toast.Show(Me, "Error al leer la trazabilidad: " & ex.Message, ToastType.Error)
         End Try
+    End Sub
+
+    Private Sub dgvHistoria_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvHistoria.DataBindingComplete
+        ResaltarDocumentoActual()
+    End Sub
+
+    Private Sub ResaltarDocumentoActual()
+        For Each row As DataGridViewRow In dgvHistoria.Rows
+            Dim valorId = row.Cells("ID_Doc").Value
+            If valorId IsNot Nothing AndAlso valorId IsNot DBNull.Value AndAlso CLng(valorId) = _idDocumento Then
+                row.DefaultCellStyle.BackColor = Color.LightYellow
+                row.DefaultCellStyle.ForeColor = Color.Black
+                row.DefaultCellStyle.SelectionBackColor = Color.Gold
+                row.DefaultCellStyle.SelectionForeColor = Color.Black
+                row.DefaultCellStyle.Font = New Font(dgvHistoria.Font, FontStyle.Bold)
+            Else
+                row.DefaultCellStyle.BackColor = Color.White
+                row.DefaultCellStyle.ForeColor = dgvHistoria.DefaultCellStyle.ForeColor
+                row.DefaultCellStyle.SelectionBackColor = dgvHistoria.DefaultCellStyle.SelectionBackColor
+                row.DefaultCellStyle.SelectionForeColor = dgvHistoria.DefaultCellStyle.SelectionForeColor
+                row.DefaultCellStyle.Font = dgvHistoria.Font
+            End If
+        Next
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click

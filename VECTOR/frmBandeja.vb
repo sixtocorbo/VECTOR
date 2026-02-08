@@ -190,12 +190,30 @@ Public Class frmBandeja
     Private Sub DiseñarColumnas()
         If dgvPendientes.Columns.Count = 0 Then Return
 
+        Dim columnasVisibles As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+            "ID",
+            "Tipo",
+            "Referencia",
+            "Fecha",
+            "Estado",
+            "Origen",
+            "Ubicacion",
+            "Asunto",
+            "Observaciones"
+        }
+
         ' 1. Ocultar columnas técnicas
         dgvPendientes.Columns("Cant_Respuestas").Visible = False
         dgvPendientes.Columns("IdOficinaActual").Visible = False
         dgvPendientes.Columns("EsHijo").Visible = False
         dgvPendientes.Columns("IdDocumentoPadre").Visible = False
         dgvPendientes.Columns("RefPadre").Visible = False
+
+        For Each columna As DataGridViewColumn In dgvPendientes.Columns
+            If Not columnasVisibles.Contains(columna.Name) AndAlso columna.Visible Then
+                columna.Visible = False
+            End If
+        Next
 
         ' 2. Configurar Anchos y Títulos
         With dgvPendientes
@@ -221,7 +239,16 @@ Public Class frmBandeja
             .Columns("Ubicacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Ubicacion").HeaderText = "Ubicación"
 
-            .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            If .Columns.Contains("Asunto") Then
+                .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                .Columns("Asunto").MinimumWidth = 220
+            End If
+
+            If .Columns.Contains("Observaciones") Then
+                .Columns("Observaciones").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                .Columns("Observaciones").MinimumWidth = 220
+                .Columns("Observaciones").DisplayIndex = .Columns.Count - 1
+            End If
         End With
     End Sub
 

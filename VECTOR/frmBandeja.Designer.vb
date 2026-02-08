@@ -164,7 +164,7 @@ Partial Class frmBandeja
         Me.lblContador.Name = "lblContador"
         Me.lblContador.Size = New System.Drawing.Size(104, 23)
         Me.lblContador.TabIndex = 6
-        Me.lblContador.Text = "Registros: 0"
+        Me.lblContador.Text = "Expedientes: 0"
         '
         'btnEliminar
         '

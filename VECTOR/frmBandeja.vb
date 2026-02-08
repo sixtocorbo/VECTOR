@@ -89,6 +89,7 @@ Public Class frmBandeja
                     .IdOficinaActual = d.IdOficinaActual,
                     .Cant_Respuestas = d.Mae_Documento1.Where(Function(h) h.IdEstadoActual <> 5).Count(),
                     .EsHijo = d.IdDocumentoPadre.HasValue,
+                    .IdDocumentoPadre = d.IdDocumentoPadre,
                     .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Nombre & " " & d.Mae_Documento2.NumeroOficial, "")
                 }).ToListAsync()
 
@@ -107,6 +108,7 @@ Public Class frmBandeja
                     .IdOficinaActual = x.IdOficinaActual,
                     .Cant_Respuestas = x.Cant_Respuestas,
                     .EsHijo = x.EsHijo,
+                    .IdDocumentoPadre = x.IdDocumentoPadre,
                     .RefPadre = x.RefPadre
                 }).ToList()
 
@@ -173,7 +175,10 @@ Public Class frmBandeja
         End If
         ActualizarBotonesPorSeleccion()
 
-        lblContador.Text = "Registros: " & dgvPendientes.RowCount
+        Dim totalExpedientes As Integer = resultado.Select(Function(item As Object)
+                                                              If(item.EsHijo, item.IdDocumentoPadre, item.ID)
+                                                          End Function).Distinct().Count()
+        lblContador.Text = "Expedientes: " & totalExpedientes
         dgvPendientes.Refresh()
     End Sub
 
@@ -184,6 +189,7 @@ Public Class frmBandeja
         dgvPendientes.Columns("Cant_Respuestas").Visible = False
         dgvPendientes.Columns("IdOficinaActual").Visible = False
         dgvPendientes.Columns("EsHijo").Visible = False
+        dgvPendientes.Columns("IdDocumentoPadre").Visible = False
         dgvPendientes.Columns("RefPadre").Visible = False
 
         ' 2. Configurar Anchos y Títulos

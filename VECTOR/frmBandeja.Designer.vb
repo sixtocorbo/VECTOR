@@ -129,7 +129,6 @@ Partial Class frmBandeja
         '
         'btnDesvincular
         '
-        Me.btnDesvincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDesvincular.ForeColor = System.Drawing.Color.White
@@ -143,7 +142,6 @@ Partial Class frmBandeja
         '
         'btnEditar
         '
-        Me.btnEditar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnEditar.BackColor = System.Drawing.Color.Goldenrod
         Me.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEditar.ForeColor = System.Drawing.Color.White
@@ -168,7 +166,6 @@ Partial Class frmBandeja
         '
         'btnEliminar
         '
-        Me.btnEliminar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnEliminar.BackColor = System.Drawing.Color.IndianRed
         Me.btnEliminar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEliminar.ForeColor = System.Drawing.Color.White
@@ -182,7 +179,6 @@ Partial Class frmBandeja
         '
         'btnVincular
         '
-        Me.btnVincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnVincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnVincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnVincular.ForeColor = System.Drawing.Color.White
@@ -196,7 +192,6 @@ Partial Class frmBandeja
         '
         'btnHistorial
         '
-        Me.btnHistorial.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnHistorial.BackColor = System.Drawing.Color.SteelBlue
         Me.btnHistorial.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnHistorial.ForeColor = System.Drawing.Color.White

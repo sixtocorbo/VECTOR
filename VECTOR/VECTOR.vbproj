@@ -143,6 +143,12 @@
     <Compile Include="EventosSistema.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="frmDetalleDocumento.Designer.vb">
+      <DependentUpon>frmDetalleDocumento.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmDetalleDocumento.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmVincular.Designer.vb">
       <DependentUpon>frmVincular.vb</DependentUpon>
     </Compile>

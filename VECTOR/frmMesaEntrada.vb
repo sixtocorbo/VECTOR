@@ -930,7 +930,6 @@ Public Class frmMesaEntrada
                 sb.AppendLine("📄 REF: " & cboTipo.Text.ToUpper() & " " & doc.NumeroOficial)
                 sb.AppendLine("📌 ASUNTO: " & doc.Asunto)
                 sb.AppendLine()
-                sb.AppendLine("El expediente ya se encuentra disponible en su Bandeja.")
 
                 Toast.Show(Me, sb.ToString(), ToastType.Success)
             End If

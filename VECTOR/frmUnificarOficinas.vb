@@ -6,6 +6,7 @@ Public Class frmUnificarOficinas
 
     Private Async Sub frmUnificarOficinas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        UIUtils.SetPlaceholder(txtBuscar, "Escriba para buscar oficina...")
         ConfigurarGrilla()
         Await CargarOficinasAsync("")
     End Sub

@@ -52,6 +52,7 @@ Public NotInheritable Class Toast
 
     ' === Ctor privado: usar Show / ShowSticky para construir ===
     Private Sub New(texto As String, tipo As ToastType, screen As Screen)
+        InitializeComponent()
         Me.FormBorderStyle = FormBorderStyle.None
         Me.ShowInTaskbar = False
         Me.TopMost = True

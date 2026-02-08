@@ -472,7 +472,7 @@ Public Class frmBandeja
         End Using
     End Sub
 
-    Private Async Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
+    Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
         ' Preparamos un ID sugerido si hay selección, pero no es obligatorio
         Dim idSugerido As Long = 0
         If dgvPendientes.SelectedRows.Count > 0 Then

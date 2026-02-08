@@ -42,6 +42,7 @@ Partial Class frmBandeja
         Me.PanelSuperior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelSuperior.Controls.Add(Me.chkVerDerivados)
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
+        Me.PanelSuperior.Controls.Add(Me.lblContador)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
         Me.PanelSuperior.Controls.Add(Me.Label1)
         Me.PanelSuperior.Controls.Add(Me.btnDarPase)
@@ -115,7 +116,6 @@ Partial Class frmBandeja
         Me.PanelInferior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelInferior.Controls.Add(Me.btnDesvincular)
         Me.PanelInferior.Controls.Add(Me.btnEditar)
-        Me.PanelInferior.Controls.Add(Me.lblContador)
         Me.PanelInferior.Controls.Add(Me.btnEliminar)
         Me.PanelInferior.Controls.Add(Me.btnVincular)
         Me.PanelInferior.Controls.Add(Me.btnHistorial)
@@ -159,10 +159,10 @@ Partial Class frmBandeja
         '
         Me.lblContador.AutoSize = True
         Me.lblContador.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblContador.Location = New System.Drawing.Point(158, 35)
+        Me.lblContador.Location = New System.Drawing.Point(89, 66)
         Me.lblContador.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblContador.Name = "lblContador"
-        Me.lblContador.Size = New System.Drawing.Size(104, 23)
+        Me.lblContador.Size = New System.Drawing.Size(126, 23)
         Me.lblContador.TabIndex = 6
         Me.lblContador.Text = "Expedientes: 0"
         '
@@ -255,7 +255,6 @@ Partial Class frmBandeja
         Me.PanelSuperior.ResumeLayout(False)
         Me.PanelSuperior.PerformLayout()
         Me.PanelInferior.ResumeLayout(False)
-        Me.PanelInferior.PerformLayout()
         CType(Me.dgvPendientes, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 

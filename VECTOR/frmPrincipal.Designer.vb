@@ -30,6 +30,7 @@ Partial Class frmPrincipal
         Me.BandejaDeEntradaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionRangosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionTiemposToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.GestionTiposDocumentoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionUsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AuditoriaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.EstadisticasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -69,7 +70,7 @@ Partial Class frmPrincipal
         '
         'GestiónToolStripMenuItem
         '
-        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionTiemposToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
+        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionTiemposToolStripMenuItem, Me.GestionTiposDocumentoToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
         Me.GestiónToolStripMenuItem.Name = "GestiónToolStripMenuItem"
         Me.GestiónToolStripMenuItem.Size = New System.Drawing.Size(88, 29)
         Me.GestiónToolStripMenuItem.Text = "Gestión"
@@ -91,6 +92,12 @@ Partial Class frmPrincipal
         Me.GestionTiemposToolStripMenuItem.Name = "GestionTiemposToolStripMenuItem"
         Me.GestionTiemposToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.GestionTiemposToolStripMenuItem.Text = "Vencimientos por Tipo"
+        '
+        'GestionTiposDocumentoToolStripMenuItem
+        '
+        Me.GestionTiposDocumentoToolStripMenuItem.Name = "GestionTiposDocumentoToolStripMenuItem"
+        Me.GestionTiposDocumentoToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
+        Me.GestionTiposDocumentoToolStripMenuItem.Text = "Tipos de Documento"
         '
         'GestionUsuariosToolStripMenuItem
         '
@@ -177,6 +184,7 @@ Partial Class frmPrincipal
     Friend WithEvents BandejaDeEntradaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionRangosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionTiemposToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents GestionTiposDocumentoToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionUsuariosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AuditoriaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents EstadisticasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem

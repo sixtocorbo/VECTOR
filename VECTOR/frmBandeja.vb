@@ -198,6 +198,7 @@ Public Class frmBandeja
             "ID",
             "Tipo",
             "Referencia",
+            "Vencimiento",
             "Fecha",
             "Estado",
             "Origen",

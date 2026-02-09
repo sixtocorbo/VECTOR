@@ -20,13 +20,13 @@ Partial Class frmBandeja
         Me.PanelSuperior = New System.Windows.Forms.Panel()
         Me.chkVerDerivados = New System.Windows.Forms.CheckBox()
         Me.btnNuevoIngreso = New System.Windows.Forms.Button()
+        Me.lblContador = New System.Windows.Forms.Label()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.btnDarPase = New System.Windows.Forms.Button()
         Me.PanelInferior = New System.Windows.Forms.Panel()
         Me.btnDesvincular = New System.Windows.Forms.Button()
         Me.btnEditar = New System.Windows.Forms.Button()
-        Me.lblContador = New System.Windows.Forms.Label()
         Me.btnEliminar = New System.Windows.Forms.Button()
         Me.btnVincular = New System.Windows.Forms.Button()
         Me.btnHistorial = New System.Windows.Forms.Button()
@@ -56,7 +56,7 @@ Partial Class frmBandeja
         'chkVerDerivados
         '
         Me.chkVerDerivados.AutoSize = True
-        Me.chkVerDerivados.Location = New System.Drawing.Point(93, 5)
+        Me.chkVerDerivados.Location = New System.Drawing.Point(93, 38)
         Me.chkVerDerivados.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkVerDerivados.Name = "chkVerDerivados"
         Me.chkVerDerivados.Size = New System.Drawing.Size(195, 24)
@@ -78,9 +78,21 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso.Text = "+ NUEVO INGRESO"
         Me.btnNuevoIngreso.UseVisualStyleBackColor = False
         '
+        'lblContador
+        '
+        Me.lblContador.AutoSize = True
+        Me.lblContador.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblContador.ForeColor = System.Drawing.Color.Red
+        Me.lblContador.Location = New System.Drawing.Point(315, 23)
+        Me.lblContador.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblContador.Name = "lblContador"
+        Me.lblContador.Size = New System.Drawing.Size(179, 32)
+        Me.lblContador.TabIndex = 6
+        Me.lblContador.Text = "Expedientes: 0"
+        '
         'txtBuscar
         '
-        Me.txtBuscar.Location = New System.Drawing.Point(93, 35)
+        Me.txtBuscar.Location = New System.Drawing.Point(93, 72)
         Me.txtBuscar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtBuscar.Name = "txtBuscar"
         Me.txtBuscar.Size = New System.Drawing.Size(412, 26)
@@ -89,7 +101,7 @@ Partial Class frmBandeja
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(20, 42)
+        Me.Label1.Location = New System.Drawing.Point(20, 79)
         Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(63, 20)
@@ -152,17 +164,6 @@ Partial Class frmBandeja
         Me.btnEditar.TabIndex = 7
         Me.btnEditar.Text = "✏️ EDITAR"
         Me.btnEditar.UseVisualStyleBackColor = False
-        '
-        'lblContador
-        '
-        Me.lblContador.AutoSize = True
-        Me.lblContador.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblContador.Location = New System.Drawing.Point(89, 66)
-        Me.lblContador.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblContador.Name = "lblContador"
-        Me.lblContador.Size = New System.Drawing.Size(126, 23)
-        Me.lblContador.TabIndex = 6
-        Me.lblContador.Text = "Expedientes: 0"
         '
         'btnEliminar
         '

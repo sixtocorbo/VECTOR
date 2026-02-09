@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="SecretariaDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Cat_Estado">
           <Key>
             <PropertyRef Name="IdEstado" />
@@ -76,6 +76,19 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Prioridad" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="DiasMaximos" Type="int" Nullable="false" />
           <Property Name="HorasMaximas" Type="int" />
+        </EntityType>
+        <EntityType Name="Cfg_TiemposRespuesta_Historial">
+          <Key>
+            <PropertyRef Name="IdHist" />
+          </Key>
+          <Property Name="IdHist" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdConfigOriginal" Type="int" Nullable="false" />
+          <Property Name="IdTipoDocumento" Type="int" Nullable="false" />
+          <Property Name="Prioridad" Type="varchar" MaxLength="20" />
+          <Property Name="DiasAnteriores" Type="int" />
+          <Property Name="DiasNuevos" Type="int" />
+          <Property Name="FechaCambio" Type="datetime" />
+          <Property Name="UsuarioSistema" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="EventosSistema">
           <Key>
@@ -407,6 +420,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySet Name="Cat_TipoDocumento" EntityType="Self.Cat_TipoDocumento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cat_Usuario" EntityType="Self.Cat_Usuario" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cfg_TiemposRespuesta" EntityType="Self.Cfg_TiemposRespuesta" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cfg_TiemposRespuesta_Historial" EntityType="Self.Cfg_TiemposRespuesta_Historial" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EventosSistema" EntityType="Self.EventosSistema" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Mae_CuposSecretaria" EntityType="Self.Mae_CuposSecretaria" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Mae_Documento" EntityType="Self.Mae_Documento" Schema="dbo" store:Type="Tables" />
@@ -496,8 +510,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Cat_Usuario" EntitySet="Cat_Usuario" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SecretariaDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1015,11 +1028,25 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <Parameter Name="NombreDestino" Mode="In" Type="String" />
             <Parameter Name="ListaIdsBorrar" Mode="In" Type="String" />
           </FunctionImport>
+          <EntitySet Name="Cfg_TiemposRespuesta_Historial" EntityType="SecretariaDBModel.Cfg_TiemposRespuesta_Historial" />
         </EntityContainer>
         <ComplexType Name="sp_UnificarOficinas_Result">
           <Property Type="Int32" Name="Resultado" Nullable="false" />
           <Property Type="String" Name="Mensaje" Nullable="false" MaxLength="14" />
         </ComplexType>
+        <EntityType Name="Cfg_TiemposRespuesta_Historial">
+          <Key>
+            <PropertyRef Name="IdHist" />
+          </Key>
+          <Property Name="IdHist" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdConfigOriginal" Type="Int32" Nullable="false" />
+          <Property Name="IdTipoDocumento" Type="Int32" Nullable="false" />
+          <Property Name="Prioridad" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="DiasAnteriores" Type="Int32" />
+          <Property Name="DiasNuevos" Type="Int32" />
+          <Property Name="FechaCambio" Type="DateTime" Precision="3" />
+          <Property Name="UsuarioSistema" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1216,6 +1243,20 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="Cfg_TiemposRespuesta_Historial">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cfg_TiemposRespuesta_Historial">
+              <MappingFragment StoreEntitySet="Cfg_TiemposRespuesta_Historial">
+                <ScalarProperty Name="UsuarioSistema" ColumnName="UsuarioSistema" />
+                <ScalarProperty Name="FechaCambio" ColumnName="FechaCambio" />
+                <ScalarProperty Name="DiasNuevos" ColumnName="DiasNuevos" />
+                <ScalarProperty Name="DiasAnteriores" ColumnName="DiasAnteriores" />
+                <ScalarProperty Name="Prioridad" ColumnName="Prioridad" />
+                <ScalarProperty Name="IdTipoDocumento" ColumnName="IdTipoDocumento" />
+                <ScalarProperty Name="IdConfigOriginal" ColumnName="IdConfigOriginal" />
+                <ScalarProperty Name="IdHist" ColumnName="IdHist" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -19,5 +19,6 @@ Partial Public Class Cat_TipoDocumento
     Public Overridable Property Mae_Documento As ICollection(Of Mae_Documento) = New HashSet(Of Mae_Documento)
     Public Overridable Property Mae_CuposSecretaria As ICollection(Of Mae_CuposSecretaria) = New HashSet(Of Mae_CuposSecretaria)
     Public Overridable Property Mae_NumeracionRangos As ICollection(Of Mae_NumeracionRangos) = New HashSet(Of Mae_NumeracionRangos)
+    Public Overridable Property Cfg_TiemposRespuesta As ICollection(Of Cfg_TiemposRespuesta) = New HashSet(Of Cfg_TiemposRespuesta)
 
 End Class

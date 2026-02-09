@@ -25,6 +25,8 @@ Partial Public Class Mae_Documento
     Public Property IdEstadoActual As Integer
     Public Property IdOficinaActual As Integer
     Public Property IdUsuarioCreador As Nullable(Of Integer)
+    Public Property FechaVencimiento As Nullable(Of Date)
+    Public Property EstadoSemaforo As String
 
     Public Overridable Property Cat_Estado As Cat_Estado
     Public Overridable Property Cat_Oficina As Cat_Oficina

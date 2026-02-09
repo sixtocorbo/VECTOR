@@ -115,6 +115,15 @@ Public Module AppTheme
 
     Private Sub StylePanel(pnl As Panel)
         Dim nameLower = pnl.Name.ToLower()
+        Dim tagStr As String = If(pnl.Tag, "").ToString()
+        If tagStr.IndexOf("KeepBackColor", StringComparison.OrdinalIgnoreCase) >= 0 Then
+            Return
+        End If
+
+        If nameLower.Contains("panelheader") Then
+            Return
+        End If
+
         If nameLower.Contains("panelnavegacion") OrElse nameLower.Contains("sidebar") Then
             pnl.BackColor = Palette.NavBackground
         ElseIf nameLower.Contains("panellogo") Then
@@ -427,4 +436,3 @@ Public Module AppTheme
 
 
 End Module
-

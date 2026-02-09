@@ -814,24 +814,46 @@ Public Class frmBandeja
         ' Abrirlo como ventana MDI cuando el formulario principal soporte MDI.
         ShowFormInMdi(Me, fDetalle)
     End Sub
+    ' En frmBandeja.vb
+
     Private Sub dgvPendientes_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles dgvPendientes.CellFormatting
         If e.RowIndex < 0 Then Return
 
-        ' Verificar si la columna Semaforo existe (porque la carga es dinámica)
+        ' Verificar si la columna existe para evitar errores
         If Not dgvPendientes.Columns.Contains("Semaforo") Then Return
 
-        ' Solo pintamos la celda de Vencimiento
+        ' Solo aplicamos lógica a la columna "Vencimiento"
         If dgvPendientes.Columns(e.ColumnIndex).Name = "Vencimiento" Then
+
             Dim semaforo As String = Convert.ToString(dgvPendientes.Rows(e.RowIndex).Cells("Semaforo").Value)
 
             Select Case semaforo
                 Case "ROJO"
+                    ' Estado Normal
                     e.CellStyle.BackColor = Color.Salmon
                     e.CellStyle.ForeColor = Color.White
+
+                    ' Estado SELECCIONADO (El truco es usar un rojo más oscuro)
+                    e.CellStyle.SelectionBackColor = Color.DarkRed
+                    e.CellStyle.SelectionForeColor = Color.White
+
                 Case "AMARILLO"
+                    ' Estado Normal
                     e.CellStyle.BackColor = Color.Gold
+                    e.CellStyle.ForeColor = Color.Black
+
+                    ' Estado SELECCIONADO (Usamos un dorado oscuro o naranja)
+                    e.CellStyle.SelectionBackColor = Color.Goldenrod
+                    e.CellStyle.SelectionForeColor = Color.Black
+
                 Case "VERDE"
+                    ' Estado Normal
                     e.CellStyle.BackColor = Color.LightGreen
+                    e.CellStyle.ForeColor = Color.DarkGreen
+
+                    ' Estado SELECCIONADO (Usamos un verde fuerte)
+                    e.CellStyle.SelectionBackColor = Color.Green
+                    e.CellStyle.SelectionForeColor = Color.White
             End Select
         End If
     End Sub

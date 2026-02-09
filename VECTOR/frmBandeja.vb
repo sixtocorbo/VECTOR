@@ -90,7 +90,9 @@ Public Class frmBandeja
                     .Cant_Respuestas = d.Mae_Documento1.Where(Function(h) h.IdEstadoActual <> 5).Count(),
                     .EsHijo = d.IdDocumentoPadre.HasValue,
                     .IdDocumentoPadre = d.IdDocumentoPadre,
-                    .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Nombre & " " & d.Mae_Documento2.NumeroOficial, "")
+                    .RefPadre = If(d.IdDocumentoPadre.HasValue, d.Mae_Documento2.Cat_TipoDocumento.Nombre & " " & d.Mae_Documento2.NumeroOficial, ""),
+                    .Vencimiento = d.FechaVencimiento,
+                    .Semaforo = d.EstadoSemaforo
                 }).ToListAsync()
 
                 ' C. AJUSTES FINALES Y FORMATEO DE TEXTO
@@ -109,7 +111,9 @@ Public Class frmBandeja
                     .Cant_Respuestas = x.Cant_Respuestas,
                     .EsHijo = x.EsHijo,
                     .IdDocumentoPadre = x.IdDocumentoPadre,
-                    .RefPadre = x.RefPadre
+                    .RefPadre = x.RefPadre,
+                    .Vencimiento = x.Vencimiento,
+                    .Semaforo = x.Semaforo
                 }).ToList()
 
                 _listaOriginal = New List(Of Object)(listaFinal)

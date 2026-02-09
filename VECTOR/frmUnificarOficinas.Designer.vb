@@ -41,16 +41,14 @@ Partial Class frmUnificarOficinas
         Me.dgvOficinas.AllowUserToDeleteRows = False
         Me.dgvOficinas.AllowUserToResizeColumns = False
         Me.dgvOficinas.AllowUserToResizeRows = False
-        Me.dgvOficinas.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgvOficinas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvOficinas.Location = New System.Drawing.Point(18, 92)
+        Me.dgvOficinas.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.dgvOficinas.Location = New System.Drawing.Point(0, 83)
         Me.dgvOficinas.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.dgvOficinas.Name = "dgvOficinas"
         Me.dgvOficinas.RowHeadersWidth = 62
         Me.dgvOficinas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvOficinas.Size = New System.Drawing.Size(1140, 585)
+        Me.dgvOficinas.Size = New System.Drawing.Size(1176, 604)
         Me.dgvOficinas.TabIndex = 2
         '
         'lblFiltro

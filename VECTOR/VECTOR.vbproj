@@ -199,6 +199,12 @@
     <Compile Include="frmGestionTiempos.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmGestionTiposDocumento.Designer.vb">
+      <DependentUpon>frmGestionTiposDocumento.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmGestionTiposDocumento.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmCuposSecretaria.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -331,6 +337,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmGestionTiempos.resx">
       <DependentUpon>frmGestionTiempos.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmGestionTiposDocumento.resx">
+      <DependentUpon>frmGestionTiposDocumento.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmHistorial.resx">
       <DependentUpon>frmHistorial.vb</DependentUpon>

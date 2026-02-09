@@ -77,6 +77,10 @@
         AbrirFormularioHijo(Of frmGestionTiempos)()
     End Sub
 
+    Private Sub GestionTiposDocumentoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionTiposDocumentoToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmGestionTiposDocumento)()
+    End Sub
+
     Private Sub GestionUsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionUsuariosToolStripMenuItem.Click
         If Not PuedeGestionarUsuarios() Then
             Toast.Show(Me, "Solo los usuarios con rol Administrador pueden gestionar usuarios.", ToastType.Warning)

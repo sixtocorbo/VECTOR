@@ -196,11 +196,12 @@ Public Class frmBandeja
     Private Sub DiseñarColumnas()
         If dgvPendientes.Columns.Count = 0 Then Return
 
+        ' 1. DEFINIR COLUMNAS QUE QUEREMOS VER
         Dim columnasVisibles As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
             "ID",
+            "Vencimiento", ' <--- Asegúrate que esté aquí
             "Tipo",
             "Referencia",
-            "Vencimiento",
             "Fecha",
             "Estado",
             "Origen",
@@ -209,63 +210,75 @@ Public Class frmBandeja
             "Observaciones"
         }
 
-        ' 1. Ocultar columnas técnicas
-        dgvPendientes.Columns("Cant_Respuestas").Visible = False
-        dgvPendientes.Columns("IdOficinaActual").Visible = False
-        dgvPendientes.Columns("EsHijo").Visible = False
-        dgvPendientes.Columns("IdDocumentoPadre").Visible = False
-        dgvPendientes.Columns("RefPadre").Visible = False
-
+        ' 2. OCULTAR COLUMNAS TÉCNICAS O NO DESEADAS
+        ' (Es mejor ocultar primero todo lo que no esté en la lista)
         For Each columna As DataGridViewColumn In dgvPendientes.Columns
-            If Not columnasVisibles.Contains(columna.Name) AndAlso columna.Visible Then
+            If Not columnasVisibles.Contains(columna.Name) Then
                 columna.Visible = False
             End If
         Next
 
-        ' 2. Configurar Anchos y Títulos
+        ' 3. CONFIGURAR COLUMNAS ESPECÍFICAS
         With dgvPendientes
+            ' Configuración ID
             .Columns("ID").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("ID").HeaderText = "ID"
             .Columns("ID").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            .Columns("ID").Visible = True
 
+            ' --- CONFIGURACIÓN DE VENCIMIENTO (EL PROBLEMA) ---
+            If .Columns.Contains("Vencimiento") Then
+                With .Columns("Vencimiento")
+                    .Visible = True ' <--- FORZAR VISIBILIDAD
+                    .HeaderText = "Vence"
+                    .DefaultCellStyle.Format = "dd/MM"
+                    .AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+                    .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+                    ' Intentamos moverla al principio con seguridad
+                    Try
+                        .DisplayIndex = 1
+                    Catch
+                    End Try
+                End With
+            End If
+
+            ' Configuración Tipo
             .Columns("Tipo").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Tipo").HeaderText = "Tipo"
+            .Columns("Tipo").Visible = True
 
+            ' Configuración Referencia
             .Columns("Referencia").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Referencia").HeaderText = "Referencia"
             .Columns("Referencia").DefaultCellStyle.Font = New Font(dgvPendientes.Font, FontStyle.Bold)
+            .Columns("Referencia").Visible = True
 
+            ' Configuración Fecha
             .Columns("Fecha").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy"
+            .Columns("Fecha").Visible = True
 
+            ' Configuración Estado
             .Columns("Estado").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+            .Columns("Estado").Visible = True
 
+            ' Configuración Origen
             .Columns("Origen").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Origen").HeaderText = "Origen"
+            .Columns("Origen").Visible = True
 
+            ' Configuración Ubicación
             .Columns("Ubicacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Ubicacion").HeaderText = "Ubicación"
+            .Columns("Ubicacion").Visible = True
 
+            ' Configuración Asunto
             If .Columns.Contains("Asunto") Then
                 .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 .Columns("Asunto").MinimumWidth = 220
-            End If
-
-            If .Columns.Contains("Observaciones") Then
-                .Columns("Observaciones").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-                .Columns("Observaciones").MinimumWidth = 220
-                .Columns("Observaciones").DisplayIndex = .Columns.Count - 1
+                .Columns("Asunto").Visible = True
             End If
         End With
-        If dgvPendientes.Columns.Contains("Semaforo") Then dgvPendientes.Columns("Semaforo").Visible = False
-
-        If dgvPendientes.Columns.Contains("Vencimiento") Then
-            With dgvPendientes.Columns("Vencimiento")
-                .HeaderText = "Vence"
-                .DefaultCellStyle.Format = "dd/MM"
-                .DisplayIndex = 2 ' Para que se vea al principio
-            End With
-        End If
     End Sub
 
     ' =======================================================

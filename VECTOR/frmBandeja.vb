@@ -83,6 +83,7 @@ Public Class frmBandeja
                     .Referencia = d.NumeroOficial,
                     .Remitente = d.Tra_Movimiento.OrderByDescending(Function(m) m.IdMovimiento).Select(Function(m) m.Cat_Oficina.Nombre).FirstOrDefault(),
                     .Asunto = d.Asunto,
+                    .Descripcion = d.Descripcion,
                     .Ubicacion = d.Cat_Oficina.Nombre,
                     .Fecha = d.FechaRecepcion,
                     .Estado = d.Cat_Estado.Nombre,
@@ -107,6 +108,7 @@ Public Class frmBandeja
                     .Origen = If(String.IsNullOrEmpty(x.Remitente), "Ingreso Inicial", x.Remitente),
                     .Ubicacion = x.Ubicacion,
                     .Asunto = x.Asunto,
+                    .Descripcion = x.Descripcion,
                     .IdOficinaActual = x.IdOficinaActual,
                     .Cant_Respuestas = x.Cant_Respuestas,
                     .EsHijo = x.EsHijo,
@@ -155,6 +157,7 @@ Public Class frmBandeja
                                                                               If(item.Referencia IsNot Nothing, item.Referencia.ToString(), "") & " " &
                                                                               item.Origen & " " &
                                                                               item.Asunto & " " &
+                                                                              item.Descripcion & " " &
                                                                               item.RefPadre & " " &
                                                                               item.Ubicacion).ToString().ToUpper()
 
@@ -207,6 +210,7 @@ Public Class frmBandeja
             "Origen",
             "Ubicacion",
             "Asunto",
+            "Descripcion",
             "Observaciones"
         }
 
@@ -278,6 +282,13 @@ Public Class frmBandeja
                 .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 .Columns("Asunto").MinimumWidth = 220
                 .Columns("Asunto").Visible = True
+            End If
+
+            If .Columns.Contains("Descripcion") Then
+                .Columns("Descripcion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                .Columns("Descripcion").MinimumWidth = 220
+                .Columns("Descripcion").HeaderText = "Descripción"
+                .Columns("Descripcion").Visible = True
             End If
         End With
     End Sub

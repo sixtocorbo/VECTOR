@@ -29,6 +29,7 @@ Partial Public Class SecretariaDBEntities
     Public Overridable Property Cat_Oficina_MergeLog() As DbSet(Of Cat_Oficina_MergeLog)
     Public Overridable Property Cat_TipoDocumento() As DbSet(Of Cat_TipoDocumento)
     Public Overridable Property Cat_Usuario() As DbSet(Of Cat_Usuario)
+    Public Overridable Property Cfg_TiemposRespuesta() As DbSet(Of Cfg_TiemposRespuesta)
     Public Overridable Property EventosSistema() As DbSet(Of EventosSistema)
     Public Overridable Property Mae_CuposSecretaria() As DbSet(Of Mae_CuposSecretaria)
     Public Overridable Property Mae_Documento() As DbSet(Of Mae_Documento)
@@ -38,7 +39,6 @@ Partial Public Class SecretariaDBEntities
     Public Overridable Property Tra_Movimiento() As DbSet(Of Tra_Movimiento)
     Public Overridable Property Usuarios() As DbSet(Of Usuarios)
     Public Overridable Property Cat_Oficina_Backup_20260203_093509() As DbSet(Of Cat_Oficina_Backup_20260203_093509)
-    Public Overridable Property Cfg_TiemposRespuesta() As DbSet(Of Cfg_TiemposRespuesta)
 
     Public Overridable Function sp_UnificarOficinas(nombreDestino As String, listaIdsBorrar As String) As ObjectResult(Of sp_UnificarOficinas_Result)
         Dim nombreDestinoParameter As ObjectParameter = If(nombreDestino IsNot Nothing, New ObjectParameter("NombreDestino", nombreDestino), New ObjectParameter("NombreDestino", GetType(String)))

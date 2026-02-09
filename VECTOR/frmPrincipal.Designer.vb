@@ -29,6 +29,7 @@ Partial Class frmPrincipal
         Me.GestiónToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.BandejaDeEntradaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionRangosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.GestionTiemposToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestionUsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AuditoriaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.EstadisticasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -68,7 +69,7 @@ Partial Class frmPrincipal
         '
         'GestiónToolStripMenuItem
         '
-        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
+        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionTiemposToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
         Me.GestiónToolStripMenuItem.Name = "GestiónToolStripMenuItem"
         Me.GestiónToolStripMenuItem.Size = New System.Drawing.Size(88, 29)
         Me.GestiónToolStripMenuItem.Text = "Gestión"
@@ -84,6 +85,12 @@ Partial Class frmPrincipal
         Me.GestionRangosToolStripMenuItem.Name = "GestionRangosToolStripMenuItem"
         Me.GestionRangosToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.GestionRangosToolStripMenuItem.Text = "Numeración y Rangos"
+        '
+        'GestionTiemposToolStripMenuItem
+        '
+        Me.GestionTiemposToolStripMenuItem.Name = "GestionTiemposToolStripMenuItem"
+        Me.GestionTiemposToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
+        Me.GestionTiemposToolStripMenuItem.Text = "Vencimientos por Tipo"
         '
         'GestionUsuariosToolStripMenuItem
         '
@@ -169,6 +176,7 @@ Partial Class frmPrincipal
     Friend WithEvents GestiónToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents BandejaDeEntradaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionRangosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents GestionTiemposToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents GestionUsuariosToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AuditoriaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents EstadisticasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem

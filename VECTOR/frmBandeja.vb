@@ -152,7 +152,7 @@ Public Class frmBandeja
             resultado = _listaOriginal.Where(Function(item As Object)
                                                  ' Concatenamos usando la propiedad .Origen restaurada
                                                  Dim superString As String = (item.Tipo & " " &
-                                                                              item.Referencia & " " &
+                                                                              If(item.Referencia IsNot Nothing, item.Referencia.ToString(), "") & " " &
                                                                               item.Origen & " " &
                                                                               item.Asunto & " " &
                                                                               item.RefPadre & " " &
@@ -251,6 +251,7 @@ Public Class frmBandeja
             .Columns("Referencia").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Referencia").HeaderText = "Referencia"
             .Columns("Referencia").DefaultCellStyle.Font = New Font(dgvPendientes.Font, FontStyle.Bold)
+            .Columns("Referencia").DisplayIndex = 3
             .Columns("Referencia").Visible = True
 
             ' Configuración Fecha

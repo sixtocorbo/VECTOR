@@ -518,7 +518,7 @@ Public Class frmGestionRangos
         fin = ini + cantidad - 1
         Integer.TryParse(txtUltimo.Text, ult)
 
-        If ult < (ini - 1) Or ult > fin Then
+        If ult <> 0 AndAlso (ult < (ini - 1) Or ult > fin) Then
             Toast.Show(Me, "El campo 'Último Utilizado' está fuera del rango.", ToastType.Warning)
             Return
         End If

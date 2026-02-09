@@ -171,6 +171,8 @@ Public Class frmBandeja
                                              End Function).ToList()
         End If
 
+        dgvPendientes.AutoGenerateColumns = True
+        dgvPendientes.Columns.Clear()
         dgvPendientes.DataSource = resultado
         DiseñarColumnas() ' Aplicamos tu diseño visual
         dgvPendientes.ClearSelection()

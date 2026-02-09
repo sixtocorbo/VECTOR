@@ -250,6 +250,15 @@ Public Class frmBandeja
                 .Columns("Observaciones").DisplayIndex = .Columns.Count - 1
             End If
         End With
+        If dgvPendientes.Columns.Contains("Semaforo") Then dgvPendientes.Columns("Semaforo").Visible = False
+
+        If dgvPendientes.Columns.Contains("Vencimiento") Then
+            With dgvPendientes.Columns("Vencimiento")
+                .HeaderText = "Vence"
+                .DefaultCellStyle.Format = "dd/MM"
+                .DisplayIndex = 2 ' Para que se vea al principio
+            End With
+        End If
     End Sub
 
     ' =======================================================
@@ -784,5 +793,26 @@ Public Class frmBandeja
 
         ' Abrirlo como ventana MDI cuando el formulario principal soporte MDI.
         ShowFormInMdi(Me, fDetalle)
+    End Sub
+    Private Sub dgvPendientes_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles dgvPendientes.CellFormatting
+        If e.RowIndex < 0 Then Return
+
+        ' Verificar si la columna Semaforo existe (porque la carga es dinámica)
+        If Not dgvPendientes.Columns.Contains("Semaforo") Then Return
+
+        ' Solo pintamos la celda de Vencimiento
+        If dgvPendientes.Columns(e.ColumnIndex).Name = "Vencimiento" Then
+            Dim semaforo As String = Convert.ToString(dgvPendientes.Rows(e.RowIndex).Cells("Semaforo").Value)
+
+            Select Case semaforo
+                Case "ROJO"
+                    e.CellStyle.BackColor = Color.Salmon
+                    e.CellStyle.ForeColor = Color.White
+                Case "AMARILLO"
+                    e.CellStyle.BackColor = Color.Gold
+                Case "VERDE"
+                    e.CellStyle.BackColor = Color.LightGreen
+            End Select
+        End If
     End Sub
 End Class

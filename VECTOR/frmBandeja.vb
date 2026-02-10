@@ -26,7 +26,7 @@ Public Class frmBandeja
     Private Async Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             AppTheme.Aplicar(Me)
-            UIUtils.SetPlaceholder(txtBuscar, "Escriba para filtrar documentos...")
+            UIUtils.SetPlaceholder(txtBuscar, "Buscar por Nombre, ID, Tipo, etc...")
             ' --- TRUCO PRO: DOBLE BUFFER ---
             Dim typeDGV As Type = dgvPendientes.GetType()
             Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
@@ -159,7 +159,8 @@ Public Class frmBandeja
 
             resultado = _listaOriginal.Where(Function(item As Object)
                                                  ' Concatenamos usando la propiedad .Origen restaurada
-                                                 Dim superString As String = (item.Tipo & " " &
+                                                 Dim superString As String = (item.ID.ToString() & " " &
+                                                                              item.Tipo & " " &
                                                                               If(item.Referencia IsNot Nothing, item.Referencia.ToString(), "") & " " &
                                                                               item.Origen & " " &
                                                                               item.Asunto & " " &

@@ -530,11 +530,8 @@ Public Class frmRenovacionesArt120
                 _documentosDisponibles = New List(Of DocumentoRespaldoDto)()
 
                 For Each doc In docsIds
-                    Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
-                    Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
-                    Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
                     Dim tipo = If(String.IsNullOrWhiteSpace(doc.Tipo), "DOC", doc.Tipo.ToUpper())
-                    Dim etiqueta = $"{tipo} {numero} | {fechaTxt} | {asunto}"
+                    Dim etiqueta = $"ID {doc.IdDocumento} {tipo}"
 
                     _documentosDisponibles.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = doc.IdDocumento,

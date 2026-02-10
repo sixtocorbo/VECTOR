@@ -7,8 +7,12 @@ Imports System.Threading.Tasks
 Public Class frmBandeja
 
     Private Const IdBandejaEntrada As Integer = 13
+    Private Const DiasAnticipacionAlertaSalidas As Integer = 30
     Private _fontNormal As Font
     Private _fontItalic As Font
+    Private _cantidadSalidasAlerta As Integer
+    Private _cantidadSalidasVencidas As Integer
+    Private _ultimoResumenAlertasSalidas As String = String.Empty
 
     ' 1. LISTA EN MEMORIA
     Private _listaOriginal As New List(Of Object)
@@ -120,6 +124,8 @@ Public Class frmBandeja
 
                 _listaOriginal = New List(Of Object)(listaFinal)
 
+                Await CargarAlertasSalidasArt120Async(uow)
+
             End Using
 
             ' E. MOSTRAMOS
@@ -192,9 +198,44 @@ Public Class frmBandeja
               Count()
 
         lblContador.Text = "Expedientes: " & totalExpedientes
+        If _cantidadSalidasAlerta > 0 OrElse _cantidadSalidasVencidas > 0 Then
+            lblContador.Text &= " | Alertas Art.120: " & (_cantidadSalidasAlerta + _cantidadSalidasVencidas)
+        End If
 
         dgvPendientes.Refresh()
     End Sub
+
+    Private Async Function CargarAlertasSalidasArt120Async(uow As UnitOfWork) As Task
+        Dim hoy As Date = Date.Today
+
+        Dim salidasActivas = Await uow.Repository(Of Tra_SalidasLaborales)().
+            GetQueryable().
+            Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value).
+            Select(Function(s) New With {
+                .IdSalida = s.IdSalida,
+                .FechaVencimiento = s.FechaVencimiento,
+                .DiasRestantes = DbFunctions.DiffDays(hoy, s.FechaVencimiento)
+            }).
+            ToListAsync()
+
+        _cantidadSalidasVencidas = salidasActivas.Count(Function(s) s.DiasRestantes.HasValue AndAlso s.DiasRestantes.Value < 0)
+        _cantidadSalidasAlerta = salidasActivas.Count(Function(s) s.DiasRestantes.HasValue AndAlso s.DiasRestantes.Value >= 0 AndAlso s.DiasRestantes.Value <= DiasAnticipacionAlertaSalidas)
+
+        Dim resumen As String = $"A:{_cantidadSalidasAlerta}|V:{_cantidadSalidasVencidas}"
+        If resumen = _ultimoResumenAlertasSalidas Then Return
+
+        _ultimoResumenAlertasSalidas = resumen
+
+        If _cantidadSalidasVencidas > 0 Then
+            Toast.Show(Me,
+                       $"⚠️ Art. 120: hay {_cantidadSalidasVencidas} salida(s) vencida(s) y {_cantidadSalidasAlerta} por vencer en {DiasAnticipacionAlertaSalidas} días.",
+                       ToastType.Warning)
+        ElseIf _cantidadSalidasAlerta > 0 Then
+            Toast.Show(Me,
+                       $"⚠️ Art. 120: hay {_cantidadSalidasAlerta} salida(s) por vencer en los próximos {DiasAnticipacionAlertaSalidas} días.",
+                       ToastType.Warning)
+        End If
+    End Function
 
     Private Sub DiseñarColumnas()
         If dgvPendientes.Columns.Count = 0 Then Return

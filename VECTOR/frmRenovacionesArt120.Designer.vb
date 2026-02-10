@@ -33,8 +33,10 @@ Partial Class frmRenovacionesArt120
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.txtObservaciones = New System.Windows.Forms.TextBox()
         Me.Label8 = New System.Windows.Forms.Label()
-        Me.txtIdDocumento = New System.Windows.Forms.TextBox()
+        Me.cboDocumentoRespaldo = New System.Windows.Forms.ComboBox()
+        Me.btnRefrescarDocumentos = New System.Windows.Forms.Button()
         Me.Label7 = New System.Windows.Forms.Label()
+        Me.chkActivoRegistro = New System.Windows.Forms.CheckBox()
         Me.dtpVencimiento = New System.Windows.Forms.DateTimePicker()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.dtpInicio = New System.Windows.Forms.DateTimePicker()
@@ -199,8 +201,10 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.btnGuardar)
         Me.PanelEditor.Controls.Add(Me.txtObservaciones)
         Me.PanelEditor.Controls.Add(Me.Label8)
-        Me.PanelEditor.Controls.Add(Me.txtIdDocumento)
+        Me.PanelEditor.Controls.Add(Me.cboDocumentoRespaldo)
+        Me.PanelEditor.Controls.Add(Me.btnRefrescarDocumentos)
         Me.PanelEditor.Controls.Add(Me.Label7)
+        Me.PanelEditor.Controls.Add(Me.chkActivoRegistro)
         Me.PanelEditor.Controls.Add(Me.dtpVencimiento)
         Me.PanelEditor.Controls.Add(Me.Label6)
         Me.PanelEditor.Controls.Add(Me.dtpInicio)
@@ -260,12 +264,23 @@ Partial Class frmRenovacionesArt120
         Me.Label8.TabIndex = 13
         Me.Label8.Text = "Observaciones"
         '
-        'txtIdDocumento
+        'cboDocumentoRespaldo
         '
-        Me.txtIdDocumento.Location = New System.Drawing.Point(861, 105)
-        Me.txtIdDocumento.Name = "txtIdDocumento"
-        Me.txtIdDocumento.Size = New System.Drawing.Size(381, 26)
-        Me.txtIdDocumento.TabIndex = 12
+        Me.cboDocumentoRespaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboDocumentoRespaldo.FormattingEnabled = True
+        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 105)
+        Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
+        Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
+        Me.cboDocumentoRespaldo.TabIndex = 12
+        '
+        'btnRefrescarDocumentos
+        '
+        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1188, 104)
+        Me.btnRefrescarDocumentos.Name = "btnRefrescarDocumentos"
+        Me.btnRefrescarDocumentos.Size = New System.Drawing.Size(54, 31)
+        Me.btnRefrescarDocumentos.TabIndex = 13
+        Me.btnRefrescarDocumentos.Text = "↻"
+        Me.btnRefrescarDocumentos.UseVisualStyleBackColor = True
         '
         'Label7
         '
@@ -274,7 +289,19 @@ Partial Class frmRenovacionesArt120
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(244, 20)
         Me.Label7.TabIndex = 11
-        Me.Label7.Text = "Id Documento respaldo (opcional)"
+        Me.Label7.Text = "Expediente / Documento respaldo (opcional)"
+        '
+        'chkActivoRegistro
+        '
+        Me.chkActivoRegistro.AutoSize = True
+        Me.chkActivoRegistro.Checked = True
+        Me.chkActivoRegistro.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkActivoRegistro.Location = New System.Drawing.Point(462, 143)
+        Me.chkActivoRegistro.Name = "chkActivoRegistro"
+        Me.chkActivoRegistro.Size = New System.Drawing.Size(152, 24)
+        Me.chkActivoRegistro.TabIndex = 14
+        Me.chkActivoRegistro.Text = "Registro activo"
+        Me.chkActivoRegistro.UseVisualStyleBackColor = True
         '
         'dtpVencimiento
         '
@@ -416,8 +443,10 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents Label5 As Label
     Friend WithEvents dtpVencimiento As DateTimePicker
     Friend WithEvents Label6 As Label
-    Friend WithEvents txtIdDocumento As TextBox
+    Friend WithEvents cboDocumentoRespaldo As ComboBox
+    Friend WithEvents btnRefrescarDocumentos As Button
     Friend WithEvents Label7 As Label
+    Friend WithEvents chkActivoRegistro As CheckBox
     Friend WithEvents txtObservaciones As TextBox
     Friend WithEvents Label8 As Label
     Friend WithEvents btnGuardar As Button

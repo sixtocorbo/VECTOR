@@ -24,6 +24,7 @@ Public Class frmRenovacionesArt120
     Private _listaOriginal As New List(Of SalidaGridDto)
     Private _idSalidaEditando As Nullable(Of Integer)
     Private _idReclusoSeleccionado As Nullable(Of Integer)
+    Private _cargandoDocumentos As Boolean
 
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
@@ -47,7 +48,7 @@ Public Class frmRenovacionesArt120
                     .Include("Mae_Reclusos")
 
                 If chkSoloActivas.Checked Then
-                    consulta = consulta.Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value)
+                    consulta = consulta.Where(Function(s) Not s.Activo.HasValue OrElse s.Activo.Value)
                 End If
 
                 Dim datos = Await consulta _
@@ -223,12 +224,14 @@ Public Class frmRenovacionesArt120
         txtLugarTrabajo.Text = sel.LugarTrabajo
         dtpInicio.Value = sel.FechaInicio
         dtpVencimiento.Value = sel.FechaVencimiento
-        txtIdDocumento.Text = If(sel.IdDocumentoRespaldo.HasValue, sel.IdDocumentoRespaldo.Value.ToString(), "")
+        chkActivoRegistro.Checked = sel.Activo
         txtObservaciones.Text = sel.Observaciones
         txtLugarTrabajo.Focus()
+
+        CargarDocumentosRespaldo(sel.IdRecluso, sel.Recluso, sel.IdDocumentoRespaldo)
     End Sub
 
-    Private Sub btnBuscarRecluso_Click(sender As Object, e As EventArgs) Handles btnBuscarRecluso.Click
+    Private Async Sub btnBuscarRecluso_Click(sender As Object, e As EventArgs) Handles btnBuscarRecluso.Click
         Dim f As New frmBuscadorReclusos()
         If f.ShowDialog(Me) <> DialogResult.OK Then Return
 
@@ -252,6 +255,8 @@ Public Class frmRenovacionesArt120
             txtRecluso.Text = recluso.NombreCompleto
             lblIdRecluso.Text = "ID: " & recluso.IdRecluso
         End Using
+
+        Await CargarDocumentosRespaldoAsync(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), Nothing)
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
@@ -277,8 +282,8 @@ Public Class frmRenovacionesArt120
                 entidad.LugarTrabajo = txtLugarTrabajo.Text.Trim()
                 entidad.FechaInicio = dtpInicio.Value.Date
                 entidad.FechaVencimiento = dtpVencimiento.Value.Date
-                entidad.IdDocumentoRespaldo = ParseNullableLong(txtIdDocumento.Text)
-                entidad.Activo = True
+                entidad.IdDocumentoRespaldo = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+                entidad.Activo = chkActivoRegistro.Checked
                 entidad.Observaciones = If(String.IsNullOrWhiteSpace(txtObservaciones.Text), Nothing, txtObservaciones.Text.Trim())
 
                 Await uow.CommitAsync()
@@ -308,10 +313,14 @@ Public Class frmRenovacionesArt120
             Return False
         End If
 
-        Dim idDoc = ParseNullableLong(txtIdDocumento.Text)
-        If Not String.IsNullOrWhiteSpace(txtIdDocumento.Text) AndAlso Not idDoc.HasValue Then
+        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+        If cboDocumentoRespaldo.SelectedIndex > 0 AndAlso Not idDoc.HasValue Then
             Toast.Show(Me, "El ID de documento respaldo debe ser numérico.", ToastType.Warning)
             Return False
+        End If
+
+        If _idSalidaEditando.HasValue AndAlso Not chkActivoRegistro.Checked AndAlso chkSoloActivas.Checked Then
+            Toast.Show(Me, "Al guardar, el registro quedará oculto porque tiene activado el filtro 'Solo activas'.", ToastType.Info)
         End If
 
         Return True
@@ -384,18 +393,122 @@ Public Class frmRenovacionesArt120
         txtLugarTrabajo.Clear()
         dtpInicio.Value = Date.Today
         dtpVencimiento.Value = Date.Today.AddMonths(1)
-        txtIdDocumento.Clear()
+        chkActivoRegistro.Checked = True
+        CargarDocumentosRespaldoVacio()
         txtObservaciones.Clear()
     End Sub
 
-    Private Function ParseNullableLong(value As String) As Nullable(Of Long)
-        If String.IsNullOrWhiteSpace(value) Then Return Nothing
+    Private Function ParseNullableLong(value As Object) As Nullable(Of Long)
+        Dim txt = If(value, "").ToString()
+        If String.IsNullOrWhiteSpace(txt) Then Return Nothing
 
         Dim n As Long
-        If Long.TryParse(value.Trim(), n) Then
+        If Long.TryParse(txt.Trim(), n) Then
             Return n
         End If
 
         Return Nothing
     End Function
+
+    Private Sub CargarDocumentosRespaldoVacio()
+        _cargandoDocumentos = True
+        cboDocumentoRespaldo.DisplayMember = "Text"
+        cboDocumentoRespaldo.ValueMember = "Value"
+        cboDocumentoRespaldo.DataSource = New List(Of Object) From {
+            New With {.Text = "(sin respaldo)", .Value = ""}
+        }
+        cboDocumentoRespaldo.SelectedIndex = 0
+        _cargandoDocumentos = False
+    End Sub
+
+    Private Sub CargarDocumentosRespaldo(idRecluso As Integer, nombreRecluso As String, idSeleccionado As Nullable(Of Long))
+        CargarDocumentosRespaldoAsync(idRecluso, nombreRecluso, idSeleccionado).GetAwaiter().GetResult()
+    End Sub
+
+    Private Async Function CargarDocumentosRespaldoAsync(idRecluso As Integer, nombreRecluso As String, idSeleccionado As Nullable(Of Long)) As Task
+        Try
+            _cargandoDocumentos = True
+
+            Using uow As New UnitOfWork()
+                Dim repoDocs = uow.Repository(Of Mae_Documento)()
+                Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
+
+                Dim idsDesdeSalidas = Await repoSalidas.GetQueryable(tracking:=False) _
+                    .Where(Function(s) s.IdRecluso = idRecluso AndAlso s.IdDocumentoRespaldo.HasValue) _
+                    .Select(Function(s) s.IdDocumentoRespaldo.Value) _
+                    .Distinct() _
+                    .ToListAsync()
+
+                Dim nombre = nombreRecluso.Trim()
+                Dim docsPorTexto = Await repoDocs.GetQueryable(tracking:=False) _
+                    .Where(Function(d) d.Asunto.Contains(nombre) OrElse d.Descripcion.Contains(nombre)) _
+                    .OrderByDescending(Function(d) d.FechaCreacion) _
+                    .Select(Function(d) New With {
+                        .IdDocumento = d.IdDocumento,
+                        .NumeroOficial = d.NumeroOficial,
+                        .Asunto = d.Asunto,
+                        .Fecha = d.FechaCreacion
+                    }) _
+                    .Take(50) _
+                    .ToListAsync()
+
+                Dim ids = idsDesdeSalidas.Union(docsPorTexto.Select(Function(d) CLng(d.IdDocumento))).Distinct().ToList()
+
+                Dim docsIds = Await repoDocs.GetQueryable(tracking:=False) _
+                    .Where(Function(d) ids.Contains(d.IdDocumento)) _
+                    .OrderByDescending(Function(d) d.FechaCreacion) _
+                    .Select(Function(d) New With {
+                        .IdDocumento = d.IdDocumento,
+                        .NumeroOficial = d.NumeroOficial,
+                        .Asunto = d.Asunto,
+                        .Fecha = d.FechaCreacion
+                    }) _
+                    .ToListAsync()
+
+                Dim listaCombo = New List(Of Object) From {
+                    New With {.Text = "(sin respaldo)", .Value = ""}
+                }
+
+                For Each doc In docsIds
+                    Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
+                    Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
+                    Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
+                    listaCombo.Add(New With {
+                        .Text = $"{doc.IdDocumento} | {numero} | {fechaTxt} | {asunto}",
+                        .Value = doc.IdDocumento.ToString()
+                    })
+                Next
+
+                cboDocumentoRespaldo.DisplayMember = "Text"
+                cboDocumentoRespaldo.ValueMember = "Value"
+                cboDocumentoRespaldo.DataSource = listaCombo
+
+                If idSeleccionado.HasValue Then
+                    cboDocumentoRespaldo.SelectedValue = idSeleccionado.Value.ToString()
+                Else
+                    cboDocumentoRespaldo.SelectedIndex = 0
+                End If
+            End Using
+        Catch ex As Exception
+            CargarDocumentosRespaldoVacio()
+            Toast.Show(Me, "No se pudieron cargar expedientes/documentos sugeridos: " & ex.Message, ToastType.Warning)
+        Finally
+            _cargandoDocumentos = False
+        End Try
+    End Function
+
+    Private Sub btnRefrescarDocumentos_Click(sender As Object, e As EventArgs) Handles btnRefrescarDocumentos.Click
+        If Not _idReclusoSeleccionado.HasValue Then
+            Toast.Show(Me, "Primero seleccione una persona privada de libertad.", ToastType.Warning)
+            Return
+        End If
+
+        CargarDocumentosRespaldo(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), ParseNullableLong(cboDocumentoRespaldo.SelectedValue))
+    End Sub
+
+    Private Sub cboDocumentoRespaldo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboDocumentoRespaldo.SelectedIndexChanged
+        If _cargandoDocumentos Then Return
+        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+        btnAbrirDocumento.Enabled = idDoc.HasValue
+    End Sub
 End Class

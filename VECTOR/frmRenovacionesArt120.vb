@@ -67,19 +67,19 @@ Public Class frmRenovacionesArt120
                     }).ToListAsync()
 
                 _listaOriginal = datos.Select(Function(x)
-                                                 Dim dias = If(x.DiasRestantes, 0)
-                                                 Dim estado As String
-                                                 If Not x.Activo.GetValueOrDefault(True) Then
-                                                     estado = "INACTIVA"
-                                                 ElseIf dias < 0 Then
-                                                     estado = "VENCIDA"
-                                                 ElseIf dias <= DiasAnticipacionAlerta Then
-                                                     estado = "ALERTA"
-                                                 Else
-                                                     estado = "OK"
-                                                 End If
+                                                  Dim dias = If(x.DiasRestantes, 0)
+                                                  Dim estado As String
+                                                  If Not x.Activo.GetValueOrDefault(True) Then
+                                                      estado = "INACTIVA"
+                                                  ElseIf dias < 0 Then
+                                                      estado = "VENCIDA"
+                                                  ElseIf dias <= DiasAnticipacionAlerta Then
+                                                      estado = "ALERTA"
+                                                  Else
+                                                      estado = "OK"
+                                                  End If
 
-                                                 Return New SalidaGridDto With {
+                                                  Return New SalidaGridDto With {
                                                     .IdSalida = x.IdSalida,
                                                     .IdRecluso = x.IdRecluso,
                                                     .Recluso = If(x.Recluso, ""),
@@ -92,7 +92,7 @@ Public Class frmRenovacionesArt120
                                                     .Activo = x.Activo.GetValueOrDefault(True),
                                                     .Observaciones = If(x.Observaciones, "")
                                                  }
-                                             End Function).ToList()
+                                              End Function).ToList()
             End Using
 
             AplicarFiltro()

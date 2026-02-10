@@ -511,13 +511,15 @@ Public Class frmRenovacionesArt120
                 Dim ids = idsDesdeSalidas.Union(docsPorTexto.Select(Function(d) CLng(d.IdDocumento))).Distinct().ToList()
 
                 Dim docsIds = Await repoDocs.GetQueryable(tracking:=False) _
+                    .Include("Cat_TipoDocumento") _
                     .Where(Function(d) ids.Contains(d.IdDocumento)) _
                     .OrderByDescending(Function(d) d.FechaCreacion) _
                     .Select(Function(d) New With {
                         .IdDocumento = d.IdDocumento,
                         .NumeroOficial = d.NumeroOficial,
                         .Asunto = d.Asunto,
-                        .Fecha = d.FechaCreacion
+                        .Fecha = d.FechaCreacion,
+                        .Tipo = d.Cat_TipoDocumento.Nombre
                     }) _
                     .ToListAsync()
 
@@ -531,7 +533,8 @@ Public Class frmRenovacionesArt120
                     Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
                     Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
                     Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
-                    Dim etiqueta = $"{numero} | {fechaTxt} | {asunto}"
+                    Dim tipo = If(String.IsNullOrWhiteSpace(doc.Tipo), "DOC", doc.Tipo.ToUpper())
+                    Dim etiqueta = $"{tipo} {numero} | {fechaTxt} | {asunto}"
 
                     _documentosDisponibles.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = doc.IdDocumento,
@@ -539,7 +542,7 @@ Public Class frmRenovacionesArt120
                     })
 
                     listaCombo.Add(New With {
-                        .Text = $"{doc.IdDocumento} | {etiqueta}",
+                        .Text = etiqueta,
                         .Value = doc.IdDocumento.ToString()
                     })
                 Next
@@ -714,12 +717,14 @@ Public Class frmRenovacionesArt120
 
             Dim repoDocs = uow.Repository(Of Mae_Documento)()
             Dim documentos = Await repoDocs.GetQueryable(tracking:=False) _
+                .Include("Cat_TipoDocumento") _
                 .Where(Function(d) ids.Contains(d.IdDocumento)) _
                 .Select(Function(d) New With {
                     .IdDocumento = d.IdDocumento,
                     .NumeroOficial = d.NumeroOficial,
                     .Asunto = d.Asunto,
-                    .Fecha = d.FechaCreacion
+                    .Fecha = d.FechaCreacion,
+                    .Tipo = d.Cat_TipoDocumento.Nombre
                 }) _
                 .ToListAsync()
 
@@ -735,10 +740,11 @@ Public Class frmRenovacionesArt120
                                   Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
                                   Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
                                   Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
+                                  Dim tipo = If(String.IsNullOrWhiteSpace(doc.Tipo), "DOC", doc.Tipo.ToUpper())
 
                                   Return New DocumentoRespaldoDto With {
                                       .IdDocumento = id,
-                                      .Texto = $"{id} | {numero} | {fechaTxt} | {asunto}"
+                                      .Texto = $"{tipo} {numero} | {fechaTxt} | {asunto}"
                                   }
                               End Function).ToList()
         End Using

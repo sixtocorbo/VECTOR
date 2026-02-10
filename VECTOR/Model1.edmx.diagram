@@ -42,6 +42,9 @@
         <EntityTypeShape EntityType="SecretariaDBModel.Tra_SalidasLaborales" Width="1.5" PointX="11.5" PointY="4.5" />
         <AssociationConnector Association="SecretariaDBModel.FK_Salidas_Documento" />
         <AssociationConnector Association="SecretariaDBModel.FK_Salidas_Reclusos" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Tra_SalidasLaboralesDocumentoRespaldo" Width="1.5" PointX="15.75" PointY="7.75" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Tra_SalidasLaboralesDocumentoRespaldo_Mae_Documento" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Tra_SalidasLaboralesDocumentoRespaldo_Tra_SalidasLaborales" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

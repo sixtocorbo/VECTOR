@@ -10,18 +10,13 @@
 Imports System
 Imports System.Collections.Generic
 
-Partial Public Class Tra_SalidasLaborales
+Partial Public Class Tra_SalidasLaboralesDocumentoRespaldo
+    Public Property IdSalidaDocumentoRespaldo As Integer
     Public Property IdSalida As Integer
-    Public Property IdRecluso As Integer
-    Public Property LugarTrabajo As String
-    Public Property FechaInicio As Date
-    Public Property FechaVencimiento As Date
-    Public Property IdDocumentoRespaldo As Nullable(Of Long)
-    Public Property Activo As Nullable(Of Boolean)
-    Public Property Observaciones As String
+    Public Property IdDocumento As Long
+    Public Property FechaRegistro As Date
 
     Public Overridable Property Mae_Documento As Mae_Documento
-    Public Overridable Property Mae_Reclusos As Mae_Reclusos
-    Public Overridable Property Tra_SalidasLaboralesDocumentoRespaldo As ICollection(Of Tra_SalidasLaboralesDocumentoRespaldo) = New HashSet(Of Tra_SalidasLaboralesDocumentoRespaldo)
+    Public Overridable Property Tra_SalidasLaborales As Tra_SalidasLaborales
 
 End Class

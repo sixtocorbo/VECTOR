@@ -642,17 +642,18 @@ Public Class frmRenovacionesArt120
     Private Async Function GuardarDocumentosRespaldoSalidaAsync(uow As UnitOfWork, idSalida As Integer, idsDocumento As List(Of Long)) As Task
         If uow Is Nothing Then Return
 
-        Dim tablaExiste = Await ExisteTablaRespaldoAsync(uow)
-        If Not tablaExiste Then Return
+        Try
+            Await uow.Context.Database.ExecuteSqlCommandAsync("DELETE FROM Tra_SalidasLaboralesDocumentoRespaldo WHERE IdSalida = @p0", idSalida)
 
-        Await uow.Context.Database.ExecuteSqlCommandAsync("DELETE FROM Tra_SalidasLaboralesDocumentoRespaldo WHERE IdSalida = @p0", idSalida)
-
-        For Each idDoc In idsDocumento.Distinct().OrderBy(Function(x) x)
-            Await uow.Context.Database.ExecuteSqlCommandAsync(
-                "INSERT INTO Tra_SalidasLaboralesDocumentoRespaldo (IdSalida, IdDocumento) VALUES (@p0, @p1)",
-                idSalida,
-                idDoc)
-        Next
+            For Each idDoc In idsDocumento.Distinct().OrderBy(Function(x) x)
+                Await uow.Context.Database.ExecuteSqlCommandAsync(
+                    "INSERT INTO Tra_SalidasLaboralesDocumentoRespaldo (IdSalida, IdDocumento) VALUES (@p0, @p1)",
+                    idSalida,
+                    idDoc)
+            Next
+        Catch ex As Exception
+            Toast.Show(Me, "No se pudieron guardar los documentos de respaldo asociados: " & ex.Message, ToastType.Warning)
+        End Try
     End Function
 
     Private Async Function ObtenerDocumentosPorSalidaAsync(uow As UnitOfWork, idsSalida As List(Of Integer)) As Task(Of Dictionary(Of Integer, List(Of Long)))
@@ -678,8 +679,7 @@ Public Class frmRenovacionesArt120
             End If
         Next
 
-        Dim tablaExiste = Await ExisteTablaRespaldoAsync(uow)
-        If tablaExiste Then
+        Try
             Dim docsRelacion = Await uow.Context.Set(Of Tra_SalidasLaboralesDocumentoRespaldo)() _
                 .Where(Function(r) idsSalida.Contains(r.IdSalida)) _
                 .Select(Function(r) New With {
@@ -697,7 +697,9 @@ Public Class frmRenovacionesArt120
                     resultado(item.IdSalida).Add(item.IdDocumento)
                 End If
             Next
-        End If
+        Catch ex As Exception
+            Debug.WriteLine("No se pudieron consultar documentos de respaldo por relación: " & ex.Message)
+        End Try
 
         For Each idSalida In resultado.Keys.ToList()
             resultado(idSalida) = resultado(idSalida).Distinct().OrderBy(Function(x) x).ToList()

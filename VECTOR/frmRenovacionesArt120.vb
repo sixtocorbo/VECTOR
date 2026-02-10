@@ -157,9 +157,15 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Sub Resumir(lista As List(Of SalidaGridDto))
+        ' 1. Para el total usamos la propiedad nativa de la lista (es más rápido)
         Dim total = lista.Count
-        Dim vencidas = lista.Count(Function(s) s.Estado = "VENCIDA")
-        Dim alertas = lista.Count(Function(s) s.Estado = "ALERTA")
+
+        ' 2. Para contar con condiciones, usamos .Where(...).Count() 
+        ' Esto evita la ambigüedad que causa el error en VB.NET
+        Dim vencidas = lista.Where(Function(s) s.Estado = "VENCIDA").Count()
+        Dim alertas = lista.Where(Function(s) s.Estado = "ALERTA").Count()
+
+        ' 3. Asignación al Label con interpolación de cadenas
         lblResumen.Text = $"Total: {total} | Vencidas: {vencidas} | En alerta ({DiasAnticipacionAlerta} días): {alertas}"
     End Sub
 

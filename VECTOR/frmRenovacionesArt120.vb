@@ -56,8 +56,13 @@ Public Class frmRenovacionesArt120
                 Dim consulta = repo.GetQueryable() _
                     .Include("Mae_Reclusos")
 
+                ' Lógica Switch: O son Activas O son Inactivas (nunca mezcladas)
                 If chkSoloActivas.Checked Then
-                    consulta = consulta.Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value)
+                    ' Opción A: Mostrar SOLO las ACTIVAS
+                    consulta = consulta.Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value = True)
+                Else
+                    ' Opción B: Mostrar SOLO las INACTIVAS (Falso o Nulo)
+                    consulta = consulta.Where(Function(s) Not s.Activo.HasValue OrElse s.Activo.Value = False)
                 End If
 
                 Dim datos = Await consulta _

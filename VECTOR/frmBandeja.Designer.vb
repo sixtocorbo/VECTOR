@@ -58,7 +58,7 @@ Partial Class frmBandeja
         'chkVerDerivados
         '
         Me.chkVerDerivados.AutoSize = True
-        Me.chkVerDerivados.Location = New System.Drawing.Point(93, 38)
+        Me.chkVerDerivados.Location = New System.Drawing.Point(93, 14)
         Me.chkVerDerivados.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkVerDerivados.Name = "chkVerDerivados"
         Me.chkVerDerivados.Size = New System.Drawing.Size(195, 24)
@@ -68,11 +68,10 @@ Partial Class frmBandeja
         '
         'btnNuevoIngreso
         '
-        Me.btnNuevoIngreso.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnNuevoIngreso.BackColor = System.Drawing.Color.SeaGreen
         Me.btnNuevoIngreso.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnNuevoIngreso.ForeColor = System.Drawing.Color.White
-        Me.btnNuevoIngreso.Location = New System.Drawing.Point(832, 38)
+        Me.btnNuevoIngreso.Location = New System.Drawing.Point(536, 52)
         Me.btnNuevoIngreso.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnNuevoIngreso.Name = "btnNuevoIngreso"
         Me.btnNuevoIngreso.Size = New System.Drawing.Size(276, 46)
@@ -85,7 +84,7 @@ Partial Class frmBandeja
         Me.lblContador.AutoSize = True
         Me.lblContador.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblContador.ForeColor = System.Drawing.Color.Red
-        Me.lblContador.Location = New System.Drawing.Point(315, 23)
+        Me.lblContador.Location = New System.Drawing.Point(313, 9)
         Me.lblContador.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblContador.Name = "lblContador"
         Me.lblContador.Size = New System.Drawing.Size(179, 32)
@@ -112,37 +111,36 @@ Partial Class frmBandeja
         '
         'btnDarPase
         '
-        Me.btnDarPase.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnDarPase.BackColor = System.Drawing.Color.ForestGreen
         Me.btnDarPase.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDarPase.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnDarPase.ForeColor = System.Drawing.Color.White
-        Me.btnDarPase.Location = New System.Drawing.Point(1116, 38)
+        Me.btnDarPase.Location = New System.Drawing.Point(817, 52)
         Me.btnDarPase.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnDarPase.Name = "btnDarPase"
         Me.btnDarPase.Size = New System.Drawing.Size(276, 46)
         Me.btnDarPase.TabIndex = 1
         Me.btnDarPase.Text = "DAR PASE"
         Me.btnDarPase.UseVisualStyleBackColor = False
-
         '
         'btnRenovacionesArt120
         '
-        Me.btnRenovacionesArt120.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnRenovacionesArt120.BackColor = System.Drawing.Color.MediumPurple
         Me.btnRenovacionesArt120.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnRenovacionesArt120.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnRenovacionesArt120.ForeColor = System.Drawing.Color.White
-        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(1400, 38)
+        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(1098, 52)
         Me.btnRenovacionesArt120.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnRenovacionesArt120.Name = "btnRenovacionesArt120"
-        Me.btnRenovacionesArt120.Size = New System.Drawing.Size(381, 46)
+        Me.btnRenovacionesArt120.Size = New System.Drawing.Size(276, 46)
         Me.btnRenovacionesArt120.TabIndex = 7
         Me.btnRenovacionesArt120.Text = "RENOVACIONES ART.120"
         Me.btnRenovacionesArt120.UseVisualStyleBackColor = False
         '
         'PanelInferior
         '
+        ' --- CAMBIO AQUÍ: Usamos Dock Bottom en lugar de Anchor ---
+        Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.PanelInferior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelInferior.Controls.Add(Me.btnDesvincular)
         Me.PanelInferior.Controls.Add(Me.btnEditar)
@@ -150,8 +148,7 @@ Partial Class frmBandeja
         Me.PanelInferior.Controls.Add(Me.btnVincular)
         Me.PanelInferior.Controls.Add(Me.btnHistorial)
         Me.PanelInferior.Controls.Add(Me.btnRefrescar)
-        Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelInferior.Location = New System.Drawing.Point(0, 771)
+        Me.PanelInferior.Location = New System.Drawing.Point(0, 456)
         Me.PanelInferior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.PanelInferior.Name = "PanelInferior"
         Me.PanelInferior.Size = New System.Drawing.Size(1800, 92)
@@ -238,7 +235,6 @@ Partial Class frmBandeja
         Me.dgvPendientes.AllowUserToDeleteRows = False
         Me.dgvPendientes.AllowUserToResizeColumns = False
         Me.dgvPendientes.AllowUserToResizeRows = False
-        Me.dgvPendientes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvPendientes.BackgroundColor = System.Drawing.Color.WhiteSmoke
         Me.dgvPendientes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvPendientes.Dock = System.Windows.Forms.DockStyle.Fill
@@ -250,17 +246,24 @@ Partial Class frmBandeja
         Me.dgvPendientes.RowHeadersVisible = False
         Me.dgvPendientes.RowHeadersWidth = 62
         Me.dgvPendientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvPendientes.Size = New System.Drawing.Size(1800, 663)
+        Me.dgvPendientes.Size = New System.Drawing.Size(1800, 440) ' Este tamaño ahora se ajustará solo
         Me.dgvPendientes.TabIndex = 2
         '
         'frmBandeja
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1800, 863)
+        Me.ClientSize = New System.Drawing.Size(1800, 548)
+        '
+        ' --- IMPORTANTE: EL ORDEN AQUÍ GARANTIZA QUE LA GRILLA QUEDE AL MEDIO ---
+        ' 1. Agregamos la grilla (Fill)
+        ' 2. Agregamos el panel inferior (Dock Bottom)
+        ' 3. Agregamos el panel superior (Dock Top)
+        ' Al agregarse al final, los paneles tienen prioridad en el borde, y la grilla rellena lo que sobra.
         Me.Controls.Add(Me.dgvPendientes)
         Me.Controls.Add(Me.PanelInferior)
         Me.Controls.Add(Me.PanelSuperior)
+
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "frmBandeja"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen

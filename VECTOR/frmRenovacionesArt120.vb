@@ -17,6 +17,8 @@ Public Class frmRenovacionesArt120
         Public Property DiasRestantes As Integer
         Public Property Estado As String
         Public Property IdDocumentoRespaldo As Nullable(Of Long)
+        Public Property ReferenciaDocumentacion As String
+        Public Property CantidadDocumentos As Integer
         Public Property Activo As Boolean
         Public Property Observaciones As String
     End Class
@@ -55,7 +57,7 @@ Public Class frmRenovacionesArt120
                     .Include("Mae_Reclusos")
 
                 If chkSoloActivas.Checked Then
-                    consulta = consulta.Where(Function(s) Not s.Activo.HasValue OrElse s.Activo.Value)
+                    consulta = consulta.Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value)
                 End If
 
                 Dim datos = Await consulta _
@@ -73,10 +75,19 @@ Public Class frmRenovacionesArt120
                         .Observaciones = s.Observaciones
                     }).ToListAsync()
 
+                Dim idsSalida = datos.Select(Function(x) x.IdSalida).ToList()
+                Dim documentosPorSalida = Await ObtenerDocumentosPorSalidaAsync(uow, idsSalida)
+
                 _listaOriginal = datos.Select(Function(x)
                                                   Dim dias = If(x.DiasRestantes, 0)
+                                                  Dim estaActiva = x.Activo.HasValue AndAlso x.Activo.Value
+                                                  Dim idsDocs = If(documentosPorSalida.ContainsKey(x.IdSalida), documentosPorSalida(x.IdSalida), New List(Of Long)())
+                                                  Dim cantidadDocs = idsDocs.Count
+                                                  Dim referencia = If(cantidadDocs > 0,
+                                                                      $"SAL-{x.IdSalida} ({cantidadDocs})",
+                                                                      "Sin documentación")
                                                   Dim estado As String
-                                                  If Not x.Activo.GetValueOrDefault(True) Then
+                                                  If Not estaActiva Then
                                                       estado = "INACTIVA"
                                                   ElseIf dias < 0 Then
                                                       estado = "VENCIDA"
@@ -96,7 +107,9 @@ Public Class frmRenovacionesArt120
                                                     .DiasRestantes = dias,
                                                     .Estado = estado,
                                                     .IdDocumentoRespaldo = x.IdDocumentoRespaldo,
-                                                    .Activo = x.Activo.GetValueOrDefault(True),
+                                                    .ReferenciaDocumentacion = referencia,
+                                                    .CantidadDocumentos = cantidadDocs,
+                                                    .Activo = estaActiva,
                                                     .Observaciones = If(x.Observaciones, "")
                                                  }
                                               End Function).ToList()
@@ -115,7 +128,7 @@ Public Class frmRenovacionesArt120
         If Not String.IsNullOrWhiteSpace(texto) Then
             Dim palabras = texto.Split(" "c)
             lista = lista.Where(Function(s)
-                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Estado} {s.Observaciones} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
+                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Estado} {s.Observaciones} {s.ReferenciaDocumentacion} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
                                     Return palabras.All(Function(p) String.IsNullOrWhiteSpace(p) OrElse baseTexto.Contains(p))
                                 End Function)
         End If
@@ -134,6 +147,8 @@ Public Class frmRenovacionesArt120
         dgvSalidas.Columns("IdRecluso").Visible = False
         dgvSalidas.Columns("Observaciones").Visible = False
         dgvSalidas.Columns("Activo").Visible = False
+        dgvSalidas.Columns("IdDocumentoRespaldo").Visible = False
+        dgvSalidas.Columns("CantidadDocumentos").Visible = False
 
         dgvSalidas.Columns("IdSalida").HeaderText = "ID"
         dgvSalidas.Columns("IdSalida").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
@@ -160,8 +175,8 @@ Public Class frmRenovacionesArt120
         dgvSalidas.Columns("Estado").HeaderText = "Estado"
         dgvSalidas.Columns("Estado").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
 
-        dgvSalidas.Columns("IdDocumentoRespaldo").HeaderText = "Doc respaldo"
-        dgvSalidas.Columns("IdDocumentoRespaldo").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+        dgvSalidas.Columns("ReferenciaDocumentacion").HeaderText = "Documentación"
+        dgvSalidas.Columns("ReferenciaDocumentacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
     End Sub
 
     Private Sub Resumir(lista As List(Of SalidaGridDto))
@@ -187,7 +202,7 @@ Public Class frmRenovacionesArt120
         btnEditar.Enabled = (selected IsNot Nothing)
         btnDesactivar.Enabled = (selected IsNot Nothing AndAlso selected.Activo)
         btnReactivar.Enabled = (selected IsNot Nothing AndAlso Not selected.Activo)
-        btnAbrirDocumento.Enabled = (selected IsNot Nothing AndAlso selected.IdDocumentoRespaldo.HasValue)
+        btnAbrirDocumento.Enabled = (selected IsNot Nothing AndAlso selected.CantidadDocumentos > 0)
     End Sub
 
     Private Sub dgvSalidas_RowPrePaint(sender As Object, e As DataGridViewRowPrePaintEventArgs) Handles dgvSalidas.RowPrePaint
@@ -622,6 +637,146 @@ Public Class frmRenovacionesArt120
         Next
     End Function
 
+    Private Async Function ObtenerDocumentosPorSalidaAsync(uow As UnitOfWork, idsSalida As List(Of Integer)) As Task(Of Dictionary(Of Integer, List(Of Long)))
+        Dim resultado = idsSalida.Distinct().ToDictionary(Function(id) id, Function(id) New List(Of Long)())
+        If idsSalida.Count = 0 Then Return resultado
+
+        Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
+        Dim docsPrincipal = Await repoSalidas.GetQueryable(tracking:=False) _
+            .Where(Function(s) idsSalida.Contains(s.IdSalida) AndAlso s.IdDocumentoRespaldo.HasValue) _
+            .Select(Function(s) New With {
+                .IdSalida = s.IdSalida,
+                .IdDocumento = s.IdDocumentoRespaldo.Value
+            }) _
+            .ToListAsync()
+
+        For Each item In docsPrincipal
+            If Not resultado.ContainsKey(item.IdSalida) Then
+                resultado(item.IdSalida) = New List(Of Long)()
+            End If
+
+            If Not resultado(item.IdSalida).Contains(item.IdDocumento) Then
+                resultado(item.IdSalida).Add(item.IdDocumento)
+            End If
+        Next
+
+        Dim tablaExiste = Await ExisteTablaRespaldoAsync(uow)
+        If tablaExiste Then
+            Dim docsRelacion = Await uow.Context.Set(Of Tra_SalidasLaboralesDocumentoRespaldo)() _
+                .Where(Function(r) idsSalida.Contains(r.IdSalida)) _
+                .Select(Function(r) New With {
+                    .IdSalida = r.IdSalida,
+                    .IdDocumento = r.IdDocumento
+                }) _
+                .ToListAsync()
+
+            For Each item In docsRelacion
+                If Not resultado.ContainsKey(item.IdSalida) Then
+                    resultado(item.IdSalida) = New List(Of Long)()
+                End If
+
+                If Not resultado(item.IdSalida).Contains(item.IdDocumento) Then
+                    resultado(item.IdSalida).Add(item.IdDocumento)
+                End If
+            Next
+        End If
+
+        For Each idSalida In resultado.Keys.ToList()
+            resultado(idSalida) = resultado(idSalida).Distinct().OrderBy(Function(x) x).ToList()
+        Next
+
+        Return resultado
+    End Function
+
+    Private Async Function ObtenerDocumentosSalidaAsync(idSalida As Integer) As Task(Of List(Of DocumentoRespaldoDto))
+        Using uow As New UnitOfWork()
+            Dim docsPorSalida = Await ObtenerDocumentosPorSalidaAsync(uow, New List(Of Integer) From {idSalida})
+            Dim ids = If(docsPorSalida.ContainsKey(idSalida), docsPorSalida(idSalida), New List(Of Long)())
+            If ids.Count = 0 Then Return New List(Of DocumentoRespaldoDto)()
+
+            Dim repoDocs = uow.Repository(Of Mae_Documento)()
+            Dim documentos = Await repoDocs.GetQueryable(tracking:=False) _
+                .Where(Function(d) ids.Contains(d.IdDocumento)) _
+                .Select(Function(d) New With {
+                    .IdDocumento = d.IdDocumento,
+                    .NumeroOficial = d.NumeroOficial,
+                    .Asunto = d.Asunto,
+                    .Fecha = d.FechaCreacion
+                }) _
+                .ToListAsync()
+
+            Return ids.Select(Function(id)
+                                  Dim doc = documentos.FirstOrDefault(Function(x) x.IdDocumento = id)
+                                  If doc Is Nothing Then
+                                      Return New DocumentoRespaldoDto With {
+                                          .IdDocumento = id,
+                                          .Texto = $"Documento {id}"
+                                      }
+                                  End If
+
+                                  Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
+                                  Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
+                                  Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
+
+                                  Return New DocumentoRespaldoDto With {
+                                      .IdDocumento = id,
+                                      .Texto = $"{id} | {numero} | {fechaTxt} | {asunto}"
+                                  }
+                              End Function).ToList()
+        End Using
+    End Function
+
+    Private Function SeleccionarDocumento(docs As List(Of DocumentoRespaldoDto)) As Nullable(Of Long)
+        Using selector As New Form()
+            selector.Text = "Documentación vinculada"
+            selector.StartPosition = FormStartPosition.CenterParent
+            selector.FormBorderStyle = FormBorderStyle.FixedDialog
+            selector.MaximizeBox = False
+            selector.MinimizeBox = False
+            selector.Width = 900
+            selector.Height = 420
+
+            Dim lst As New ListBox With {
+                .Dock = DockStyle.Fill,
+                .DisplayMember = "Texto",
+                .ValueMember = "IdDocumento",
+                .DataSource = docs
+            }
+
+            Dim panelBotones As New FlowLayoutPanel With {
+                .FlowDirection = FlowDirection.RightToLeft,
+                .Dock = DockStyle.Bottom,
+                .Height = 45,
+                .Padding = New Padding(8)
+            }
+
+            Dim btnVer As New Button With {
+                .Text = "Ver detalle",
+                .Width = 120,
+                .DialogResult = DialogResult.OK
+            }
+
+            Dim btnCancelar As New Button With {
+                .Text = "Cancelar",
+                .Width = 100,
+                .DialogResult = DialogResult.Cancel
+            }
+
+            panelBotones.Controls.Add(btnVer)
+            panelBotones.Controls.Add(btnCancelar)
+            selector.Controls.Add(lst)
+            selector.Controls.Add(panelBotones)
+            selector.AcceptButton = btnVer
+            selector.CancelButton = btnCancelar
+
+            If selector.ShowDialog(Me) <> DialogResult.OK Then Return Nothing
+
+            Dim seleccionado = TryCast(lst.SelectedItem, DocumentoRespaldoDto)
+            If seleccionado Is Nothing Then Return Nothing
+            Return seleccionado.IdDocumento
+        End Using
+    End Function
+
     Private Async Function ExisteTablaRespaldoAsync(uow As UnitOfWork) As Task(Of Boolean)
         Dim sql = "SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tra_SalidasLaboralesDocumentoRespaldo'"
         Dim cantidad = Await uow.Context.Database.SqlQuery(Of Integer)(sql).FirstOrDefaultAsync()
@@ -677,15 +832,39 @@ Public Class frmRenovacionesArt120
         RefrescarListaDocumentosSeleccionados()
     End Sub
 
-    Private Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click
+    Private Async Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click
         Dim sel = ObtenerSeleccionActual()
-        If sel Is Nothing OrElse Not sel.IdDocumentoRespaldo.HasValue Then
-            Toast.Show(Me, "La salida seleccionada no tiene documento respaldo.", ToastType.Warning)
+        If sel Is Nothing Then
+            Toast.Show(Me, "Seleccione una salida.", ToastType.Warning)
             Return
         End If
 
-        Dim f As New frmDetalleDocumento(sel.IdDocumentoRespaldo.Value)
-        ShowFormInMdi(Me, f)
+        If sel.CantidadDocumentos = 0 Then
+            Toast.Show(Me, "La salida seleccionada no tiene documentación vinculada.", ToastType.Warning)
+            Return
+        End If
+
+        Try
+            Dim docs = Await ObtenerDocumentosSalidaAsync(sel.IdSalida)
+            If docs.Count = 0 Then
+                Toast.Show(Me, "No se encontraron documentos para la salida seleccionada.", ToastType.Warning)
+                Return
+            End If
+
+            Dim idSeleccionado As Nullable(Of Long)
+            If docs.Count = 1 Then
+                idSeleccionado = docs(0).IdDocumento
+            Else
+                idSeleccionado = SeleccionarDocumento(docs)
+            End If
+
+            If Not idSeleccionado.HasValue Then Return
+
+            Dim f As New frmDetalleDocumento(idSeleccionado.Value)
+            ShowFormInMdi(Me, f)
+        Catch ex As Exception
+            Toast.Show(Me, "No se pudo abrir la documentación: " & ex.Message, ToastType.Error)
+        End Try
     End Sub
 
 End Class

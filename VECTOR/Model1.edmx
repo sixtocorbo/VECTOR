@@ -153,6 +153,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="IdRecluso" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NombreCompleto" Type="varchar" MaxLength="200" Nullable="false" />
           <Property Name="Activo" Type="bit" />
+          <Property Name="Documento" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="Tra_AdjuntoDocumento">
           <Key>
@@ -758,6 +759,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="NombreCompleto" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Activo" Type="Boolean" />
           <NavigationProperty Name="Tra_SalidasLaborales" Relationship="SecretariaDBModel.FK_Salidas_Reclusos" FromRole="Mae_Reclusos" ToRole="Tra_SalidasLaborales" />
+          <Property Name="Documento" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Tra_AdjuntoDocumento">
           <Key>
@@ -1366,6 +1368,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySetMapping Name="Mae_Reclusos">
             <EntityTypeMapping TypeName="SecretariaDBModel.Mae_Reclusos">
               <MappingFragment StoreEntitySet="Mae_Reclusos">
+                <ScalarProperty Name="Documento" ColumnName="Documento" />
                 <ScalarProperty Name="IdRecluso" ColumnName="IdRecluso" />
                 <ScalarProperty Name="NombreCompleto" ColumnName="NombreCompleto" />
                 <ScalarProperty Name="Activo" ColumnName="Activo" />

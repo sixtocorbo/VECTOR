@@ -14,6 +14,7 @@ Partial Public Class Mae_Reclusos
     Public Property IdRecluso As Integer
     Public Property NombreCompleto As String
     Public Property Activo As Nullable(Of Boolean)
+    Public Property Documento As String
 
     Public Overridable Property Tra_SalidasLaborales As ICollection(Of Tra_SalidasLaborales) = New HashSet(Of Tra_SalidasLaborales)
 

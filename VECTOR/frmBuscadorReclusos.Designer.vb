@@ -43,13 +43,13 @@ Partial Class frmBuscadorReclusos
         Me.pnlSuperior.Dock = System.Windows.Forms.DockStyle.Top
         Me.pnlSuperior.Location = New System.Drawing.Point(0, 0)
         Me.pnlSuperior.Name = "pnlSuperior"
-        Me.pnlSuperior.Size = New System.Drawing.Size(584, 70)
+        Me.pnlSuperior.Size = New System.Drawing.Size(584, 84)
         Me.pnlSuperior.TabIndex = 0
         '
         'txtBuscar
         '
         Me.txtBuscar.Font = New System.Drawing.Font("Segoe UI", 11.0!)
-        Me.txtBuscar.Location = New System.Drawing.Point(15, 28)
+        Me.txtBuscar.Location = New System.Drawing.Point(17, 41)
         Me.txtBuscar.Name = "txtBuscar"
         Me.txtBuscar.Size = New System.Drawing.Size(550, 37)
         Me.txtBuscar.TabIndex = 1
@@ -120,14 +120,14 @@ Partial Class frmBuscadorReclusos
         DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvLista.DefaultCellStyle = DataGridViewCellStyle1
         Me.dgvLista.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvLista.Location = New System.Drawing.Point(0, 70)
+        Me.dgvLista.Location = New System.Drawing.Point(0, 84)
         Me.dgvLista.MultiSelect = False
         Me.dgvLista.Name = "dgvLista"
         Me.dgvLista.ReadOnly = True
         Me.dgvLista.RowHeadersVisible = False
         Me.dgvLista.RowHeadersWidth = 62
         Me.dgvLista.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvLista.Size = New System.Drawing.Size(584, 331)
+        Me.dgvLista.Size = New System.Drawing.Size(584, 317)
         Me.dgvLista.TabIndex = 2
         '
         'frmBuscadorReclusos

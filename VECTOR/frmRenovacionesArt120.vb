@@ -209,7 +209,7 @@ Public Class frmRenovacionesArt120
         txtLugarTrabajo.Focus()
     End Sub
 
-    Private Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
+    Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
         Dim sel = ObtenerSeleccionActual()
         If sel Is Nothing Then
             Toast.Show(Me, "Seleccione una salida para editar.", ToastType.Warning)
@@ -228,7 +228,7 @@ Public Class frmRenovacionesArt120
         txtObservaciones.Text = sel.Observaciones
         txtLugarTrabajo.Focus()
 
-        CargarDocumentosRespaldo(sel.IdRecluso, sel.Recluso, sel.IdDocumentoRespaldo)
+        Await CargarDocumentosRespaldoAsync(sel.IdRecluso, sel.Recluso, sel.IdDocumentoRespaldo)
     End Sub
 
     Private Async Sub btnBuscarRecluso_Click(sender As Object, e As EventArgs) Handles btnBuscarRecluso.Click
@@ -421,13 +421,12 @@ Public Class frmRenovacionesArt120
         _cargandoDocumentos = False
     End Sub
 
-    Private Sub CargarDocumentosRespaldo(idRecluso As Integer, nombreRecluso As String, idSeleccionado As Nullable(Of Long))
-        CargarDocumentosRespaldoAsync(idRecluso, nombreRecluso, idSeleccionado).GetAwaiter().GetResult()
-    End Sub
-
     Private Async Function CargarDocumentosRespaldoAsync(idRecluso As Integer, nombreRecluso As String, idSeleccionado As Nullable(Of Long)) As Task
+        If _cargandoDocumentos Then Return
+
         Try
             _cargandoDocumentos = True
+            btnRefrescarDocumentos.Enabled = False
 
             Using uow As New UnitOfWork()
                 Dim repoDocs = uow.Repository(Of Mae_Documento)()
@@ -494,16 +493,17 @@ Public Class frmRenovacionesArt120
             Toast.Show(Me, "No se pudieron cargar expedientes/documentos sugeridos: " & ex.Message, ToastType.Warning)
         Finally
             _cargandoDocumentos = False
+            btnRefrescarDocumentos.Enabled = True
         End Try
     End Function
 
-    Private Sub btnRefrescarDocumentos_Click(sender As Object, e As EventArgs) Handles btnRefrescarDocumentos.Click
+    Private Async Sub btnRefrescarDocumentos_Click(sender As Object, e As EventArgs) Handles btnRefrescarDocumentos.Click
         If Not _idReclusoSeleccionado.HasValue Then
             Toast.Show(Me, "Primero seleccione una persona privada de libertad.", ToastType.Warning)
             Return
         End If
 
-        CargarDocumentosRespaldo(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), ParseNullableLong(cboDocumentoRespaldo.SelectedValue))
+        Await CargarDocumentosRespaldoAsync(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), ParseNullableLong(cboDocumentoRespaldo.SelectedValue))
     End Sub
 
     Private Sub cboDocumentoRespaldo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboDocumentoRespaldo.SelectedIndexChanged

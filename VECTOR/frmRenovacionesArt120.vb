@@ -21,10 +21,17 @@ Public Class frmRenovacionesArt120
         Public Property Observaciones As String
     End Class
 
+    Private Class DocumentoRespaldoDto
+        Public Property IdDocumento As Long
+        Public Property Texto As String
+    End Class
+
     Private _listaOriginal As New List(Of SalidaGridDto)
     Private _idSalidaEditando As Nullable(Of Integer)
     Private _idReclusoSeleccionado As Nullable(Of Integer)
     Private _cargandoDocumentos As Boolean
+    Private _documentosDisponibles As New List(Of DocumentoRespaldoDto)
+    Private _documentosSeleccionados As New List(Of DocumentoRespaldoDto)
 
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
@@ -282,11 +289,12 @@ Public Class frmRenovacionesArt120
                 entidad.LugarTrabajo = txtLugarTrabajo.Text.Trim()
                 entidad.FechaInicio = dtpInicio.Value.Date
                 entidad.FechaVencimiento = dtpVencimiento.Value.Date
-                entidad.IdDocumentoRespaldo = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+                entidad.IdDocumentoRespaldo = ObtenerDocumentoPrincipalSeleccionado()
                 entidad.Activo = chkActivoRegistro.Checked
                 entidad.Observaciones = If(String.IsNullOrWhiteSpace(txtObservaciones.Text), Nothing, txtObservaciones.Text.Trim())
 
                 Await uow.CommitAsync()
+                Await GuardarDocumentosRespaldoSalidaAsync(uow, entidad.IdSalida, ObtenerIdsDocumentosSeleccionados())
             End Using
 
             Toast.Show(Me, "Datos de renovación guardados correctamente.", ToastType.Success)
@@ -310,12 +318,6 @@ Public Class frmRenovacionesArt120
 
         If dtpVencimiento.Value.Date < dtpInicio.Value.Date Then
             Toast.Show(Me, "La fecha de vencimiento no puede ser menor a la fecha de inicio.", ToastType.Warning)
-            Return False
-        End If
-
-        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
-        If cboDocumentoRespaldo.SelectedIndex > 0 AndAlso Not idDoc.HasValue Then
-            Toast.Show(Me, "El ID de documento respaldo debe ser numérico.", ToastType.Warning)
             Return False
         End If
 
@@ -373,17 +375,6 @@ Public Class frmRenovacionesArt120
         AplicarFiltro()
     End Sub
 
-    Private Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click
-        Dim sel = ObtenerSeleccionActual()
-        If sel Is Nothing OrElse Not sel.IdDocumentoRespaldo.HasValue Then
-            Toast.Show(Me, "La salida seleccionada no tiene documento respaldo.", ToastType.Warning)
-            Return
-        End If
-
-        Dim f As New frmDetalleDocumento(sel.IdDocumentoRespaldo.Value)
-        ShowFormInMdi(Me, f)
-    End Sub
-
     Private Sub LimpiarEditor()
         _idSalidaEditando = Nothing
         _idReclusoSeleccionado = Nothing
@@ -395,6 +386,7 @@ Public Class frmRenovacionesArt120
         dtpVencimiento.Value = Date.Today.AddMonths(1)
         chkActivoRegistro.Checked = True
         CargarDocumentosRespaldoVacio()
+        LimpiarDocumentosSeleccionados()
         txtObservaciones.Clear()
     End Sub
 
@@ -415,11 +407,47 @@ Public Class frmRenovacionesArt120
         cboDocumentoRespaldo.DisplayMember = "Text"
         cboDocumentoRespaldo.ValueMember = "Value"
         cboDocumentoRespaldo.DataSource = New List(Of Object) From {
-            New With {.Text = "(sin respaldo)", .Value = ""}
+            New With {.Text = "(sin documentos sugeridos)", .Value = ""}
         }
         cboDocumentoRespaldo.SelectedIndex = 0
         _cargandoDocumentos = False
     End Sub
+
+    Private Sub LimpiarDocumentosSeleccionados()
+        _documentosSeleccionados = New List(Of DocumentoRespaldoDto)()
+        RefrescarListaDocumentosSeleccionados()
+    End Sub
+
+    Private Sub RefrescarListaDocumentosSeleccionados()
+        Dim lista = _documentosSeleccionados _
+            .OrderBy(Function(d) d.Texto) _
+            .Select(Function(d) New With {
+                .Texto = d.Texto,
+                .IdDocumento = d.IdDocumento
+            }) _
+            .ToList()
+
+        lstDocumentosRespaldo.DisplayMember = "Texto"
+        lstDocumentosRespaldo.ValueMember = "IdDocumento"
+        lstDocumentosRespaldo.DataSource = Nothing
+        lstDocumentosRespaldo.DataSource = lista
+
+        btnQuitarDocumento.Enabled = (lista.Count > 0)
+    End Sub
+
+    Private Function ObtenerDocumentoPrincipalSeleccionado() As Nullable(Of Long)
+        Dim ids = ObtenerIdsDocumentosSeleccionados()
+        If ids.Count = 0 Then Return Nothing
+        Return ids(0)
+    End Function
+
+    Private Function ObtenerIdsDocumentosSeleccionados() As List(Of Long)
+        Return _documentosSeleccionados _
+            .Select(Function(d) d.IdDocumento) _
+            .Distinct() _
+            .OrderBy(Function(id) id) _
+            .ToList()
+    End Function
 
     Private Async Function CargarDocumentosRespaldoAsync(idRecluso As Integer, nombreRecluso As String, idSeleccionado As Nullable(Of Long)) As Task
         If _cargandoDocumentos Then Return
@@ -465,15 +493,24 @@ Public Class frmRenovacionesArt120
                     .ToListAsync()
 
                 Dim listaCombo = New List(Of Object) From {
-                    New With {.Text = "(sin respaldo)", .Value = ""}
+                    New With {.Text = "(seleccione para agregar)", .Value = ""}
                 }
+
+                _documentosDisponibles = New List(Of DocumentoRespaldoDto)()
 
                 For Each doc In docsIds
                     Dim fechaTxt = If(doc.Fecha.HasValue, doc.Fecha.Value.ToString("dd/MM/yyyy"), "s/f")
                     Dim numero = If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)
                     Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto)
+                    Dim etiqueta = $"{numero} | {fechaTxt} | {asunto}"
+
+                    _documentosDisponibles.Add(New DocumentoRespaldoDto With {
+                        .IdDocumento = doc.IdDocumento,
+                        .Texto = etiqueta
+                    })
+
                     listaCombo.Add(New With {
-                        .Text = $"{doc.IdDocumento} | {numero} | {fechaTxt} | {asunto}",
+                        .Text = $"{doc.IdDocumento} | {etiqueta}",
                         .Value = doc.IdDocumento.ToString()
                     })
                 Next
@@ -481,12 +518,9 @@ Public Class frmRenovacionesArt120
                 cboDocumentoRespaldo.DisplayMember = "Text"
                 cboDocumentoRespaldo.ValueMember = "Value"
                 cboDocumentoRespaldo.DataSource = listaCombo
+                cboDocumentoRespaldo.SelectedIndex = 0
 
-                If idSeleccionado.HasValue Then
-                    cboDocumentoRespaldo.SelectedValue = idSeleccionado.Value.ToString()
-                Else
-                    cboDocumentoRespaldo.SelectedIndex = 0
-                End If
+                Await CargarDocumentosSeleccionadosAsync(idSeleccionado)
             End Using
         Catch ex As Exception
             CargarDocumentosRespaldoVacio()
@@ -497,18 +531,153 @@ Public Class frmRenovacionesArt120
         End Try
     End Function
 
+    Private Async Function CargarDocumentosSeleccionadosAsync(idSeleccionado As Nullable(Of Long)) As Task
+        If Not _idSalidaEditando.HasValue Then
+            LimpiarDocumentosSeleccionados()
+
+            If idSeleccionado.HasValue Then
+                Dim doc = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idSeleccionado.Value)
+                If doc IsNot Nothing Then
+                    _documentosSeleccionados.Add(doc)
+                Else
+                    _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
+                        .IdDocumento = idSeleccionado.Value,
+                        .Texto = $"Documento {idSeleccionado.Value}"
+                    })
+                End If
+            End If
+
+            RefrescarListaDocumentosSeleccionados()
+            Return
+        End If
+
+        Try
+            Using uow As New UnitOfWork()
+                Dim tablaExiste = Await ExisteTablaRespaldoAsync(uow)
+                If tablaExiste Then
+                    Dim sql = "SELECT IdDocumento FROM Tra_SalidasLaboralesDocumentoRespaldo WHERE IdSalida = @p0 ORDER BY IdDocumento"
+                    Dim ids = Await uow.Context.Database.SqlQuery(Of Long)(sql, _idSalidaEditando.Value).ToListAsync()
+
+                    _documentosSeleccionados = ids _
+                        .Distinct() _
+                        .Select(Function(id)
+                                    Dim encontrado = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = id)
+                                    If encontrado IsNot Nothing Then Return encontrado
+                                    Return New DocumentoRespaldoDto With {
+                                        .IdDocumento = id,
+                                        .Texto = $"Documento {id}"
+                                    }
+                                End Function) _
+                        .ToList()
+                Else
+                    LimpiarDocumentosSeleccionados()
+                    If idSeleccionado.HasValue Then
+                        Dim doc = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idSeleccionado.Value)
+                        If doc IsNot Nothing Then
+                            _documentosSeleccionados.Add(doc)
+                        Else
+                            _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
+                                .IdDocumento = idSeleccionado.Value,
+                                .Texto = $"Documento {idSeleccionado.Value}"
+                            })
+                        End If
+                    End If
+                End If
+            End Using
+        Catch ex As Exception
+            LimpiarDocumentosSeleccionados()
+            If idSeleccionado.HasValue Then
+                _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
+                    .IdDocumento = idSeleccionado.Value,
+                    .Texto = $"Documento {idSeleccionado.Value}"
+                })
+            End If
+            Toast.Show(Me, "No se pudo cargar la lista de documentos respaldo: " & ex.Message, ToastType.Warning)
+        End Try
+
+        RefrescarListaDocumentosSeleccionados()
+    End Function
+
+    Private Async Function GuardarDocumentosRespaldoSalidaAsync(uow As UnitOfWork, idSalida As Integer, idsDocumento As List(Of Long)) As Task
+        If uow Is Nothing Then Return
+
+        Dim tablaExiste = Await ExisteTablaRespaldoAsync(uow)
+        If Not tablaExiste Then Return
+
+        Await uow.Context.Database.ExecuteSqlCommandAsync("DELETE FROM Tra_SalidasLaboralesDocumentoRespaldo WHERE IdSalida = @p0", idSalida)
+
+        For Each idDoc In idsDocumento.Distinct().OrderBy(Function(x) x)
+            Await uow.Context.Database.ExecuteSqlCommandAsync(
+                "INSERT INTO Tra_SalidasLaboralesDocumentoRespaldo (IdSalida, IdDocumento) VALUES (@p0, @p1)",
+                idSalida,
+                idDoc)
+        Next
+    End Function
+
+    Private Async Function ExisteTablaRespaldoAsync(uow As UnitOfWork) As Task(Of Boolean)
+        Dim sql = "SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tra_SalidasLaboralesDocumentoRespaldo'"
+        Dim cantidad = Await uow.Context.Database.SqlQuery(Of Integer)(sql).FirstOrDefaultAsync()
+        Return cantidad > 0
+    End Function
+
     Private Async Sub btnRefrescarDocumentos_Click(sender As Object, e As EventArgs) Handles btnRefrescarDocumentos.Click
         If Not _idReclusoSeleccionado.HasValue Then
             Toast.Show(Me, "Primero seleccione una persona privada de libertad.", ToastType.Warning)
             Return
         End If
 
-        Await CargarDocumentosRespaldoAsync(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), ParseNullableLong(cboDocumentoRespaldo.SelectedValue))
+        Await CargarDocumentosRespaldoAsync(_idReclusoSeleccionado.Value, txtRecluso.Text.Trim(), ObtenerDocumentoPrincipalSeleccionado())
     End Sub
 
     Private Sub cboDocumentoRespaldo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboDocumentoRespaldo.SelectedIndexChanged
         If _cargandoDocumentos Then Return
         Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
-        btnAbrirDocumento.Enabled = idDoc.HasValue
+        btnAgregarDocumento.Enabled = idDoc.HasValue
     End Sub
+
+    Private Sub btnAgregarDocumento_Click(sender As Object, e As EventArgs) Handles btnAgregarDocumento.Click
+        If _cargandoDocumentos Then Return
+
+        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+        If Not idDoc.HasValue Then
+            Toast.Show(Me, "Seleccione un documento para agregarlo a la lista.", ToastType.Warning)
+            Return
+        End If
+
+        If _documentosSeleccionados.Any(Function(d) d.IdDocumento = idDoc.Value) Then
+            Toast.Show(Me, "Ese documento ya está agregado.", ToastType.Info)
+            Return
+        End If
+
+        Dim doc = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idDoc.Value)
+        If doc Is Nothing Then
+            doc = New DocumentoRespaldoDto With {
+                .IdDocumento = idDoc.Value,
+                .Texto = $"Documento {idDoc.Value}"
+            }
+        End If
+
+        _documentosSeleccionados.Add(doc)
+        RefrescarListaDocumentosSeleccionados()
+    End Sub
+
+    Private Sub btnQuitarDocumento_Click(sender As Object, e As EventArgs) Handles btnQuitarDocumento.Click
+        Dim idDoc = ParseNullableLong(lstDocumentosRespaldo.SelectedValue)
+        If Not idDoc.HasValue Then Return
+
+        _documentosSeleccionados = _documentosSeleccionados.Where(Function(d) d.IdDocumento <> idDoc.Value).ToList()
+        RefrescarListaDocumentosSeleccionados()
+    End Sub
+
+    Private Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click
+        Dim sel = ObtenerSeleccionActual()
+        If sel Is Nothing OrElse Not sel.IdDocumentoRespaldo.HasValue Then
+            Toast.Show(Me, "La salida seleccionada no tiene documento respaldo.", ToastType.Warning)
+            Return
+        End If
+
+        Dim f As New frmDetalleDocumento(sel.IdDocumentoRespaldo.Value)
+        ShowFormInMdi(Me, f)
+    End Sub
+
 End Class

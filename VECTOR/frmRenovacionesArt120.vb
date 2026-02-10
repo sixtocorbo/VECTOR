@@ -318,6 +318,7 @@ Public Class frmRenovacionesArt120
 
                 Await uow.CommitAsync()
                 Await GuardarDocumentosRespaldoSalidaAsync(uow, entidad.IdSalida, ObtenerIdsDocumentosSeleccionados())
+                Await uow.CommitAsync()
             End Using
 
             Toast.Show(Me, "Datos de renovación guardados correctamente.", ToastType.Success)
@@ -592,6 +593,18 @@ Public Class frmRenovacionesArt120
                                     }
                                 End Function) _
                         .ToList()
+
+                    If _documentosSeleccionados.Count = 0 AndAlso idSeleccionado.HasValue Then
+                        Dim docPrincipal = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idSeleccionado.Value)
+                        If docPrincipal IsNot Nothing Then
+                            _documentosSeleccionados.Add(docPrincipal)
+                        Else
+                            _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
+                                .IdDocumento = idSeleccionado.Value,
+                                .Texto = $"Documento {idSeleccionado.Value}"
+                            })
+                        End If
+                    End If
                 Else
                     LimpiarDocumentosSeleccionados()
                     If idSeleccionado.HasValue Then

@@ -39,6 +39,9 @@
         <AssociationConnector Association="SecretariaDBModel.FK__Tra_Movim__IdDoc__398D8EEE" ManuallyRouted="false" />
         <AssociationConnector Association="SecretariaDBModel.FK_Tra_AdjuntoDocumento_Mae_Documento" ManuallyRouted="false" />
         <EntityTypeShape EntityType="SecretariaDBModel.Cfg_TiemposRespuesta_Historial" Width="1.5" PointX="8.375" PointY="3.75" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Tra_SalidasLaborales" Width="1.5" PointX="11.5" PointY="4.5" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Salidas_Documento" />
+        <AssociationConnector Association="SecretariaDBModel.FK_Salidas_Reclusos" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

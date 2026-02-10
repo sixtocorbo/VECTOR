@@ -178,6 +178,19 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="ObservacionPase" Type="nvarchar" MaxLength="500" />
           <Property Name="IdEstadoEnEseMomento" Type="int" />
         </EntityType>
+        <EntityType Name="Tra_SalidasLaborales">
+          <Key>
+            <PropertyRef Name="IdSalida" />
+          </Key>
+          <Property Name="IdSalida" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdRecluso" Type="int" Nullable="false" />
+          <Property Name="LugarTrabajo" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="FechaInicio" Type="datetime" Nullable="false" />
+          <Property Name="FechaVencimiento" Type="datetime" Nullable="false" />
+          <Property Name="IdDocumentoRespaldo" Type="bigint" />
+          <Property Name="Activo" Type="bit" />
+          <Property Name="Observaciones" Type="varchar" MaxLength="500" />
+        </EntityType>
         <EntityType Name="Usuarios">
           <Key>
             <PropertyRef Name="Id" />
@@ -380,6 +393,30 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Salidas_Documento">
+          <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="0..1" />
+          <End Role="Tra_SalidasLaborales" Type="Self.Tra_SalidasLaborales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Tra_SalidasLaborales">
+              <PropertyRef Name="IdDocumentoRespaldo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Salidas_Reclusos">
+          <End Role="Mae_Reclusos" Type="Self.Mae_Reclusos" Multiplicity="1" />
+          <End Role="Tra_SalidasLaborales" Type="Self.Tra_SalidasLaborales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Reclusos">
+              <PropertyRef Name="IdRecluso" />
+            </Principal>
+            <Dependent Role="Tra_SalidasLaborales">
+              <PropertyRef Name="IdRecluso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Tra_AdjuntoDocumento_Mae_Documento">
           <End Role="Mae_Documento" Type="Self.Mae_Documento" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -428,6 +465,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySet Name="Mae_Reclusos" EntityType="Self.Mae_Reclusos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tra_AdjuntoDocumento" EntityType="Self.Tra_AdjuntoDocumento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tra_Movimiento" EntityType="Self.Tra_Movimiento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tra_SalidasLaborales" EntityType="Self.Tra_SalidasLaborales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Usuarios" EntityType="Self.Usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cat_Oficina_Backup_20260203_093509" EntityType="Self.Cat_Oficina_Backup_20260203_093509" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -500,6 +538,14 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <AssociationSet Name="FK_Numeracion_Tipo" Association="Self.FK_Numeracion_Tipo">
             <End Role="Cat_TipoDocumento" EntitySet="Cat_TipoDocumento" />
             <End Role="Mae_NumeracionRangos" EntitySet="Mae_NumeracionRangos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Salidas_Documento" Association="Self.FK_Salidas_Documento">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Tra_SalidasLaborales" EntitySet="Tra_SalidasLaborales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Salidas_Reclusos" Association="Self.FK_Salidas_Reclusos">
+            <End Role="Mae_Reclusos" EntitySet="Mae_Reclusos" />
+            <End Role="Tra_SalidasLaborales" EntitySet="Tra_SalidasLaborales" />
           </AssociationSet>
           <AssociationSet Name="FK_Tra_AdjuntoDocumento_Mae_Documento" Association="Self.FK_Tra_AdjuntoDocumento_Mae_Documento">
             <End Role="Mae_Documento" EntitySet="Mae_Documento" />
@@ -642,6 +688,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Mae_Documento2" Relationship="Self.FK__Mae_Docum__IdDoc__32E0915F" FromRole="Mae_Documento1" ToRole="Mae_Documento" />
           <NavigationProperty Name="Tra_Movimiento" Relationship="Self.FK__Tra_Movim__IdDoc__398D8EEE" FromRole="Mae_Documento" ToRole="Tra_Movimiento" />
           <NavigationProperty Name="Tra_AdjuntoDocumento" Relationship="Self.FK_Tra_AdjuntoDocumento_Mae_Documento" FromRole="Mae_Documento" ToRole="Tra_AdjuntoDocumento" />
+          <NavigationProperty Name="Tra_SalidasLaborales" Relationship="SecretariaDBModel.FK_Salidas_Documento" FromRole="Mae_Documento" ToRole="Tra_SalidasLaborales" />
         </EntityType>
         <EntityType Name="Mae_NumeracionRangos">
           <Key>
@@ -667,6 +714,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="IdRecluso" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NombreCompleto" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Activo" Type="Boolean" />
+          <NavigationProperty Name="Tra_SalidasLaborales" Relationship="SecretariaDBModel.FK_Salidas_Reclusos" FromRole="Mae_Reclusos" ToRole="Tra_SalidasLaborales" />
         </EntityType>
         <EntityType Name="Tra_AdjuntoDocumento">
           <Key>
@@ -1029,6 +1077,15 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <Parameter Name="ListaIdsBorrar" Mode="In" Type="String" />
           </FunctionImport>
           <EntitySet Name="Cfg_TiemposRespuesta_Historial" EntityType="SecretariaDBModel.Cfg_TiemposRespuesta_Historial" />
+          <EntitySet Name="Tra_SalidasLaborales" EntityType="SecretariaDBModel.Tra_SalidasLaborales" />
+          <AssociationSet Name="FK_Salidas_Documento" Association="SecretariaDBModel.FK_Salidas_Documento">
+            <End Role="Mae_Documento" EntitySet="Mae_Documento" />
+            <End Role="Tra_SalidasLaborales" EntitySet="Tra_SalidasLaborales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Salidas_Reclusos" Association="SecretariaDBModel.FK_Salidas_Reclusos">
+            <End Role="Mae_Reclusos" EntitySet="Mae_Reclusos" />
+            <End Role="Tra_SalidasLaborales" EntitySet="Tra_SalidasLaborales" />
+          </AssociationSet>
         </EntityContainer>
         <ComplexType Name="sp_UnificarOficinas_Result">
           <Property Type="Int32" Name="Resultado" Nullable="false" />
@@ -1047,6 +1104,45 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="FechaCambio" Type="DateTime" Precision="3" />
           <Property Name="UsuarioSistema" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="Tra_SalidasLaborales">
+          <Key>
+            <PropertyRef Name="IdSalida" />
+          </Key>
+          <Property Name="IdSalida" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdRecluso" Type="Int32" Nullable="false" />
+          <Property Name="LugarTrabajo" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="FechaInicio" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FechaVencimiento" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IdDocumentoRespaldo" Type="Int64" />
+          <Property Name="Activo" Type="Boolean" />
+          <Property Name="Observaciones" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Mae_Documento" Relationship="SecretariaDBModel.FK_Salidas_Documento" FromRole="Tra_SalidasLaborales" ToRole="Mae_Documento" />
+          <NavigationProperty Name="Mae_Reclusos" Relationship="SecretariaDBModel.FK_Salidas_Reclusos" FromRole="Tra_SalidasLaborales" ToRole="Mae_Reclusos" />
+        </EntityType>
+        <Association Name="FK_Salidas_Documento">
+          <End Type="SecretariaDBModel.Mae_Documento" Role="Mae_Documento" Multiplicity="0..1" />
+          <End Type="SecretariaDBModel.Tra_SalidasLaborales" Role="Tra_SalidasLaborales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Documento">
+              <PropertyRef Name="IdDocumento" />
+            </Principal>
+            <Dependent Role="Tra_SalidasLaborales">
+              <PropertyRef Name="IdDocumentoRespaldo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Salidas_Reclusos">
+          <End Type="SecretariaDBModel.Mae_Reclusos" Role="Mae_Reclusos" Multiplicity="1" />
+          <End Type="SecretariaDBModel.Tra_SalidasLaborales" Role="Tra_SalidasLaborales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Mae_Reclusos">
+              <PropertyRef Name="IdRecluso" />
+            </Principal>
+            <Dependent Role="Tra_SalidasLaborales">
+              <PropertyRef Name="IdRecluso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1254,6 +1350,20 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
                 <ScalarProperty Name="IdTipoDocumento" ColumnName="IdTipoDocumento" />
                 <ScalarProperty Name="IdConfigOriginal" ColumnName="IdConfigOriginal" />
                 <ScalarProperty Name="IdHist" ColumnName="IdHist" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tra_SalidasLaborales">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Tra_SalidasLaborales">
+              <MappingFragment StoreEntitySet="Tra_SalidasLaborales">
+                <ScalarProperty Name="Observaciones" ColumnName="Observaciones" />
+                <ScalarProperty Name="Activo" ColumnName="Activo" />
+                <ScalarProperty Name="IdDocumentoRespaldo" ColumnName="IdDocumentoRespaldo" />
+                <ScalarProperty Name="FechaVencimiento" ColumnName="FechaVencimiento" />
+                <ScalarProperty Name="FechaInicio" ColumnName="FechaInicio" />
+                <ScalarProperty Name="LugarTrabajo" ColumnName="LugarTrabajo" />
+                <ScalarProperty Name="IdRecluso" ColumnName="IdRecluso" />
+                <ScalarProperty Name="IdSalida" ColumnName="IdSalida" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

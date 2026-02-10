@@ -10,11 +10,17 @@
 Imports System
 Imports System.Collections.Generic
 
-Partial Public Class Mae_Reclusos
+Partial Public Class Tra_SalidasLaborales
+    Public Property IdSalida As Integer
     Public Property IdRecluso As Integer
-    Public Property NombreCompleto As String
+    Public Property LugarTrabajo As String
+    Public Property FechaInicio As Date
+    Public Property FechaVencimiento As Date
+    Public Property IdDocumentoRespaldo As Nullable(Of Long)
     Public Property Activo As Nullable(Of Boolean)
+    Public Property Observaciones As String
 
-    Public Overridable Property Tra_SalidasLaborales As ICollection(Of Tra_SalidasLaborales) = New HashSet(Of Tra_SalidasLaborales)
+    Public Overridable Property Mae_Documento As Mae_Documento
+    Public Overridable Property Mae_Reclusos As Mae_Reclusos
 
 End Class

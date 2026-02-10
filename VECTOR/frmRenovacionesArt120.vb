@@ -199,15 +199,23 @@ Public Class frmRenovacionesArt120
         If data.Estado = "VENCIDA" Then
             row.DefaultCellStyle.BackColor = Color.MistyRose
             row.DefaultCellStyle.ForeColor = Color.DarkRed
+            row.DefaultCellStyle.SelectionBackColor = Color.IndianRed
+            row.DefaultCellStyle.SelectionForeColor = Color.White
         ElseIf data.Estado = "ALERTA" Then
             row.DefaultCellStyle.BackColor = Color.LightYellow
             row.DefaultCellStyle.ForeColor = Color.DarkGoldenrod
+            row.DefaultCellStyle.SelectionBackColor = Color.Goldenrod
+            row.DefaultCellStyle.SelectionForeColor = Color.Black
         ElseIf data.Estado = "INACTIVA" Then
             row.DefaultCellStyle.BackColor = Color.Gainsboro
             row.DefaultCellStyle.ForeColor = Color.DimGray
+            row.DefaultCellStyle.SelectionBackColor = Color.Gray
+            row.DefaultCellStyle.SelectionForeColor = Color.White
         Else
             row.DefaultCellStyle.BackColor = Color.White
             row.DefaultCellStyle.ForeColor = Color.Black
+            row.DefaultCellStyle.SelectionBackColor = dgvSalidas.DefaultCellStyle.SelectionBackColor
+            row.DefaultCellStyle.SelectionForeColor = dgvSalidas.DefaultCellStyle.SelectionForeColor
         End If
     End Sub
 

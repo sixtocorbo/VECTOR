@@ -15,6 +15,10 @@ Public Class frmBandeja
 
     ' 2. TIMER DE BÚSQUEDA
     Private WithEvents _timerBusqueda As New Timer()
+    Private Const DiasAnticipacionAlertaSalidas As Integer = 30
+    Private _cantAlertasArt120 As Integer = 0
+    Private _cantVencidasArt120 As Integer = 0
+    Private _ultimoResumenArt120 As String = ""
 
     ' =======================================================
     ' CARGA INICIAL
@@ -122,6 +126,8 @@ Public Class frmBandeja
 
             End Using
 
+            Await CargarAlertasSalidasArt120Async()
+
             ' E. MOSTRAMOS
             AplicarFiltroRapido()
 
@@ -191,10 +197,45 @@ Public Class frmBandeja
               Distinct().
               Count()
 
-        lblContador.Text = "Expedientes: " & totalExpedientes
+        lblContador.Text = "Expedientes: " & totalExpedientes & " | Alertas Art.120: " & _cantAlertasArt120
 
         dgvPendientes.Refresh()
     End Sub
+
+    Private Async Function CargarAlertasSalidasArt120Async() As Task
+        Try
+            Using uow As New UnitOfWork()
+                Dim hoy = DateTime.Today
+                Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
+
+                Dim resumen = Await repoSalidas.GetQueryable() _
+                    .Where(Function(s) s.Activo.HasValue AndAlso s.Activo.Value) _
+                    .GroupBy(Function(s) 1) _
+                    .Select(Function(g) New With {
+                        .Vencidas = g.Count(Function(s) DbFunctions.DiffDays(hoy, s.FechaVencimiento) < 0),
+                        .Alertas = g.Count(Function(s) DbFunctions.DiffDays(hoy, s.FechaVencimiento) >= 0 AndAlso DbFunctions.DiffDays(hoy, s.FechaVencimiento) <= DiasAnticipacionAlertaSalidas)
+                    }) _
+                    .FirstOrDefaultAsync()
+
+                _cantVencidasArt120 = If(resumen Is Nothing, 0, resumen.Vencidas)
+                _cantAlertasArt120 = If(resumen Is Nothing, 0, resumen.Vencidas + resumen.Alertas)
+            End Using
+
+            If _cantAlertasArt120 <= 0 Then
+                _ultimoResumenArt120 = ""
+                Return
+            End If
+
+            Dim resumenTexto = $"Vencidas: {_cantVencidasArt120} | Por vencer ({DiasAnticipacionAlertaSalidas} días): {_cantAlertasArt120 - _cantVencidasArt120}"
+            If _ultimoResumenArt120 <> resumenTexto Then
+                Toast.Show(Me, "⚠ Alertas de salidas laborales Art. 120" & vbCrLf & resumenTexto, ToastType.Warning)
+                _ultimoResumenArt120 = resumenTexto
+            End If
+        Catch ex As Exception
+            _cantAlertasArt120 = 0
+            _cantVencidasArt120 = 0
+        End Try
+    End Function
 
     Private Sub DiseñarColumnas()
         If dgvPendientes.Columns.Count = 0 Then Return
@@ -747,6 +788,15 @@ Public Class frmBandeja
     Private Async Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
         txtBuscar.Clear()
         Await CargarGrillaAsync()
+    End Sub
+
+    Private Sub btnRenovacionesArt120_Click(sender As Object, e As EventArgs) Handles btnRenovacionesArt120.Click
+        Dim fRenovaciones As New frmRenovacionesArt120()
+        AddHandler fRenovaciones.FormClosed,
+            Async Sub(sender2, args2)
+                Await CargarGrillaAsync()
+            End Sub
+        ShowFormInMdi(Me, fRenovaciones)
     End Sub
 
     Private Async Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click

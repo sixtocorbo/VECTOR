@@ -238,6 +238,12 @@
     <Compile Include="frmPrincipal.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmRenovacionesArt120.Designer.vb">
+      <DependentUpon>frmRenovacionesArt120.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmRenovacionesArt120.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmUnificarOficinas.Designer.vb">
       <DependentUpon>frmUnificarOficinas.vb</DependentUpon>
     </Compile>

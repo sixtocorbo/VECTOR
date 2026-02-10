@@ -5,6 +5,7 @@ Imports System.Threading.Tasks
 Public Class frmBuscadorReclusos
 
     Public Property ResultadoFormateado As String = ""
+    Public Property ResultadoIdRecluso As Nullable(Of Integer)
     Private _versionCarga As Integer = 0
 
     Private Async Sub frmBuscadorReclusos_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -63,8 +64,10 @@ Public Class frmBuscadorReclusos
     Private Sub SeleccionarYSalir()
         If dgvLista.SelectedRows.Count = 0 Then Return
 
+        Dim id = CInt(dgvLista.SelectedRows(0).Cells("ID").Value)
         Dim nombre = dgvLista.SelectedRows(0).Cells("Nombre").Value.ToString()
 
+        Me.ResultadoIdRecluso = id
         Me.ResultadoFormateado = nombre
 
         Me.DialogResult = DialogResult.OK

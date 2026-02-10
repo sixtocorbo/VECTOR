@@ -34,6 +34,9 @@ Partial Class frmRenovacionesArt120
         Me.txtObservaciones = New System.Windows.Forms.TextBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.cboDocumentoRespaldo = New System.Windows.Forms.ComboBox()
+        Me.btnAgregarDocumento = New System.Windows.Forms.Button()
+        Me.lstDocumentosRespaldo = New System.Windows.Forms.ListBox()
+        Me.btnQuitarDocumento = New System.Windows.Forms.Button()
         Me.btnRefrescarDocumentos = New System.Windows.Forms.Button()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.chkActivoRegistro = New System.Windows.Forms.CheckBox()
@@ -201,6 +204,9 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.btnGuardar)
         Me.PanelEditor.Controls.Add(Me.txtObservaciones)
         Me.PanelEditor.Controls.Add(Me.Label8)
+        Me.PanelEditor.Controls.Add(Me.btnQuitarDocumento)
+        Me.PanelEditor.Controls.Add(Me.lstDocumentosRespaldo)
+        Me.PanelEditor.Controls.Add(Me.btnAgregarDocumento)
         Me.PanelEditor.Controls.Add(Me.cboDocumentoRespaldo)
         Me.PanelEditor.Controls.Add(Me.btnRefrescarDocumentos)
         Me.PanelEditor.Controls.Add(Me.Label7)
@@ -268,24 +274,53 @@ Partial Class frmRenovacionesArt120
         '
         Me.cboDocumentoRespaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboDocumentoRespaldo.FormattingEnabled = True
-        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 105)
+        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 36)
         Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
         Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
         Me.cboDocumentoRespaldo.TabIndex = 12
         '
+        'btnAgregarDocumento
+        '
+        Me.btnAgregarDocumento.Enabled = False
+        Me.btnAgregarDocumento.Location = New System.Drawing.Point(1188, 35)
+        Me.btnAgregarDocumento.Name = "btnAgregarDocumento"
+        Me.btnAgregarDocumento.Size = New System.Drawing.Size(54, 31)
+        Me.btnAgregarDocumento.TabIndex = 13
+        Me.btnAgregarDocumento.Text = "+"
+        Me.btnAgregarDocumento.UseVisualStyleBackColor = True
+        '
+        'lstDocumentosRespaldo
+        '
+        Me.lstDocumentosRespaldo.FormattingEnabled = True
+        Me.lstDocumentosRespaldo.ItemHeight = 20
+        Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(861, 70)
+        Me.lstDocumentosRespaldo.Name = "lstDocumentosRespaldo"
+        Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(321, 84)
+        Me.lstDocumentosRespaldo.TabIndex = 14
+        '
+        'btnQuitarDocumento
+        '
+        Me.btnQuitarDocumento.Enabled = False
+        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1188, 69)
+        Me.btnQuitarDocumento.Name = "btnQuitarDocumento"
+        Me.btnQuitarDocumento.Size = New System.Drawing.Size(54, 31)
+        Me.btnQuitarDocumento.TabIndex = 15
+        Me.btnQuitarDocumento.Text = "-"
+        Me.btnQuitarDocumento.UseVisualStyleBackColor = True
+        '
         'btnRefrescarDocumentos
         '
-        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1188, 104)
+        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1188, 123)
         Me.btnRefrescarDocumentos.Name = "btnRefrescarDocumentos"
         Me.btnRefrescarDocumentos.Size = New System.Drawing.Size(54, 31)
-        Me.btnRefrescarDocumentos.TabIndex = 13
+        Me.btnRefrescarDocumentos.TabIndex = 16
         Me.btnRefrescarDocumentos.Text = "↻"
         Me.btnRefrescarDocumentos.UseVisualStyleBackColor = True
         '
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(857, 82)
+        Me.Label7.Location = New System.Drawing.Point(857, 13)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(244, 20)
         Me.Label7.TabIndex = 11
@@ -299,7 +334,7 @@ Partial Class frmRenovacionesArt120
         Me.chkActivoRegistro.Location = New System.Drawing.Point(462, 143)
         Me.chkActivoRegistro.Name = "chkActivoRegistro"
         Me.chkActivoRegistro.Size = New System.Drawing.Size(152, 24)
-        Me.chkActivoRegistro.TabIndex = 14
+        Me.chkActivoRegistro.TabIndex = 17
         Me.chkActivoRegistro.Text = "Registro activo"
         Me.chkActivoRegistro.UseVisualStyleBackColor = True
         '
@@ -444,6 +479,9 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents dtpVencimiento As DateTimePicker
     Friend WithEvents Label6 As Label
     Friend WithEvents cboDocumentoRespaldo As ComboBox
+    Friend WithEvents btnAgregarDocumento As Button
+    Friend WithEvents lstDocumentosRespaldo As ListBox
+    Friend WithEvents btnQuitarDocumento As Button
     Friend WithEvents btnRefrescarDocumentos As Button
     Friend WithEvents Label7 As Label
     Friend WithEvents chkActivoRegistro As CheckBox

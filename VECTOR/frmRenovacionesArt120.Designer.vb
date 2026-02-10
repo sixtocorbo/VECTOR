@@ -136,7 +136,7 @@ Partial Class frmRenovacionesArt120
         Me.btnAbrirDocumento.Name = "btnAbrirDocumento"
         Me.btnAbrirDocumento.Size = New System.Drawing.Size(144, 32)
         Me.btnAbrirDocumento.TabIndex = 4
-        Me.btnAbrirDocumento.Text = "Abrir respaldo"
+        Me.btnAbrirDocumento.Text = "Documentación"
         Me.btnAbrirDocumento.UseVisualStyleBackColor = False
         '
         'chkSoloActivas

@@ -35,6 +35,7 @@ Partial Class frmPrincipal
         Me.AuditoriaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.EstadisticasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UnificarOficinasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ConfiguracionSistemaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.VentanasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.lblEstadoUsuario = New System.Windows.Forms.ToolStripStatusLabel()
@@ -70,7 +71,7 @@ Partial Class frmPrincipal
         '
         'GestiónToolStripMenuItem
         '
-        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionTiemposToolStripMenuItem, Me.GestionTiposDocumentoToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem})
+        Me.GestiónToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BandejaDeEntradaToolStripMenuItem, Me.GestionRangosToolStripMenuItem, Me.GestionTiemposToolStripMenuItem, Me.GestionTiposDocumentoToolStripMenuItem, Me.GestionUsuariosToolStripMenuItem, Me.AuditoriaToolStripMenuItem, Me.EstadisticasToolStripMenuItem, Me.UnificarOficinasToolStripMenuItem, Me.ConfiguracionSistemaToolStripMenuItem})
         Me.GestiónToolStripMenuItem.Name = "GestiónToolStripMenuItem"
         Me.GestiónToolStripMenuItem.Size = New System.Drawing.Size(88, 29)
         Me.GestiónToolStripMenuItem.Text = "Gestión"
@@ -122,6 +123,12 @@ Partial Class frmPrincipal
         Me.UnificarOficinasToolStripMenuItem.Name = "UnificarOficinasToolStripMenuItem"
         Me.UnificarOficinasToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
         Me.UnificarOficinasToolStripMenuItem.Text = "Herramienta Unificar Oficinas"
+        '
+        'ConfiguracionSistemaToolStripMenuItem
+        '
+        Me.ConfiguracionSistemaToolStripMenuItem.Name = "ConfiguracionSistemaToolStripMenuItem"
+        Me.ConfiguracionSistemaToolStripMenuItem.Size = New System.Drawing.Size(343, 34)
+        Me.ConfiguracionSistemaToolStripMenuItem.Text = "Configuración del Sistema"
         '
         'VentanasToolStripMenuItem
         '
@@ -189,6 +196,7 @@ Partial Class frmPrincipal
     Friend WithEvents AuditoriaToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents EstadisticasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents UnificarOficinasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem ' <--- NUEVO
+    Friend WithEvents ConfiguracionSistemaToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents VentanasToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents StatusStrip1 As System.Windows.Forms.StatusStrip
     Friend WithEvents lblEstadoUsuario As System.Windows.Forms.ToolStripStatusLabel

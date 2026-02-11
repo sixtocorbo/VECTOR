@@ -379,6 +379,9 @@
     <EmbeddedResource Include="frmPrincipal.resx">
       <DependentUpon>frmPrincipal.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmRenovacionesArt120.resx">
+      <DependentUpon>frmRenovacionesArt120.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmUnificarOficinas.resx">
       <DependentUpon>frmUnificarOficinas.vb</DependentUpon>
     </EmbeddedResource>

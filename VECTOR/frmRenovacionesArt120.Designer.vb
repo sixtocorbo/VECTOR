@@ -25,21 +25,21 @@ Partial Class frmRenovacionesArt120
         Me.btnAbrirDocumento = New System.Windows.Forms.Button()
         Me.btnConfigurarRenovaciones = New System.Windows.Forms.Button()
         Me.chkSoloActivas = New System.Windows.Forms.CheckBox()
+        Me.nudDiasAlerta = New System.Windows.Forms.NumericUpDown()
+        Me.lblDiasAlerta = New System.Windows.Forms.Label()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.lblResumen = New System.Windows.Forms.Label()
-        Me.nudDiasAlerta = New System.Windows.Forms.NumericUpDown()
-        Me.lblDiasAlerta = New System.Windows.Forms.Label()
         Me.dgvSalidas = New System.Windows.Forms.DataGridView()
         Me.PanelEditor = New System.Windows.Forms.Panel()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.txtObservaciones = New System.Windows.Forms.TextBox()
         Me.Label8 = New System.Windows.Forms.Label()
-        Me.cboDocumentoRespaldo = New System.Windows.Forms.ComboBox()
-        Me.btnAgregarDocumento = New System.Windows.Forms.Button()
-        Me.lstDocumentosRespaldo = New System.Windows.Forms.ListBox()
         Me.btnQuitarDocumento = New System.Windows.Forms.Button()
+        Me.lstDocumentosRespaldo = New System.Windows.Forms.ListBox()
+        Me.btnAgregarDocumento = New System.Windows.Forms.Button()
+        Me.cboDocumentoRespaldo = New System.Windows.Forms.ComboBox()
         Me.btnRefrescarDocumentos = New System.Windows.Forms.Button()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.chkActivoRegistro = New System.Windows.Forms.CheckBox()
@@ -171,13 +171,14 @@ Partial Class frmRenovacionesArt120
         Me.chkSoloActivas.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkSoloActivas.Location = New System.Drawing.Point(15, 16)
         Me.chkSoloActivas.Name = "chkSoloActivas"
-        Me.chkSoloActivas.Size = New System.Drawing.Size(95, 24)
+        Me.chkSoloActivas.Size = New System.Drawing.Size(120, 24)
         Me.chkSoloActivas.TabIndex = 3
         Me.chkSoloActivas.Text = "Solo activas"
         Me.chkSoloActivas.UseVisualStyleBackColor = True
-
+        '
         'nudDiasAlerta
-        Me.nudDiasAlerta.Location = New System.Drawing.Point(234, 14)
+        '
+        Me.nudDiasAlerta.Location = New System.Drawing.Point(313, 16)
         Me.nudDiasAlerta.Maximum = New Decimal(New Integer() {365, 0, 0, 0})
         Me.nudDiasAlerta.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         Me.nudDiasAlerta.Name = "nudDiasAlerta"
@@ -186,10 +187,11 @@ Partial Class frmRenovacionesArt120
         Me.nudDiasAlerta.Value = New Decimal(New Integer() {30, 0, 0, 0})
         '
         'lblDiasAlerta
+        '
         Me.lblDiasAlerta.AutoSize = True
-        Me.lblDiasAlerta.Location = New System.Drawing.Point(116, 16)
+        Me.lblDiasAlerta.Location = New System.Drawing.Point(195, 18)
         Me.lblDiasAlerta.Name = "lblDiasAlerta"
-        Me.lblDiasAlerta.Size = New System.Drawing.Size(112, 20)
+        Me.lblDiasAlerta.Size = New System.Drawing.Size(111, 20)
         Me.lblDiasAlerta.TabIndex = 4
         Me.lblDiasAlerta.Text = "Días de alerta:"
         '
@@ -205,7 +207,7 @@ Partial Class frmRenovacionesArt120
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(11, 55)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(54, 20)
+        Me.Label1.Size = New System.Drawing.Size(59, 20)
         Me.Label1.TabIndex = 1
         Me.Label1.Text = "Buscar"
         '
@@ -214,9 +216,9 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen.AutoSize = True
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
-        Me.lblResumen.Location = New System.Drawing.Point(314, 12)
+        Me.lblResumen.Location = New System.Drawing.Point(393, 14)
         Me.lblResumen.Name = "lblResumen"
-        Me.lblResumen.Size = New System.Drawing.Size(162, 28)
+        Me.lblResumen.Size = New System.Drawing.Size(155, 28)
         Me.lblResumen.TabIndex = 0
         Me.lblResumen.Text = "Sin datos aún..."
         '
@@ -314,18 +316,28 @@ Partial Class frmRenovacionesArt120
         Me.Label8.AutoSize = True
         Me.Label8.Location = New System.Drawing.Point(1258, 13)
         Me.Label8.Name = "Label8"
-        Me.Label8.Size = New System.Drawing.Size(104, 20)
+        Me.Label8.Size = New System.Drawing.Size(114, 20)
         Me.Label8.TabIndex = 13
         Me.Label8.Text = "Observaciones"
         '
-        'cboDocumentoRespaldo
+        'btnQuitarDocumento
         '
-        Me.cboDocumentoRespaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboDocumentoRespaldo.FormattingEnabled = True
-        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 36)
-        Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
-        Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
-        Me.cboDocumentoRespaldo.TabIndex = 12
+        Me.btnQuitarDocumento.Enabled = False
+        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1188, 69)
+        Me.btnQuitarDocumento.Name = "btnQuitarDocumento"
+        Me.btnQuitarDocumento.Size = New System.Drawing.Size(54, 31)
+        Me.btnQuitarDocumento.TabIndex = 15
+        Me.btnQuitarDocumento.Text = "-"
+        Me.btnQuitarDocumento.UseVisualStyleBackColor = True
+        '
+        'lstDocumentosRespaldo
+        '
+        Me.lstDocumentosRespaldo.FormattingEnabled = True
+        Me.lstDocumentosRespaldo.ItemHeight = 20
+        Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(861, 70)
+        Me.lstDocumentosRespaldo.Name = "lstDocumentosRespaldo"
+        Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(321, 84)
+        Me.lstDocumentosRespaldo.TabIndex = 14
         '
         'btnAgregarDocumento
         '
@@ -337,24 +349,14 @@ Partial Class frmRenovacionesArt120
         Me.btnAgregarDocumento.Text = "+"
         Me.btnAgregarDocumento.UseVisualStyleBackColor = True
         '
-        'lstDocumentosRespaldo
+        'cboDocumentoRespaldo
         '
-        Me.lstDocumentosRespaldo.FormattingEnabled = True
-        Me.lstDocumentosRespaldo.ItemHeight = 20
-        Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(861, 70)
-        Me.lstDocumentosRespaldo.Name = "lstDocumentosRespaldo"
-        Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(321, 84)
-        Me.lstDocumentosRespaldo.TabIndex = 14
-        '
-        'btnQuitarDocumento
-        '
-        Me.btnQuitarDocumento.Enabled = False
-        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1188, 69)
-        Me.btnQuitarDocumento.Name = "btnQuitarDocumento"
-        Me.btnQuitarDocumento.Size = New System.Drawing.Size(54, 31)
-        Me.btnQuitarDocumento.TabIndex = 15
-        Me.btnQuitarDocumento.Text = "-"
-        Me.btnQuitarDocumento.UseVisualStyleBackColor = True
+        Me.cboDocumentoRespaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboDocumentoRespaldo.FormattingEnabled = True
+        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 36)
+        Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
+        Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
+        Me.cboDocumentoRespaldo.TabIndex = 12
         '
         'btnRefrescarDocumentos
         '
@@ -370,7 +372,7 @@ Partial Class frmRenovacionesArt120
         Me.Label7.AutoSize = True
         Me.Label7.Location = New System.Drawing.Point(857, 13)
         Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(244, 20)
+        Me.Label7.Size = New System.Drawing.Size(322, 20)
         Me.Label7.TabIndex = 11
         Me.Label7.Text = "Expediente / Documento respaldo (opcional)"
         '
@@ -381,7 +383,7 @@ Partial Class frmRenovacionesArt120
         Me.chkActivoRegistro.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkActivoRegistro.Location = New System.Drawing.Point(462, 203)
         Me.chkActivoRegistro.Name = "chkActivoRegistro"
-        Me.chkActivoRegistro.Size = New System.Drawing.Size(152, 24)
+        Me.chkActivoRegistro.Size = New System.Drawing.Size(140, 24)
         Me.chkActivoRegistro.TabIndex = 17
         Me.chkActivoRegistro.Text = "Registro activo"
         Me.chkActivoRegistro.UseVisualStyleBackColor = True
@@ -399,9 +401,28 @@ Partial Class frmRenovacionesArt120
         Me.Label6.AutoSize = True
         Me.Label6.Location = New System.Drawing.Point(656, 148)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(95, 20)
+        Me.Label6.Size = New System.Drawing.Size(97, 20)
         Me.Label6.TabIndex = 9
         Me.Label6.Text = "Vencimiento"
+        '
+        'dtpFechaNotificacion
+        '
+        Me.dtpFechaNotificacion.Checked = False
+        Me.dtpFechaNotificacion.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
+        Me.dtpFechaNotificacion.Location = New System.Drawing.Point(462, 105)
+        Me.dtpFechaNotificacion.Name = "dtpFechaNotificacion"
+        Me.dtpFechaNotificacion.ShowCheckBox = True
+        Me.dtpFechaNotificacion.Size = New System.Drawing.Size(185, 26)
+        Me.dtpFechaNotificacion.TabIndex = 9
+        '
+        'Label11
+        '
+        Me.Label11.AutoSize = True
+        Me.Label11.Location = New System.Drawing.Point(458, 82)
+        Me.Label11.Name = "Label11"
+        Me.Label11.Size = New System.Drawing.Size(152, 20)
+        Me.Label11.TabIndex = 20
+        Me.Label11.Text = "Notif. juez (opcional)"
         '
         'dtpInicio
         '
@@ -416,7 +437,7 @@ Partial Class frmRenovacionesArt120
         Me.Label5.AutoSize = True
         Me.Label5.Location = New System.Drawing.Point(458, 148)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(44, 20)
+        Me.Label5.Size = New System.Drawing.Size(46, 20)
         Me.Label5.TabIndex = 7
         Me.Label5.Text = "Inicio"
         '
@@ -432,11 +453,9 @@ Partial Class frmRenovacionesArt120
         Me.Label4.AutoSize = True
         Me.Label4.Location = New System.Drawing.Point(11, 82)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(113, 20)
+        Me.Label4.Size = New System.Drawing.Size(125, 20)
         Me.Label4.TabIndex = 5
         Me.Label4.Text = "Lugar de trabajo"
-        '
-
         '
         'txtHorario
         '
@@ -450,7 +469,7 @@ Partial Class frmRenovacionesArt120
         Me.Label9.AutoSize = True
         Me.Label9.Location = New System.Drawing.Point(458, 13)
         Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(66, 20)
+        Me.Label9.Size = New System.Drawing.Size(67, 20)
         Me.Label9.TabIndex = 18
         Me.Label9.Text = "Horario*"
         '
@@ -469,13 +488,14 @@ Partial Class frmRenovacionesArt120
         Me.Label10.Size = New System.Drawing.Size(78, 20)
         Me.Label10.TabIndex = 19
         Me.Label10.Text = "Custodia*"
+        '
         'lblIdRecluso
         '
         Me.lblIdRecluso.AutoSize = True
         Me.lblIdRecluso.ForeColor = System.Drawing.Color.DimGray
         Me.lblIdRecluso.Location = New System.Drawing.Point(660, 108)
         Me.lblIdRecluso.Name = "lblIdRecluso"
-        Me.lblIdRecluso.Size = New System.Drawing.Size(95, 20)
+        Me.lblIdRecluso.Size = New System.Drawing.Size(101, 20)
         Me.lblIdRecluso.TabIndex = 4
         Me.lblIdRecluso.Text = "ID: (ninguno)"
         '
@@ -501,7 +521,7 @@ Partial Class frmRenovacionesArt120
         Me.Label3.AutoSize = True
         Me.Label3.Location = New System.Drawing.Point(11, 13)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(143, 20)
+        Me.Label3.Size = New System.Drawing.Size(201, 20)
         Me.Label3.TabIndex = 1
         Me.Label3.Text = "Persona privada de libertad"
         '
@@ -512,30 +532,11 @@ Partial Class frmRenovacionesArt120
         Me.Label2.ForeColor = System.Drawing.Color.MidnightBlue
         Me.Label2.Location = New System.Drawing.Point(11, 236)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(589, 28)
+        Me.Label2.Size = New System.Drawing.Size(962, 28)
         Me.Label2.TabIndex = 0
-        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) fechas/notificación 4) respaldo"
+        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) fechas/notifi" &
+    "cación 4) respaldo"
         '
-
-        '
-        'dtpFechaNotificacion
-        '
-        Me.dtpFechaNotificacion.Checked = False
-        Me.dtpFechaNotificacion.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
-        Me.dtpFechaNotificacion.Location = New System.Drawing.Point(462, 105)
-        Me.dtpFechaNotificacion.Name = "dtpFechaNotificacion"
-        Me.dtpFechaNotificacion.ShowCheckBox = True
-        Me.dtpFechaNotificacion.Size = New System.Drawing.Size(185, 26)
-        Me.dtpFechaNotificacion.TabIndex = 9
-        '
-        'Label11
-        '
-        Me.Label11.AutoSize = True
-        Me.Label11.Location = New System.Drawing.Point(458, 82)
-        Me.Label11.Name = "Label11"
-        Me.Label11.Size = New System.Drawing.Size(164, 20)
-        Me.Label11.TabIndex = 20
-        Me.Label11.Text = "Notif. juez (opcional)"
         'frmRenovacionesArt120
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -549,8 +550,8 @@ Partial Class frmRenovacionesArt120
         Me.Text = "Renovaciones de salidas laborales - Art. 120"
         Me.PanelFiltros.ResumeLayout(False)
         Me.PanelFiltros.PerformLayout()
-        CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.nudDiasAlerta, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PanelEditor.ResumeLayout(False)
         Me.PanelEditor.PerformLayout()
         Me.ResumeLayout(False)

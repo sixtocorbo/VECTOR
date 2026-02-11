@@ -192,7 +192,6 @@ Partial Class frmRenovacionesArt120
         '
         'lblResumen
         '
-        Me.lblResumen.AutoSize = False
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
         Me.lblResumen.Location = New System.Drawing.Point(71, 88)
@@ -217,7 +216,7 @@ Partial Class frmRenovacionesArt120
         Me.dgvSalidas.RowHeadersVisible = False
         Me.dgvSalidas.RowHeadersWidth = 62
         Me.dgvSalidas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 6)
+        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 0)
         Me.dgvSalidas.TabIndex = 1
         '
         'PanelEditor

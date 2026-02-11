@@ -58,6 +58,7 @@ Partial Class frmRenovacionesArt120
         Me.txtRecluso = New System.Windows.Forms.TextBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
         Me.PanelFiltros.SuspendLayout()
         CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelEditor.SuspendLayout()
@@ -220,6 +221,7 @@ Partial Class frmRenovacionesArt120
         'PanelEditor
         '
         Me.PanelEditor.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.PanelEditor.Controls.Add(Me.txtDocumentoDescripcion)
         Me.PanelEditor.Controls.Add(Me.btnCancelar)
         Me.PanelEditor.Controls.Add(Me.btnGuardar)
         Me.PanelEditor.Controls.Add(Me.txtObservaciones)
@@ -513,6 +515,15 @@ Partial Class frmRenovacionesArt120
         Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) fechas/notifi" &
     "cación 4) respaldo"
         '
+        'txtDocumentoDescripcion
+        '
+        Me.txtDocumentoDescripcion.Location = New System.Drawing.Point(861, 156)
+        Me.txtDocumentoDescripcion.Multiline = True
+        Me.txtDocumentoDescripcion.Name = "txtDocumentoDescripcion"
+        Me.txtDocumentoDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtDocumentoDescripcion.Size = New System.Drawing.Size(381, 77)
+        Me.txtDocumentoDescripcion.TabIndex = 21
+        '
         'frmRenovacionesArt120
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -574,4 +585,5 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents Label8 As Label
     Friend WithEvents btnGuardar As Button
     Friend WithEvents btnCancelar As Button
+    Friend WithEvents txtDocumentoDescripcion As TextBox
 End Class

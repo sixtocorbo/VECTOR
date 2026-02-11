@@ -40,6 +40,7 @@ Partial Class frmBandeja
         '
         'PanelSuperior
         '
+        Me.PanelSuperior.AutoScroll = True
         Me.PanelSuperior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelSuperior.Controls.Add(Me.chkVerDerivados)
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
@@ -68,6 +69,7 @@ Partial Class frmBandeja
         '
         'btnNuevoIngreso
         '
+        Me.btnNuevoIngreso.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnNuevoIngreso.BackColor = System.Drawing.Color.SeaGreen
         Me.btnNuevoIngreso.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnNuevoIngreso.ForeColor = System.Drawing.Color.White
@@ -111,6 +113,7 @@ Partial Class frmBandeja
         '
         'btnDarPase
         '
+        Me.btnDarPase.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnDarPase.BackColor = System.Drawing.Color.ForestGreen
         Me.btnDarPase.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDarPase.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -125,6 +128,7 @@ Partial Class frmBandeja
         '
         'btnRenovacionesArt120
         '
+        Me.btnRenovacionesArt120.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnRenovacionesArt120.BackColor = System.Drawing.Color.MediumPurple
         Me.btnRenovacionesArt120.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnRenovacionesArt120.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -140,6 +144,7 @@ Partial Class frmBandeja
         'PanelInferior
         '
         ' --- CAMBIO AQUÍ: Usamos Dock Bottom en lugar de Anchor ---
+        Me.PanelInferior.AutoScroll = True
         Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.PanelInferior.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelInferior.Controls.Add(Me.btnDesvincular)
@@ -156,6 +161,7 @@ Partial Class frmBandeja
         '
         'btnDesvincular
         '
+        Me.btnDesvincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDesvincular.ForeColor = System.Drawing.Color.White
@@ -169,6 +175,7 @@ Partial Class frmBandeja
         '
         'btnEditar
         '
+        Me.btnEditar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnEditar.BackColor = System.Drawing.Color.Goldenrod
         Me.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEditar.ForeColor = System.Drawing.Color.White
@@ -182,6 +189,7 @@ Partial Class frmBandeja
         '
         'btnEliminar
         '
+        Me.btnEliminar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnEliminar.BackColor = System.Drawing.Color.IndianRed
         Me.btnEliminar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEliminar.ForeColor = System.Drawing.Color.White
@@ -195,6 +203,7 @@ Partial Class frmBandeja
         '
         'btnVincular
         '
+        Me.btnVincular.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnVincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnVincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnVincular.ForeColor = System.Drawing.Color.White
@@ -208,6 +217,7 @@ Partial Class frmBandeja
         '
         'btnHistorial
         '
+        Me.btnHistorial.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnHistorial.BackColor = System.Drawing.Color.SteelBlue
         Me.btnHistorial.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnHistorial.ForeColor = System.Drawing.Color.White

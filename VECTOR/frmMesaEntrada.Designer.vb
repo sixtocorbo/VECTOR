@@ -142,19 +142,19 @@ Partial Class frmMesaEntrada
         '
         'numFojas
         '
-        Me.numFojas.Location = New System.Drawing.Point(694, 74)
+        Me.numFojas.Location = New System.Drawing.Point(761, 72)
         Me.numFojas.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.numFojas.Maximum = New Decimal(New Integer() {10000, 0, 0, 0})
         Me.numFojas.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         Me.numFojas.Name = "numFojas"
-        Me.numFojas.Size = New System.Drawing.Size(118, 31)
+        Me.numFojas.Size = New System.Drawing.Size(71, 31)
         Me.numFojas.TabIndex = 5
         Me.numFojas.Value = New Decimal(New Integer() {1, 0, 0, 0})
         '
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(690, 45)
+        Me.Label5.Location = New System.Drawing.Point(734, 45)
         Me.Label5.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(98, 25)
@@ -164,10 +164,10 @@ Partial Class frmMesaEntrada
         'txtNumeroRef
         '
         Me.txtNumeroRef.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtNumeroRef.Location = New System.Drawing.Point(339, 72)
+        Me.txtNumeroRef.Location = New System.Drawing.Point(316, 72)
         Me.txtNumeroRef.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtNumeroRef.Name = "txtNumeroRef"
-        Me.txtNumeroRef.Size = New System.Drawing.Size(320, 31)
+        Me.txtNumeroRef.Size = New System.Drawing.Size(438, 31)
         Me.txtNumeroRef.TabIndex = 3
         '
         'Label4

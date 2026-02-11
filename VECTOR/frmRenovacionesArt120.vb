@@ -289,15 +289,15 @@ Public Class frmRenovacionesArt120
         Dim activas = lista.Where(Function(s) s.Activo).ToList()
         Dim desactivadas = lista.Where(Function(s) Not s.Activo).ToList()
 
-        Dim activasNormales = activas.Count(Function(s) s.DiasRestantes > diasAlerta)
-        Dim activasEnAlerta = activas.Count(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta)
-        Dim activasVencidas = activas.Count(Function(s) s.DiasRestantes < 0)
+        Dim activasNormales = activas.Where(Function(s) s.DiasRestantes > diasAlerta).Count()
+        Dim activasEnAlerta = activas.Where(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta).Count()
+        Dim activasVencidas = activas.Where(Function(s) s.DiasRestantes < 0).Count()
 
-        Dim desactivadasNormales = desactivadas.Count(Function(s) s.DiasRestantes > diasAlerta)
-        Dim desactivadasEnAlerta = desactivadas.Count(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta)
-        Dim desactivadasVencidas = desactivadas.Count(Function(s) s.DiasRestantes < 0)
+        Dim desactivadasNormales = desactivadas.Where(Function(s) s.DiasRestantes > diasAlerta).Count()
+        Dim desactivadasEnAlerta = desactivadas.Where(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta).Count()
+        Dim desactivadasVencidas = desactivadas.Where(Function(s) s.DiasRestantes < 0).Count()
 
-        Dim conDocumentacion = lista.Count(Function(s) s.CantidadDocumentos > 0)
+        Dim conDocumentacion = lista.Where(Function(s) s.CantidadDocumentos > 0).Count()
         Dim sinDocumentacion = total - conDocumentacion
 
         lblResumen.Text =

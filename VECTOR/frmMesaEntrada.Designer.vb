@@ -58,6 +58,9 @@ Partial Class frmMesaEntrada
         '
         'grpOrigen
         '
+        ' IMPORTANTE: Anclar a Izquierda, Arriba y Derecha para que se estire
+        Me.grpOrigen.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpOrigen.Controls.Add(Me.dtpFechaRecepcion)
         Me.grpOrigen.Controls.Add(Me.Label2)
         Me.grpOrigen.Controls.Add(Me.txtBuscarOrigen)
@@ -124,6 +127,9 @@ Partial Class frmMesaEntrada
         '
         'grpDetalles
         '
+        ' IMPORTANTE: Anclar
+        Me.grpDetalles.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpDetalles.Controls.Add(Me.numFojas)
         Me.grpDetalles.Controls.Add(Me.Label5)
         Me.grpDetalles.Controls.Add(Me.txtNumeroRef)
@@ -202,6 +208,9 @@ Partial Class frmMesaEntrada
         '
         'grpContenido
         '
+        ' IMPORTANTE: Anclar
+        Me.grpContenido.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpContenido.Controls.Add(Me.btnBuscarPPL)
         Me.grpContenido.Controls.Add(Me.txtDescripcion)
         Me.grpContenido.Controls.Add(Me.Label7)
@@ -233,6 +242,10 @@ Partial Class frmMesaEntrada
         '
         'txtDescripcion
         '
+        ' IMPORTANTE: Anclar el texto para que crezca con el grupo
+        Me.txtDescripcion.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtDescripcion.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtDescripcion.Location = New System.Drawing.Point(28, 145)
         Me.txtDescripcion.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -254,6 +267,9 @@ Partial Class frmMesaEntrada
         '
         'txtAsunto
         '
+        ' IMPORTANTE: Anclar el asunto
+        Me.txtAsunto.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtAsunto.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtAsunto.Location = New System.Drawing.Point(28, 68)
         Me.txtAsunto.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -273,6 +289,9 @@ Partial Class frmMesaEntrada
         '
         'grpAdjuntos
         '
+        ' IMPORTANTE: Anclar
+        Me.grpAdjuntos.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpAdjuntos.Controls.Add(Me.lblAdjuntosInfo)
         Me.grpAdjuntos.Controls.Add(Me.btnQuitarAdjunto)
         Me.grpAdjuntos.Controls.Add(Me.btnAbrirAdjunto)
@@ -300,6 +319,7 @@ Partial Class frmMesaEntrada
         '
         'btnQuitarAdjunto
         '
+        Me.btnQuitarAdjunto.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnQuitarAdjunto.BackColor = System.Drawing.Color.LightGray
         Me.btnQuitarAdjunto.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnQuitarAdjunto.FlatStyle = System.Windows.Forms.FlatStyle.Popup
@@ -313,6 +333,7 @@ Partial Class frmMesaEntrada
         '
         'btnAbrirAdjunto
         '
+        Me.btnAbrirAdjunto.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnAbrirAdjunto.BackColor = System.Drawing.Color.LightGray
         Me.btnAbrirAdjunto.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnAbrirAdjunto.FlatStyle = System.Windows.Forms.FlatStyle.Popup
@@ -326,6 +347,7 @@ Partial Class frmMesaEntrada
         '
         'btnAdjuntar
         '
+        Me.btnAdjuntar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnAdjuntar.BackColor = System.Drawing.Color.LightGray
         Me.btnAdjuntar.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnAdjuntar.FlatStyle = System.Windows.Forms.FlatStyle.Popup
@@ -339,6 +361,8 @@ Partial Class frmMesaEntrada
         '
         'lstAdjuntos
         '
+        Me.lstAdjuntos.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lstAdjuntos.FormattingEnabled = True
         Me.lstAdjuntos.ItemHeight = 25
         Me.lstAdjuntos.Location = New System.Drawing.Point(28, 32)
@@ -349,6 +373,8 @@ Partial Class frmMesaEntrada
         '
         'btnGuardar
         '
+        ' IMPORTANTE: Anclar ABAJO y DERECHA para que no se oculte al redimensionar
+        Me.btnGuardar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnGuardar.BackColor = System.Drawing.Color.ForestGreen
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -363,6 +389,8 @@ Partial Class frmMesaEntrada
         '
         'btnCancelar
         '
+        ' IMPORTANTE: Anclar ABAJO y DERECHA
+        Me.btnCancelar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnCancelar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnCancelar.Location = New System.Drawing.Point(402, 822)
         Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)

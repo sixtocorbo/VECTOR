@@ -159,12 +159,6 @@
     <Compile Include="frmConfiguracionSistema.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmDashboard.Designer.vb">
-      <DependentUpon>frmDashboard.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmDashboard.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmDetalleDocumento.Designer.vb">
       <DependentUpon>frmDetalleDocumento.vb</DependentUpon>
     </Compile>
@@ -347,9 +341,6 @@
   <ItemGroup>
     <EmbeddedResource Include="frmAuditoria.resx">
       <DependentUpon>frmAuditoria.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmDashboard.resx">
-      <DependentUpon>frmDashboard.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmDetalleDocumento.resx">
       <DependentUpon>frmDetalleDocumento.vb</DependentUpon>

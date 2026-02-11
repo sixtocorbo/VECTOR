@@ -32,7 +32,7 @@ Public Class frmLogin
                     AuditoriaSistema.RegistrarEvento($"Inicio de sesión exitoso. Oficina: {nombreOficina}.", "LOGIN", usuario.IdUsuario)
 
                     ' 3. Transición al formulario principal
-                    Dim principal As New frmDashboard()
+                    Dim principal As New frmPrincipal()
                     principal.Show()
                     Me.Hide()
                 Else

@@ -2,6 +2,8 @@
 
 Public Class frmPrincipal
 
+    Private _menuCerrarVentanaActual As ToolStripMenuItem
+
     ' =============================================================================
     ' CARGA Y CONFIGURACIÓN INICIAL
     ' =============================================================================
@@ -11,9 +13,34 @@ Public Class frmPrincipal
 
         ConfigurarBarraEstado()
         ConfigurarSeguridadMenu()
+        ConfigurarAccesosMdi()
 
         ' Abrir la herramienta principal al iniciar
         AbrirFormularioHijo(Of frmBandeja)()
+    End Sub
+
+    Private Sub ConfigurarAccesosMdi()
+        If _menuCerrarVentanaActual IsNot Nothing Then Return
+
+        _menuCerrarVentanaActual = New ToolStripMenuItem("Cerrar ventana actual") With {
+            .ShortcutKeys = Keys.Control Or Keys.W,
+            .ShowShortcutKeys = True
+        }
+
+        AddHandler _menuCerrarVentanaActual.Click,
+            Sub()
+                CerrarVentanaMdiActiva()
+            End Sub
+
+        MenuInicio.DropDownItems.Insert(2, _menuCerrarVentanaActual)
+        MenuInicio.DropDownItems.Insert(3, New ToolStripSeparator())
+    End Sub
+
+    Private Sub CerrarVentanaMdiActiva()
+        Dim activa = Me.ActiveMdiChild
+        If activa Is Nothing Then Return
+
+        activa.Close()
     End Sub
 
     Private Sub ConfigurarBarraEstado()

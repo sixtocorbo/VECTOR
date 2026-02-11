@@ -22,7 +22,6 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso = New System.Windows.Forms.Button()
         Me.lblContador = New System.Windows.Forms.Label()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
-        Me.Label1 = New System.Windows.Forms.Label()
         Me.btnDarPase = New System.Windows.Forms.Button()
         Me.btnRenovacionesArt120 = New System.Windows.Forms.Button()
         Me.PanelInferior = New System.Windows.Forms.Panel()
@@ -45,20 +44,19 @@ Partial Class frmBandeja
         Me.PanelSuperior.Controls.Add(Me.btnNuevoIngreso)
         Me.PanelSuperior.Controls.Add(Me.lblContador)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
-        Me.PanelSuperior.Controls.Add(Me.Label1)
         Me.PanelSuperior.Controls.Add(Me.btnDarPase)
         Me.PanelSuperior.Controls.Add(Me.btnRenovacionesArt120)
         Me.PanelSuperior.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelSuperior.Location = New System.Drawing.Point(0, 0)
         Me.PanelSuperior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.PanelSuperior.Name = "PanelSuperior"
-        Me.PanelSuperior.Size = New System.Drawing.Size(1440, 166)
+        Me.PanelSuperior.Size = New System.Drawing.Size(1440, 146)
         Me.PanelSuperior.TabIndex = 0
         '
         'chkVerDerivados
         '
         Me.chkVerDerivados.AutoSize = True
-        Me.chkVerDerivados.Location = New System.Drawing.Point(140, 22)
+        Me.chkVerDerivados.Location = New System.Drawing.Point(13, 14)
         Me.chkVerDerivados.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.chkVerDerivados.Name = "chkVerDerivados"
         Me.chkVerDerivados.Size = New System.Drawing.Size(195, 24)
@@ -71,7 +69,7 @@ Partial Class frmBandeja
         Me.btnNuevoIngreso.BackColor = System.Drawing.Color.SeaGreen
         Me.btnNuevoIngreso.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnNuevoIngreso.ForeColor = System.Drawing.Color.White
-        Me.btnNuevoIngreso.Location = New System.Drawing.Point(420, 80)
+        Me.btnNuevoIngreso.Location = New System.Drawing.Point(349, 14)
         Me.btnNuevoIngreso.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnNuevoIngreso.Name = "btnNuevoIngreso"
         Me.btnNuevoIngreso.Size = New System.Drawing.Size(270, 71)
@@ -83,8 +81,8 @@ Partial Class frmBandeja
         '
         Me.lblContador.AutoSize = True
         Me.lblContador.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblContador.ForeColor = System.Drawing.Color.Red
-        Me.lblContador.Location = New System.Drawing.Point(470, 14)
+        Me.lblContador.ForeColor = System.Drawing.Color.Green
+        Me.lblContador.Location = New System.Drawing.Point(7, 97)
         Me.lblContador.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblContador.Name = "lblContador"
         Me.lblContador.Size = New System.Drawing.Size(179, 32)
@@ -93,21 +91,11 @@ Partial Class frmBandeja
         '
         'txtBuscar
         '
-        Me.txtBuscar.Location = New System.Drawing.Point(140, 111)
+        Me.txtBuscar.Location = New System.Drawing.Point(13, 59)
         Me.txtBuscar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtBuscar.Name = "txtBuscar"
-        Me.txtBuscar.Size = New System.Drawing.Size(223, 26)
+        Me.txtBuscar.Size = New System.Drawing.Size(311, 26)
         Me.txtBuscar.TabIndex = 1
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(134, 74)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(239, 20)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = "Buscar por Nombre, ID, Tipo, etc"
         '
         'btnDarPase
         '
@@ -115,7 +103,7 @@ Partial Class frmBandeja
         Me.btnDarPase.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDarPase.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnDarPase.ForeColor = System.Drawing.Color.White
-        Me.btnDarPase.Location = New System.Drawing.Point(705, 80)
+        Me.btnDarPase.Location = New System.Drawing.Point(634, 14)
         Me.btnDarPase.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnDarPase.Name = "btnDarPase"
         Me.btnDarPase.Size = New System.Drawing.Size(270, 71)
@@ -129,7 +117,7 @@ Partial Class frmBandeja
         Me.btnRenovacionesArt120.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnRenovacionesArt120.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnRenovacionesArt120.ForeColor = System.Drawing.Color.White
-        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(990, 80)
+        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(919, 14)
         Me.btnRenovacionesArt120.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnRenovacionesArt120.Name = "btnRenovacionesArt120"
         Me.btnRenovacionesArt120.Size = New System.Drawing.Size(330, 71)
@@ -147,10 +135,10 @@ Partial Class frmBandeja
         Me.PanelInferior.Controls.Add(Me.btnHistorial)
         Me.PanelInferior.Controls.Add(Me.btnRefrescar)
         Me.PanelInferior.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelInferior.Location = New System.Drawing.Point(0, 781)
+        Me.PanelInferior.Location = New System.Drawing.Point(0, 393)
         Me.PanelInferior.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.PanelInferior.Name = "PanelInferior"
-        Me.PanelInferior.Size = New System.Drawing.Size(1440, 142)
+        Me.PanelInferior.Size = New System.Drawing.Size(1440, 131)
         Me.PanelInferior.TabIndex = 1
         '
         'btnDesvincular
@@ -158,7 +146,7 @@ Partial Class frmBandeja
         Me.btnDesvincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnDesvincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnDesvincular.ForeColor = System.Drawing.Color.White
-        Me.btnDesvincular.Location = New System.Drawing.Point(326, 31)
+        Me.btnDesvincular.Location = New System.Drawing.Point(238, 31)
         Me.btnDesvincular.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnDesvincular.Name = "btnDesvincular"
         Me.btnDesvincular.Size = New System.Drawing.Size(180, 80)
@@ -171,7 +159,7 @@ Partial Class frmBandeja
         Me.btnEditar.BackColor = System.Drawing.Color.Goldenrod
         Me.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEditar.ForeColor = System.Drawing.Color.White
-        Me.btnEditar.Location = New System.Drawing.Point(514, 31)
+        Me.btnEditar.Location = New System.Drawing.Point(449, 31)
         Me.btnEditar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnEditar.Name = "btnEditar"
         Me.btnEditar.Size = New System.Drawing.Size(180, 80)
@@ -184,7 +172,7 @@ Partial Class frmBandeja
         Me.btnEliminar.BackColor = System.Drawing.Color.IndianRed
         Me.btnEliminar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnEliminar.ForeColor = System.Drawing.Color.White
-        Me.btnEliminar.Location = New System.Drawing.Point(704, 31)
+        Me.btnEliminar.Location = New System.Drawing.Point(660, 31)
         Me.btnEliminar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnEliminar.Name = "btnEliminar"
         Me.btnEliminar.Size = New System.Drawing.Size(180, 80)
@@ -197,7 +185,7 @@ Partial Class frmBandeja
         Me.btnVincular.BackColor = System.Drawing.Color.SteelBlue
         Me.btnVincular.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnVincular.ForeColor = System.Drawing.Color.White
-        Me.btnVincular.Location = New System.Drawing.Point(892, 31)
+        Me.btnVincular.Location = New System.Drawing.Point(871, 31)
         Me.btnVincular.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnVincular.Name = "btnVincular"
         Me.btnVincular.Size = New System.Drawing.Size(180, 80)
@@ -220,7 +208,6 @@ Partial Class frmBandeja
         '
         'btnRefrescar
         '
-        Me.btnRefrescar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.btnRefrescar.Location = New System.Drawing.Point(27, 31)
         Me.btnRefrescar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnRefrescar.Name = "btnRefrescar"
@@ -238,21 +225,21 @@ Partial Class frmBandeja
         Me.dgvPendientes.BackgroundColor = System.Drawing.Color.WhiteSmoke
         Me.dgvPendientes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvPendientes.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvPendientes.Location = New System.Drawing.Point(0, 166)
+        Me.dgvPendientes.Location = New System.Drawing.Point(0, 146)
         Me.dgvPendientes.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.dgvPendientes.MultiSelect = False
         Me.dgvPendientes.Name = "dgvPendientes"
         Me.dgvPendientes.ReadOnly = True
         Me.dgvPendientes.RowHeadersWidth = 62
         Me.dgvPendientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvPendientes.Size = New System.Drawing.Size(1440, 615)
+        Me.dgvPendientes.Size = New System.Drawing.Size(1440, 247)
         Me.dgvPendientes.TabIndex = 2
         '
         'frmBandeja
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1440, 923)
+        Me.ClientSize = New System.Drawing.Size(1440, 524)
         Me.Controls.Add(Me.dgvPendientes)
         Me.Controls.Add(Me.PanelInferior)
         Me.Controls.Add(Me.PanelSuperior)
@@ -269,7 +256,6 @@ Partial Class frmBandeja
 
     Friend WithEvents PanelSuperior As System.Windows.Forms.Panel
     Friend WithEvents txtBuscar As System.Windows.Forms.TextBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents PanelInferior As System.Windows.Forms.Panel
     Friend WithEvents btnDarPase As System.Windows.Forms.Button
     Friend WithEvents btnRefrescar As System.Windows.Forms.Button

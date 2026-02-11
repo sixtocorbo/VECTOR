@@ -10,6 +10,7 @@ Public Class frmGestionRangos
     Private _ultimoInicioSugerido As Integer? = Nothing
     Private _ultimoUltimoSugerido As Integer? = Nothing
     Private _sugerenciaEnCurso As Boolean = False
+    Private _operacionEnCurso As Boolean = False
 
     ' =============================================================================================
     ' REGIÓN: STOCK SECRETARÍA GENERAL (Variables a Nivel de Clase)
@@ -56,7 +57,27 @@ Public Class frmGestionRangos
     End Sub
 
     Private Sub frmGestionRangos_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If _operacionEnCurso Then
+            e.Cancel = True
+            Notifier.Warn(Me, "Hay una operación en curso. Espere a que finalice antes de cerrar el formulario.")
+            Return
+        End If
+
         Me.ShowIcon = False
+    End Sub
+
+    Private Sub CambiarEstadoOperacion(enCurso As Boolean)
+        _operacionEnCurso = enCurso
+        Me.UseWaitCursor = enCurso
+
+        btnGuardar.Enabled = Not enCurso
+        btnEliminar.Enabled = Not enCurso
+        btnNuevo.Enabled = Not enCurso
+        btnEditar.Enabled = Not enCurso
+        btnCancelar.Enabled = Not enCurso
+        btnCupos.Enabled = Not enCurso
+        dgvRangos.Enabled = Not enCurso
+        pnlEditor.Enabled = Not enCurso
     End Sub
 
     ' =======================================================
@@ -479,6 +500,8 @@ Public Class frmGestionRangos
     End Sub
 
     Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
+        If _operacionEnCurso Then Return
+
         If dgvRangos.SelectedRows.Count = 0 Then
             Notifier.Warn(Me, "Seleccione un rango.")
             Return
@@ -488,68 +511,79 @@ Public Class frmGestionRangos
 
         Dim idRango = Convert.ToInt32(dgvRangos.SelectedRows(0).Cells("Id").Value)
 
-        Using uow As New UnitOfWork()
-            uow.Repository(Of Mae_NumeracionRangos)().RemoveById(idRango)
-            Await uow.CommitAsync()
-        End Using
+        CambiarEstadoOperacion(True)
+        Try
+            Using uow As New UnitOfWork()
+                uow.Repository(Of Mae_NumeracionRangos)().RemoveById(idRango)
+                Await uow.CommitAsync()
+            End Using
 
-        Notifier.Success(Me, "Rango eliminado.")
-        ActualizarVisualizadorStock()
-        Await CargarGrillaAsync()
+            Notifier.Success(Me, "Rango eliminado.")
+            ActualizarVisualizadorStock()
+            Await CargarGrillaAsync()
+        Catch ex As Exception
+            Notifier.[Error](Me, "Error al eliminar: " & ex.Message)
+        Finally
+            CambiarEstadoOperacion(False)
+        End Try
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
-        ' 1. Validaciones Básicas
-        If cmbTipo.SelectedIndex = -1 Then
-            Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
-            Return
-        End If
-        If cmbOficina.SelectedIndex = -1 Then
-            Notifier.Warn(Me, "Debe asignar el rango a una Oficina.")
-            Return
-        End If
+        If _operacionEnCurso Then Return
 
-        Dim ini, fin, ult, cantidad As Integer
-        If Not Integer.TryParse(txtInicio.Text, ini) OrElse Not Integer.TryParse(txtCantidad.Text, cantidad) Then
-            Notifier.Warn(Me, "Datos numéricos inválidos.")
-            Return
-        End If
+        CambiarEstadoOperacion(True)
 
-        fin = ini + cantidad - 1
-        Integer.TryParse(txtUltimo.Text, ult)
-
-        If ult <> 0 AndAlso (ult < (ini - 1) Or ult > fin) Then
-            Notifier.Warn(Me, "El campo 'Último Utilizado' está fuera del rango.")
-            Return
-        End If
-
-        If String.IsNullOrWhiteSpace(txtNombre.Text) Then
-            txtNombre.Text = $"{cmbTipo.Text} {numAnio.Value} - {cmbOficina.Text}"
-        End If
-
-        ' 2. VALIDACIÓN DE STOCK (Control Secretaría General)
-        Dim idTipo As Integer
-        If Not TryObtenerIdTipoSeleccionado(idTipo) Then
-            Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
-            Return
-        End If
-        Dim anio As Integer = CInt(numAnio.Value)
-
-        Dim stockRestante = Await ObtenerStockRestanteAsync(idTipo, anio)
-
-        ' Si la cantidad solicitada supera el stock disponible...
-        If cantidad > stockRestante Then
-            Dim msg As String = $"STOCK INSUFICIENTE.{vbCrLf}" &
-                               $"Secretaría General solo dispone de {stockRestante} números para este tipo de documento.{vbCrLf}" &
-                               $"Usted está intentando asignar {cantidad}.{vbCrLf}{vbCrLf}" &
-                               "Por favor, reduzca la cantidad o solicite una ampliación de cupo."
-
-            MessageBox.Show(msg, "Stock Agotado", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Return
-        End If
-
-        ' 3. Guardado en BD
         Try
+        ' 1. Validaciones Básicas
+            If cmbTipo.SelectedIndex = -1 Then
+                Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
+                Return
+            End If
+            If cmbOficina.SelectedIndex = -1 Then
+                Notifier.Warn(Me, "Debe asignar el rango a una Oficina.")
+                Return
+            End If
+
+            Dim ini, fin, ult, cantidad As Integer
+            If Not Integer.TryParse(txtInicio.Text, ini) OrElse Not Integer.TryParse(txtCantidad.Text, cantidad) Then
+                Notifier.Warn(Me, "Datos numéricos inválidos.")
+                Return
+            End If
+
+            fin = ini + cantidad - 1
+            Integer.TryParse(txtUltimo.Text, ult)
+
+            If ult <> 0 AndAlso (ult < (ini - 1) Or ult > fin) Then
+                Notifier.Warn(Me, "El campo 'Último Utilizado' está fuera del rango.")
+                Return
+            End If
+
+            If String.IsNullOrWhiteSpace(txtNombre.Text) Then
+                txtNombre.Text = $"{cmbTipo.Text} {numAnio.Value} - {cmbOficina.Text}"
+            End If
+
+            ' 2. VALIDACIÓN DE STOCK (Control Secretaría General)
+            Dim idTipo As Integer
+            If Not TryObtenerIdTipoSeleccionado(idTipo) Then
+                Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
+                Return
+            End If
+            Dim anio As Integer = CInt(numAnio.Value)
+
+            Dim stockRestante = Await ObtenerStockRestanteAsync(idTipo, anio)
+
+            ' Si la cantidad solicitada supera el stock disponible...
+            If cantidad > stockRestante Then
+                Dim msg As String = $"STOCK INSUFICIENTE.{vbCrLf}" &
+                                   $"Secretaría General solo dispone de {stockRestante} números para este tipo de documento.{vbCrLf}" &
+                                   $"Usted está intentando asignar {cantidad}.{vbCrLf}{vbCrLf}" &
+                                   "Por favor, reduzca la cantidad o solicite una ampliación de cupo."
+
+                MessageBox.Show(msg, "Stock Agotado", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                Return
+            End If
+
+            ' 3. Guardado en BD
             Using uow As New UnitOfWork()
                 Dim repo = uow.Repository(Of Mae_NumeracionRangos)()
 
@@ -594,6 +628,8 @@ Public Class frmGestionRangos
             End Using
         Catch ex As Exception
             Notifier.[Error](Me, "Error al guardar: " & ex.Message)
+        Finally
+            CambiarEstadoOperacion(False)
         End Try
     End Sub
 

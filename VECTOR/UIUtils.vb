@@ -33,6 +33,18 @@ Public Module UIUtils
         Return owner.MdiParent
     End Function
 
+    Public Sub AjustarFormularioAlContenedorMdi(child As Form)
+        If child Is Nothing OrElse child.MdiParent Is Nothing Then
+            Return
+        End If
+
+        child.FormBorderStyle = FormBorderStyle.None
+        child.ControlBox = False
+        child.WindowState = FormWindowState.Normal
+        child.Dock = DockStyle.Fill
+        child.ShowIcon = False
+    End Sub
+
     Public Sub ShowFormInMdi(owner As Form, child As Form, Optional onClosed As FormClosedEventHandler = Nothing)
         Dim mdiContainer = ResolveMdiContainer(owner)
         If mdiContainer Is Nothing Then
@@ -45,8 +57,7 @@ Public Module UIUtils
         End If
 
         child.MdiParent = mdiContainer
-        child.WindowState = FormWindowState.Maximized
-        child.ShowIcon = False
+        AjustarFormularioAlContenedorMdi(child)
 
         If onClosed IsNot Nothing Then
             AddHandler child.FormClosed, onClosed
@@ -73,10 +84,7 @@ Public Module UIUtils
             End If
             ShowFormInMdi(mdiContainer, formulario)
         Else
-            formulario.ShowIcon = False
-            If formulario.WindowState <> FormWindowState.Maximized Then
-                formulario.WindowState = FormWindowState.Maximized
-            End If
+            AjustarFormularioAlContenedorMdi(formulario)
             formulario.Activate()
             formulario.BringToFront()
         End If

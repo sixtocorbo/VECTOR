@@ -58,7 +58,6 @@ Partial Class frmMesaEntrada
         '
         'grpOrigen
         '
-        ' IMPORTANTE: Anclar a Izquierda, Arriba y Derecha para que se estire
         Me.grpOrigen.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpOrigen.Controls.Add(Me.dtpFechaRecepcion)
@@ -127,7 +126,6 @@ Partial Class frmMesaEntrada
         '
         'grpDetalles
         '
-        ' IMPORTANTE: Anclar
         Me.grpDetalles.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpDetalles.Controls.Add(Me.numFojas)
@@ -137,7 +135,7 @@ Partial Class frmMesaEntrada
         Me.grpDetalles.Controls.Add(Me.cboTipo)
         Me.grpDetalles.Controls.Add(Me.Label3)
         Me.grpDetalles.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.grpDetalles.Location = New System.Drawing.Point(18, 174)
+        Me.grpDetalles.Location = New System.Drawing.Point(18, 156)
         Me.grpDetalles.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.grpDetalles.Name = "grpDetalles"
         Me.grpDetalles.Padding = New System.Windows.Forms.Padding(4, 5, 4, 5)
@@ -208,7 +206,6 @@ Partial Class frmMesaEntrada
         '
         'grpContenido
         '
-        ' IMPORTANTE: Anclar
         Me.grpContenido.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpContenido.Controls.Add(Me.btnBuscarPPL)
@@ -217,11 +214,11 @@ Partial Class frmMesaEntrada
         Me.grpContenido.Controls.Add(Me.txtAsunto)
         Me.grpContenido.Controls.Add(Me.Label6)
         Me.grpContenido.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.grpContenido.Location = New System.Drawing.Point(18, 337)
+        Me.grpContenido.Location = New System.Drawing.Point(18, 304)
         Me.grpContenido.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.grpContenido.Name = "grpContenido"
         Me.grpContenido.Padding = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.grpContenido.Size = New System.Drawing.Size(840, 285)
+        Me.grpContenido.Size = New System.Drawing.Size(840, 151)
         Me.grpContenido.TabIndex = 2
         Me.grpContenido.TabStop = False
         Me.grpContenido.Text = "3. Contenido"
@@ -232,7 +229,7 @@ Partial Class frmMesaEntrada
         Me.btnBuscarPPL.Cursor = System.Windows.Forms.Cursors.Hand
         Me.btnBuscarPPL.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.btnBuscarPPL.Font = New System.Drawing.Font("Segoe UI Emoji", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnBuscarPPL.Location = New System.Drawing.Point(753, 66)
+        Me.btnBuscarPPL.Location = New System.Drawing.Point(401, 58)
         Me.btnBuscarPPL.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnBuscarPPL.Name = "btnBuscarPPL"
         Me.btnBuscarPPL.Size = New System.Drawing.Size(60, 37)
@@ -242,23 +239,22 @@ Partial Class frmMesaEntrada
         '
         'txtDescripcion
         '
-        ' IMPORTANTE: Anclar el texto para que crezca con el grupo
         Me.txtDescripcion.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtDescripcion.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtDescripcion.Location = New System.Drawing.Point(28, 145)
+        Me.txtDescripcion.Location = New System.Drawing.Point(478, 58)
         Me.txtDescripcion.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtDescripcion.Multiline = True
         Me.txtDescripcion.Name = "txtDescripcion"
         Me.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDescripcion.Size = New System.Drawing.Size(782, 115)
+        Me.txtDescripcion.Size = New System.Drawing.Size(354, 83)
         Me.txtDescripcion.TabIndex = 4
         '
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(24, 117)
+        Me.Label7.Location = New System.Drawing.Point(553, 30)
         Me.Label7.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(235, 25)
@@ -267,20 +263,19 @@ Partial Class frmMesaEntrada
         '
         'txtAsunto
         '
-        ' IMPORTANTE: Anclar el asunto
         Me.txtAsunto.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtAsunto.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtAsunto.Location = New System.Drawing.Point(28, 68)
+        Me.txtAsunto.Location = New System.Drawing.Point(28, 58)
         Me.txtAsunto.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.txtAsunto.Name = "txtAsunto"
-        Me.txtAsunto.Size = New System.Drawing.Size(714, 31)
+        Me.txtAsunto.Size = New System.Drawing.Size(366, 31)
         Me.txtAsunto.TabIndex = 1
         '
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(24, 40)
+        Me.Label6.Location = New System.Drawing.Point(24, 30)
         Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(181, 25)
@@ -289,7 +284,6 @@ Partial Class frmMesaEntrada
         '
         'grpAdjuntos
         '
-        ' IMPORTANTE: Anclar
         Me.grpAdjuntos.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpAdjuntos.Controls.Add(Me.lblAdjuntosInfo)
@@ -298,11 +292,11 @@ Partial Class frmMesaEntrada
         Me.grpAdjuntos.Controls.Add(Me.btnAdjuntar)
         Me.grpAdjuntos.Controls.Add(Me.lstAdjuntos)
         Me.grpAdjuntos.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.grpAdjuntos.Location = New System.Drawing.Point(18, 640)
+        Me.grpAdjuntos.Location = New System.Drawing.Point(18, 465)
         Me.grpAdjuntos.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.grpAdjuntos.Name = "grpAdjuntos"
         Me.grpAdjuntos.Padding = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.grpAdjuntos.Size = New System.Drawing.Size(840, 160)
+        Me.grpAdjuntos.Size = New System.Drawing.Size(840, 170)
         Me.grpAdjuntos.TabIndex = 3
         Me.grpAdjuntos.TabStop = False
         Me.grpAdjuntos.Text = "4. Adjuntos Digitales"
@@ -310,7 +304,7 @@ Partial Class frmMesaEntrada
         'lblAdjuntosInfo
         '
         Me.lblAdjuntosInfo.AutoSize = True
-        Me.lblAdjuntosInfo.Location = New System.Drawing.Point(24, 131)
+        Me.lblAdjuntosInfo.Location = New System.Drawing.Point(24, 139)
         Me.lblAdjuntosInfo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblAdjuntosInfo.Name = "lblAdjuntosInfo"
         Me.lblAdjuntosInfo.Size = New System.Drawing.Size(102, 25)
@@ -373,13 +367,12 @@ Partial Class frmMesaEntrada
         '
         'btnGuardar
         '
-        ' IMPORTANTE: Anclar ABAJO y DERECHA para que no se oculte al redimensionar
         Me.btnGuardar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnGuardar.BackColor = System.Drawing.Color.ForestGreen
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(592, 812)
+        Me.btnGuardar.Location = New System.Drawing.Point(592, 651)
         Me.btnGuardar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnGuardar.Name = "btnGuardar"
         Me.btnGuardar.Size = New System.Drawing.Size(266, 58)
@@ -389,10 +382,9 @@ Partial Class frmMesaEntrada
         '
         'btnCancelar
         '
-        ' IMPORTANTE: Anclar ABAJO y DERECHA
         Me.btnCancelar.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnCancelar.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnCancelar.Location = New System.Drawing.Point(402, 812)
+        Me.btnCancelar.Location = New System.Drawing.Point(419, 651)
         Me.btnCancelar.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnCancelar.Name = "btnCancelar"
         Me.btnCancelar.Size = New System.Drawing.Size(165, 58)
@@ -406,7 +398,7 @@ Partial Class frmMesaEntrada
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoScroll = True
         Me.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ClientSize = New System.Drawing.Size(886, 900)
+        Me.ClientSize = New System.Drawing.Size(886, 723)
         Me.Controls.Add(Me.btnCancelar)
         Me.Controls.Add(Me.btnGuardar)
         Me.Controls.Add(Me.grpAdjuntos)

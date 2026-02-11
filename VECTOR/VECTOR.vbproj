@@ -165,6 +165,12 @@
     <Compile Include="frmDetalleDocumento.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmNuevaSalidaArt120Wizard.Designer.vb">
+      <DependentUpon>frmNuevaSalidaArt120Wizard.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmNuevaSalidaArt120Wizard.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmVincular.Designer.vb">
       <DependentUpon>frmVincular.vb</DependentUpon>
     </Compile>
@@ -252,9 +258,6 @@
       <DependentUpon>frmRenovacionesArt120.vb</DependentUpon>
     </Compile>
     <Compile Include="frmRenovacionesArt120.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmNuevaSalidaArt120Wizard.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmUnificarOficinas.Designer.vb">

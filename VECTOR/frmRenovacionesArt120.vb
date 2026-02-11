@@ -376,6 +376,8 @@ Public Class frmRenovacionesArt120
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If _guardando Then Return
+
+        IncluirDocumentoSeleccionadoEnCombo()
         If Not ValidarEditor() Then Return
 
         _guardando = True
@@ -422,6 +424,26 @@ Public Class frmRenovacionesArt120
             _guardando = False
             CambiarEstadoOperacion(False)
         End Try
+    End Sub
+
+    Private Sub IncluirDocumentoSeleccionadoEnCombo()
+        If _cargandoDocumentos Then Return
+
+        Dim idDocCombo = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
+        If Not idDocCombo.HasValue Then Return
+
+        If _documentosSeleccionados.Any(Function(d) d.IdDocumento = idDocCombo.Value) Then Return
+
+        Dim doc = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idDocCombo.Value)
+        If doc Is Nothing Then
+            doc = New DocumentoRespaldoDto With {
+                .IdDocumento = idDocCombo.Value,
+                .Texto = $"Documento {idDocCombo.Value}"
+            }
+        End If
+
+        _documentosSeleccionados.Add(doc)
+        RefrescarListaDocumentosSeleccionados()
     End Sub
 
     Private Function ValidarEditor() As Boolean

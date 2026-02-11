@@ -36,6 +36,7 @@ Public Class frmRenovacionesArt120
     Private _cargandoDocumentos As Boolean
     Private _documentosDisponibles As New List(Of DocumentoRespaldoDto)
     Private _documentosSeleccionados As New List(Of DocumentoRespaldoDto)
+    Private _guardando As Boolean
 
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
@@ -49,6 +50,13 @@ Public Class frmRenovacionesArt120
 
         LimpiarEditor()
         Await CargarSalidasAsync()
+    End Sub
+
+    Private Sub frmRenovacionesArt120_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If Not _guardando Then Return
+
+        e.Cancel = True
+        Notifier.Info(Me, "Hay una operación de guardado en progreso. Espere a que finalice.")
     End Sub
 
     Private Async Function CargarConfiguracionDiasAlertaAsync() As Task
@@ -369,7 +377,11 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
+        If _guardando Then Return
         If Not ValidarEditor() Then Return
+
+        _guardando = True
+        CambiarEstadoOperacion(True)
 
         Try
             Using uow As New UnitOfWork()
@@ -408,6 +420,9 @@ Public Class frmRenovacionesArt120
             Await CargarSalidasAsync()
         Catch ex As Exception
             Notifier.[Error](Me, "No se pudo guardar la salida: " & ex.Message)
+        Finally
+            _guardando = False
+            CambiarEstadoOperacion(False)
         End Try
     End Sub
 
@@ -458,6 +473,8 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Async Function CambiarEstadoSeleccionAsync(nuevoEstado As Boolean) As Task
+        If _guardando Then Return
+
         Dim sel = ObtenerSeleccionActual()
         If sel Is Nothing Then
             Notifier.Warn(Me, "Seleccione una salida.")
@@ -505,11 +522,33 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Async Sub chkSoloActivas_CheckedChanged(sender As Object, e As EventArgs) Handles chkSoloActivas.CheckedChanged
+        If _guardando Then Return
+
         Await CargarSalidasAsync()
     End Sub
 
     Private Sub txtBuscar_TextChanged(sender As Object, e As EventArgs) Handles txtBuscar.TextChanged
         AplicarFiltro()
+    End Sub
+
+    Private Sub CambiarEstadoOperacion(guardando As Boolean)
+        btnGuardar.Enabled = Not guardando
+        btnCancelar.Enabled = Not guardando
+        btnNueva.Enabled = Not guardando
+        btnEditar.Enabled = Not guardando
+        btnDesactivar.Enabled = Not guardando
+        btnReactivar.Enabled = Not guardando
+        btnBuscarRecluso.Enabled = Not guardando
+        btnAgregarDocumento.Enabled = Not guardando
+        btnQuitarDocumento.Enabled = Not guardando
+        btnRefrescarDocumentos.Enabled = Not guardando
+        btnAbrirDocumento.Enabled = Not guardando
+        btnConfigurarRenovaciones.Enabled = Not guardando
+
+        dgvSalidas.Enabled = Not guardando
+        PanelFiltros.Enabled = Not guardando
+        PanelEditor.Enabled = Not guardando
+        UseWaitCursor = guardando
     End Sub
 
     Private Sub LimpiarEditor()

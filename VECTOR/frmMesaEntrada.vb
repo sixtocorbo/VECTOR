@@ -675,6 +675,8 @@ Public Class frmMesaEntrada
         btnCancelar.Enabled = False
         Me.UseWaitCursor = True
 
+        Try
+
         ' 1. VALIDACIONES BÁSICAS DE INTERFAZ
         If cboTipo.SelectedIndex = -1 Then
             Notifier.Warn(Me, "Seleccione el TIPO de documento.")
@@ -762,10 +764,9 @@ Public Class frmMesaEntrada
             End Using
         End If
 
-        ' =========================================================================================
-        ' PROCESO DE GUARDADO
-        ' =========================================================================================
-        Try
+            ' =========================================================================================
+            ' PROCESO DE GUARDADO
+            ' =========================================================================================
             Dim doc As Mae_Documento
 
             If _idEdicion.HasValue Then

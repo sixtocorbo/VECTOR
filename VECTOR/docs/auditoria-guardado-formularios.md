@@ -12,7 +12,7 @@ Sí: **el riesgo no está eliminado en todos los formularios**. Actualmente la p
 |---|---|---|---|---|
 | `frmMesaEntrada` | Sí (`_guardando`) | Sí (`FormClosing` cancela) | Sí | ✅ Robusto |
 | `frmConfiguracionSistema` | Parcial (`btnGuardar.Enabled=False`) | No | Sí (`btnGuardar.Enabled=True`) | ⚠️ Mejorable |
-| `frmUsuarios` | No | No | No | ⚠️ Riesgo |
+| `frmUsuarios` | Sí (`_operacionEnCurso`) | Sí (`FormClosing` cancela) | Sí (`Try/Catch/Finally`) | ✅ Robusto |
 | `frmGestionRangos` | Parcial (`SetBusy`) | No | Sí (libera `SetBusy`) | ⚠️ Mejorable |
 | `frmGestionTiposDocumento` | No | No | No | ⚠️ Riesgo |
 | `frmGestionTiempos` | No | No | No | ⚠️ Riesgo |
@@ -36,9 +36,8 @@ Aplicar el mismo patrón base en formularios con operaciones de persistencia:
    - si `_guardando`, `e.Cancel = True` y notificar "guardado en progreso"
 
 ## Priorización sugerida
-1. `frmUsuarios`
-2. `frmGestionTiposDocumento`
-3. `frmGestionTiempos`
-4. `frmRenovacionesArt120`
-5. `frmConfiguracionSistema` y `frmGestionRangos` (para cerrar brechas de cierre durante guardado)
+1. `frmGestionTiposDocumento`
+2. `frmGestionTiempos`
+3. `frmRenovacionesArt120`
+4. `frmConfiguracionSistema` y `frmGestionRangos` (para cerrar brechas de cierre durante guardado)
 

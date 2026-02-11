@@ -338,9 +338,13 @@ Public Class frmRenovacionesArt120
         End If
     End Sub
 
-    Private Sub btnNueva_Click(sender As Object, e As EventArgs) Handles btnNueva.Click
-        LimpiarEditor()
-        txtLugarTrabajo.Focus()
+    Private Async Sub btnNueva_Click(sender As Object, e As EventArgs) Handles btnNueva.Click
+        Using wizard As New frmNuevaSalidaArt120Wizard()
+            If wizard.ShowDialog(Me) = DialogResult.OK Then
+                LimpiarEditor()
+                Await CargarSalidasAsync()
+            End If
+        End Using
     End Sub
 
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click

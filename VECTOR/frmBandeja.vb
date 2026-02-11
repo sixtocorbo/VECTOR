@@ -30,10 +30,6 @@ Public Class frmBandeja
             ' Configuración inicial
             ConfigurarGrilla()
 
-            ' --- CORRECCIÓN CLAVE: ANCLAJES ---
-            ' Acomodamos los botones una vez y fijamos sus Anchors
-            ConfigurarAnclajesInferiores()
-
             ' Acomodamos solo el panel superior (Buscador)
             AplicarLayoutResponsivo()
 
@@ -52,6 +48,9 @@ Public Class frmBandeja
             Me.Text = "VECTOR - Bandeja de: " & SesionGlobal.NombreOficina & " (" & SesionGlobal.NombreUsuario & ")"
             _fontNormal = dgvPendientes.Font
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
+
+            ' Reaplicar layout cuando el formulario ya quedó maximizado dentro del MDI
+            AplicarLayoutResponsivo()
 
             ConfigurarBotones(False, False, False, False)
             Await CargarGrillaAsync()
@@ -75,13 +74,13 @@ Public Class frmBandeja
         dgvPendientes.BorderStyle = BorderStyle.None
     End Sub
 
-    ' --- NUEVO MÉTODO PARA SOLUCIONAR EL PROBLEMA DE LOS BOTONES ---
-    Private Sub ConfigurarAnclajesInferiores()
-        ' Este método coloca los botones en su lugar y los "ancla" (Anchor)
-        ' para que Windows los mueva automáticamente al maximizar sin errores.
+    ' Recalcula y ancla los botones inferiores para evitar que queden fuera de vista
+    ' cuando el formulario se maximiza dentro del contenedor MDI.
+    Private Sub AjustarLayoutInferior()
+        If PanelInferior.ClientSize.Width <= 0 Then Return
 
         Dim margen As Integer = 10
-        Dim xActual As Integer = PanelInferior.Width - margen
+        Dim xActual As Integer = PanelInferior.ClientSize.Width - margen
         Dim topPos As Integer = 20 ' Altura estándar según tu diseño
 
         ' 1. Lista de botones que van a la DERECHA (en orden de aparición de Der a Izq)
@@ -131,8 +130,8 @@ Public Class frmBandeja
             txtBuscar.Width = limiteDerechoBuscador - 93
         End If
 
-        ' --- 2. PANEL INFERIOR: YA NO LO TOCAMOS AQUÍ ---
-        ' Se maneja solo gracias a ConfigurarAnclajesInferiores() en el Load.
+        ' --- 2. ACOMODAR PANEL INFERIOR ---
+        AjustarLayoutInferior()
 
         PanelSuperior.ResumeLayout()
     End Sub

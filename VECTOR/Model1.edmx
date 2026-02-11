@@ -67,6 +67,17 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Rol" Type="varchar" MaxLength="50" />
           <Property Name="IdOficina" Type="int" />
         </EntityType>
+        <EntityType Name="Cfg_SistemaParametros">
+          <Key>
+            <PropertyRef Name="IdParametro" />
+          </Key>
+          <Property Name="IdParametro" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Clave" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="Valor" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar" MaxLength="500" />
+          <Property Name="UsuarioActualizacion" Type="nvarchar" MaxLength="100" />
+          <Property Name="FechaActualizacion" Type="datetime2" Precision="0" Nullable="false" />
+        </EntityType>
         <EntityType Name="Cfg_TiemposRespuesta">
           <Key>
             <PropertyRef Name="IdConfig" />
@@ -490,6 +501,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySet Name="Cat_Oficina_MergeLog" EntityType="Self.Cat_Oficina_MergeLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cat_TipoDocumento" EntityType="Self.Cat_TipoDocumento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cat_Usuario" EntityType="Self.Cat_Usuario" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cfg_SistemaParametros" EntityType="Self.Cfg_SistemaParametros" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cfg_TiemposRespuesta" EntityType="Self.Cfg_TiemposRespuesta" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cfg_TiemposRespuesta_Historial" EntityType="Self.Cfg_TiemposRespuesta_Historial" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EventosSistema" EntityType="Self.EventosSistema" Schema="dbo" store:Type="Tables" />
@@ -1140,6 +1152,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             <End Role="Tra_SalidasLaborales" EntitySet="Tra_SalidasLaborales" />
             <End Role="Tra_SalidasLaboralesDocumentoRespaldo" EntitySet="Tra_SalidasLaboralesDocumentoRespaldo" />
           </AssociationSet>
+          <EntitySet Name="Cfg_SistemaParametros" EntityType="SecretariaDBModel.Cfg_SistemaParametros" />
         </EntityContainer>
         <ComplexType Name="sp_UnificarOficinas_Result">
           <Property Type="Int32" Name="Resultado" Nullable="false" />
@@ -1233,6 +1246,17 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Cfg_SistemaParametros">
+          <Key>
+            <PropertyRef Name="IdParametro" />
+          </Key>
+          <Property Name="IdParametro" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Clave" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Valor" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Descripcion" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="UsuarioActualizacion" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="FechaActualizacion" Type="DateTime" Nullable="false" Precision="0" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1465,6 +1489,18 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
                 <ScalarProperty Name="IdDocumento" ColumnName="IdDocumento" />
                 <ScalarProperty Name="IdSalida" ColumnName="IdSalida" />
                 <ScalarProperty Name="IdSalidaDocumentoRespaldo" ColumnName="IdSalidaDocumentoRespaldo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Cfg_SistemaParametros">
+            <EntityTypeMapping TypeName="SecretariaDBModel.Cfg_SistemaParametros">
+              <MappingFragment StoreEntitySet="Cfg_SistemaParametros">
+                <ScalarProperty Name="FechaActualizacion" ColumnName="FechaActualizacion" />
+                <ScalarProperty Name="UsuarioActualizacion" ColumnName="UsuarioActualizacion" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Valor" ColumnName="Valor" />
+                <ScalarProperty Name="Clave" ColumnName="Clave" />
+                <ScalarProperty Name="IdParametro" ColumnName="IdParametro" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

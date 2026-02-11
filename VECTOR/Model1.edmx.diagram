@@ -45,6 +45,7 @@
         <EntityTypeShape EntityType="SecretariaDBModel.Tra_SalidasLaboralesDocumentoRespaldo" Width="1.5" PointX="15.75" PointY="7.75" />
         <AssociationConnector Association="SecretariaDBModel.FK_Tra_SalidasLaboralesDocumentoRespaldo_Mae_Documento" />
         <AssociationConnector Association="SecretariaDBModel.FK_Tra_SalidasLaboralesDocumentoRespaldo_Tra_SalidasLaborales" />
+        <EntityTypeShape EntityType="SecretariaDBModel.Cfg_SistemaParametros" Width="1.5" PointX="11.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

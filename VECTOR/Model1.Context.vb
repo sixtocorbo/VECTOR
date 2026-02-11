@@ -42,6 +42,7 @@ Partial Public Class SecretariaDBEntities
     Public Overridable Property Cfg_TiemposRespuesta_Historial() As DbSet(Of Cfg_TiemposRespuesta_Historial)
     Public Overridable Property Tra_SalidasLaborales() As DbSet(Of Tra_SalidasLaborales)
     Public Overridable Property Tra_SalidasLaboralesDocumentoRespaldo() As DbSet(Of Tra_SalidasLaboralesDocumentoRespaldo)
+    Public Overridable Property Cfg_SistemaParametros() As DbSet(Of Cfg_SistemaParametros)
 
     Public Overridable Function sp_UnificarOficinas(nombreDestino As String, listaIdsBorrar As String) As ObjectResult(Of sp_UnificarOficinas_Result)
         Dim nombreDestinoParameter As ObjectParameter = If(nombreDestino IsNot Nothing, New ObjectParameter("NombreDestino", nombreDestino), New ObjectParameter("NombreDestino", GetType(String)))

@@ -139,6 +139,9 @@
     <Compile Include="Cat_Usuario.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Cfg_SistemaParametros.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Cfg_TiemposRespuesta.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

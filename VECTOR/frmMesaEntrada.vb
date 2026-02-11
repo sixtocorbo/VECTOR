@@ -241,6 +241,8 @@ Public Class frmMesaEntrada
 
         Else ' Retorna -1
             ' CASO C: NO TIENE RANGO ASIGNADO
+            ' Mantenemos el flujo habitual (edición manual),
+            ' pero el guardado valida y bloquea si el origen es BANDEJA DE ENTRADA.
             HabilitarEscrituraManual()
         End If
     End Sub
@@ -694,6 +696,22 @@ Public Class frmMesaEntrada
         If Not _generacionAutomatica AndAlso String.IsNullOrWhiteSpace(txtNumeroRef.Text) Then
             Notifier.Warn(Me, "Ingrese la Referencia/Número.")
             Return
+        End If
+
+        ' Regla de negocio: BANDEJA DE ENTRADA SIEMPRE debe trabajar con rangos.
+        If Not _idEdicion.HasValue AndAlso idOrigenSeleccionado.Value = IdBandejaEntrada Then
+            Dim idTipoSeleccionado As Integer = CInt(cboTipo.SelectedValue)
+            Dim anioObjetivo As Integer = DateTime.Now.Year
+            Dim tieneRangoBandeja As Boolean = _unitOfWork.Repository(Of Mae_NumeracionRangos)().GetQueryable(tracking:=False).
+                Any(Function(r) r.IdTipo = idTipoSeleccionado And
+                                r.IdOficina = IdBandejaEntrada And
+                                r.Anio = anioObjetivo And
+                                r.Activo = True)
+
+            If Not tieneRangoBandeja Then
+                Notifier.[Error](Me, "No se puede generar el documento: BANDEJA DE ENTRADA debe tener un rango activo para este tipo de documento.")
+                Return
+            End If
         End If
 
         ' =========================================================================================

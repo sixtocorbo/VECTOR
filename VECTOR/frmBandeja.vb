@@ -67,10 +67,15 @@ Public Class frmBandeja
 
     Private Sub AplicarLayoutResponsivo()
         ' Evitar errores si el formulario está minimizado o cerrándose
-        If Me.WindowState = FormWindowState.Minimized OrElse PanelSuperior.Width = 0 Then Return
+        If Me.WindowState = FormWindowState.Minimized Then Return
+        If PanelSuperior.ClientSize.Width <= 0 OrElse PanelInferior.ClientSize.Width <= 0 Then Return
 
         Dim margen As Integer = 10
         Dim anchoTotal As Integer = PanelSuperior.ClientSize.Width
+        Dim topPanelInferior As Integer = Math.Max(4, (PanelInferior.ClientSize.Height - btnHistorial.Height) \ 2)
+
+        PanelSuperior.SuspendLayout()
+        PanelInferior.SuspendLayout()
 
         ' --- 1. ACOMODAR PANEL SUPERIOR (Botones a la derecha) ---
         ' Orden visual deseado (de derecha a izquierda): 
@@ -99,7 +104,7 @@ Public Class frmBandeja
 
         ' Función auxiliar interna para mover botones en fila
         Dim moverBoton = Sub(btn As Button)
-                             btn.Location = New Point(xActual - btn.Width, 20)
+                             btn.Location = New Point(xActual - btn.Width, topPanelInferior)
                              xActual -= (btn.Width + margen)
                          End Sub
 
@@ -110,7 +115,10 @@ Public Class frmBandeja
         moverBoton(btnDesvincular)
 
         ' El botón Refrescar se queda fijo a la izquierda
-        btnRefrescar.Location = New Point(18, 20)
+        btnRefrescar.Location = New Point(18, Math.Max(4, (PanelInferior.ClientSize.Height - btnRefrescar.Height) \ 2))
+
+        PanelInferior.ResumeLayout()
+        PanelSuperior.ResumeLayout()
     End Sub
 
     Private Sub frmBandeja_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed

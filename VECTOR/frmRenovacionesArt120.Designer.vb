@@ -259,6 +259,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Name = "PanelEditor"
         Me.PanelEditor.Size = New System.Drawing.Size(1650, 326)
         Me.PanelEditor.TabIndex = 2
+        Me.PanelEditor.Visible = False
         '
         'txtDocumentoDescripcion
         '
@@ -550,7 +551,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1650, 625)
+        Me.ClientSize = New System.Drawing.Size(1650, 420)
         Me.Controls.Add(Me.dgvSalidas)
         Me.Controls.Add(Me.PanelEditor)
         Me.Controls.Add(Me.PanelFiltros)

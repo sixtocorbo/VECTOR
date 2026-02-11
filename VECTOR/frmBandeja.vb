@@ -457,7 +457,7 @@ Public Class frmBandeja
     Private Async Sub RecargarAlCerrarAsync(sender As Object, e As FormClosedEventArgs)
         Await CargarGrillaAsync()
         If Me.MdiParent IsNot Nothing Then
-            Me.WindowState = FormWindowState.Maximized
+            UIUtils.AjustarFormularioAlContenedorMdi(Me)
         End If
     End Sub
 
@@ -650,14 +650,12 @@ Public Class frmBandeja
 
     Private Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
         Dim fNuevo As New frmMesaEntrada()
-        fNuevo.MdiParent = Me.MdiParent
-        fNuevo.WindowState = FormWindowState.Maximized
+        UIUtils.ShowFormInMdi(Me, fNuevo)
 
         AddHandler fNuevo.FormClosed, Async Sub(s, args)
                                           Await CargarGrillaAsync()
-                                          Me.WindowState = FormWindowState.Maximized
+                                          UIUtils.AjustarFormularioAlContenedorMdi(Me)
                                       End Sub
-        fNuevo.Show()
     End Sub
 
     Private Async Function EjecutarRecibirDocumentoAsync() As Task

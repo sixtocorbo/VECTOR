@@ -55,8 +55,7 @@ Public Class frmPrincipal
         ' Lógica de auto-reparación visual de la bandeja
         Dim fBandeja = Me.MdiChildren.OfType(Of frmBandeja)().FirstOrDefault()
         If fBandeja IsNot Nothing Then
-            fBandeja.WindowState = FormWindowState.Normal
-            fBandeja.WindowState = FormWindowState.Maximized
+            UIUtils.AjustarFormularioAlContenedorMdi(fBandeja)
         End If
     End Sub
 

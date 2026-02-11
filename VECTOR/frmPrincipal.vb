@@ -53,7 +53,7 @@
         Else
             ' B. YA EXISTE -> LO TRAEMOS AL FRENTE
             formulario.ShowIcon = False
-            If formulario.WindowState = FormWindowState.Minimized Then
+            If formulario.WindowState <> FormWindowState.Maximized Then
                 formulario.WindowState = FormWindowState.Maximized
             End If
 

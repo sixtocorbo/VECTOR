@@ -47,10 +47,12 @@
             ' A. NO EXISTE -> LO CREAMOS
             formulario = New T()
             formulario.MdiParent = Me
+            formulario.ShowIcon = False
             formulario.WindowState = FormWindowState.Maximized
             formulario.Show()
         Else
             ' B. YA EXISTE -> LO TRAEMOS AL FRENTE
+            formulario.ShowIcon = False
             If formulario.WindowState = FormWindowState.Minimized Then
                 formulario.WindowState = FormWindowState.Maximized
             End If

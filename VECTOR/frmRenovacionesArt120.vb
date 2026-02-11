@@ -10,10 +10,14 @@ Public Class frmRenovacionesArt120
         Public Property IdRecluso As Integer
         Public Property Recluso As String
         Public Property LugarTrabajo As String
+        Public Property Horario As String
+        Public Property DetalleCustodia As String
         Public Property FechaInicio As Date
         Public Property FechaVencimiento As Date
+        Public Property FechaNotificacionJuez As Nullable(Of Date)
         Public Property DiasRestantes As Integer
         Public Property Estado As String
+        Public Property NotificacionJudicial As String
         Public Property IdDocumentoRespaldo As Nullable(Of Long)
         Public Property ReferenciaDocumentacion As String
         Public Property CantidadDocumentos As Integer
@@ -88,10 +92,13 @@ Public Class frmRenovacionesArt120
                         .IdRecluso = s.IdRecluso,
                         .Recluso = s.Mae_Reclusos.NombreCompleto,
                         .LugarTrabajo = s.LugarTrabajo,
+                        .Horario = s.Horario,
+                        .DetalleCustodia = s.DetalleCustodia,
                         .FechaInicio = s.FechaInicio,
                         .FechaVencimiento = s.FechaVencimiento,
                         .DiasRestantes = DbFunctions.DiffDays(hoy, s.FechaVencimiento),
                         .IdDocumentoRespaldo = s.IdDocumentoRespaldo,
+                        .FechaNotificacionJuez = s.FechaNotificacionJuez,
                         .Activo = s.Activo,
                         .Observaciones = s.Observaciones
                     }).ToListAsync()
@@ -114,10 +121,14 @@ Public Class frmRenovacionesArt120
                                                     .IdRecluso = x.IdRecluso,
                                                     .Recluso = If(x.Recluso, ""),
                                                     .LugarTrabajo = If(x.LugarTrabajo, ""),
+                                                    .Horario = If(x.Horario, ""),
+                                                    .DetalleCustodia = If(x.DetalleCustodia, ""),
                                                     .FechaInicio = x.FechaInicio,
                                                     .FechaVencimiento = x.FechaVencimiento,
+                                                    .FechaNotificacionJuez = x.FechaNotificacionJuez,
                                                     .DiasRestantes = dias,
                                                     .Estado = estado,
+                                                    .NotificacionJudicial = ObtenerEstadoNotificacionJuez(x.FechaNotificacionJuez, x.FechaInicio),
                                                     .IdDocumentoRespaldo = x.IdDocumentoRespaldo,
                                                     .ReferenciaDocumentacion = referencia,
                                                     .CantidadDocumentos = cantidadDocs,
@@ -142,7 +153,7 @@ Public Class frmRenovacionesArt120
         If Not String.IsNullOrWhiteSpace(texto) Then
             Dim palabras = texto.Split(" "c)
             lista = lista.Where(Function(s)
-                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Estado} {s.Observaciones} {s.ReferenciaDocumentacion} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
+                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Horario} {s.DetalleCustodia} {s.Estado} {s.NotificacionJudicial} {s.Observaciones} {s.ReferenciaDocumentacion} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
                                     Return palabras.All(Function(p) String.IsNullOrWhiteSpace(p) OrElse baseTexto.Contains(p))
                                 End Function)
         End If
@@ -154,6 +165,19 @@ Public Class frmRenovacionesArt120
         DisenarGrilla()
         Resumir(final)
     End Sub
+
+    Private Function ObtenerEstadoNotificacionJuez(fechaNotificacion As Nullable(Of Date), fechaInicio As Date) As String
+        If fechaNotificacion.HasValue Then
+            Return $"Notificado {fechaNotificacion.Value:dd/MM/yyyy}"
+        End If
+
+        Dim horas = DateDiff(DateInterval.Hour, fechaInicio, DateTime.Now)
+        If horas > 48 Then
+            Return "Pendiente >48h"
+        End If
+
+        Return "Pendiente"
+    End Function
 
     Private Function CalcularEstado(estaActiva As Boolean, dias As Integer) As String
         If Not estaActiva Then Return "INACTIVA"
@@ -190,7 +214,15 @@ Public Class frmRenovacionesArt120
 
         dgvSalidas.Columns("LugarTrabajo").HeaderText = "Lugar trabajo"
         dgvSalidas.Columns("LugarTrabajo").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-        dgvSalidas.Columns("LugarTrabajo").FillWeight = 150
+        dgvSalidas.Columns("LugarTrabajo").FillWeight = 130
+
+        dgvSalidas.Columns("Horario").HeaderText = "Horario"
+        dgvSalidas.Columns("Horario").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvSalidas.Columns("Horario").FillWeight = 110
+
+        dgvSalidas.Columns("DetalleCustodia").HeaderText = "Custodia"
+        dgvSalidas.Columns("DetalleCustodia").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        dgvSalidas.Columns("DetalleCustodia").FillWeight = 100
 
         dgvSalidas.Columns("FechaInicio").HeaderText = "Inicio"
         dgvSalidas.Columns("FechaInicio").DefaultCellStyle.Format = "dd/MM/yyyy"
@@ -205,6 +237,9 @@ Public Class frmRenovacionesArt120
 
         dgvSalidas.Columns("Estado").HeaderText = "Estado"
         dgvSalidas.Columns("Estado").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+
+        dgvSalidas.Columns("NotificacionJudicial").HeaderText = "Notificación Juez"
+        dgvSalidas.Columns("NotificacionJudicial").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
 
         dgvSalidas.Columns("ReferenciaDocumentacion").HeaderText = "Documentación"
         dgvSalidas.Columns("ReferenciaDocumentacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
@@ -287,8 +322,17 @@ Public Class frmRenovacionesArt120
         txtRecluso.Text = sel.Recluso
         lblIdRecluso.Text = "ID: " & sel.IdRecluso
         txtLugarTrabajo.Text = sel.LugarTrabajo
+        txtHorario.Text = sel.Horario
+        txtCustodia.Text = sel.DetalleCustodia
         dtpInicio.Value = sel.FechaInicio
         dtpVencimiento.Value = sel.FechaVencimiento
+        If sel.FechaNotificacionJuez.HasValue Then
+            dtpFechaNotificacion.Checked = True
+            dtpFechaNotificacion.Value = sel.FechaNotificacionJuez.Value
+        Else
+            dtpFechaNotificacion.Checked = False
+            dtpFechaNotificacion.Value = Date.Today
+        End If
         chkActivoRegistro.Checked = sel.Activo
         txtObservaciones.Text = sel.Observaciones
         txtLugarTrabajo.Focus()
@@ -345,9 +389,12 @@ Public Class frmRenovacionesArt120
 
                 entidad.IdRecluso = _idReclusoSeleccionado.Value
                 entidad.LugarTrabajo = txtLugarTrabajo.Text.Trim()
+                entidad.Horario = txtHorario.Text.Trim()
+                entidad.DetalleCustodia = txtCustodia.Text.Trim()
                 entidad.FechaInicio = dtpInicio.Value.Date
                 entidad.FechaVencimiento = dtpVencimiento.Value.Date
                 entidad.IdDocumentoRespaldo = ObtenerDocumentoPrincipalSeleccionado()
+                entidad.FechaNotificacionJuez = If(dtpFechaNotificacion.Checked, CType(dtpFechaNotificacion.Value.Date, Nullable(Of Date)), Nothing)
                 entidad.Activo = chkActivoRegistro.Checked
                 entidad.Observaciones = If(String.IsNullOrWhiteSpace(txtObservaciones.Text), Nothing, txtObservaciones.Text.Trim())
 
@@ -375,8 +422,23 @@ Public Class frmRenovacionesArt120
             Return False
         End If
 
+        If String.IsNullOrWhiteSpace(txtHorario.Text) Then
+            Toast.Show(Me, "Ingrese el horario autorizado.", ToastType.Warning)
+            Return False
+        End If
+
+        If String.IsNullOrWhiteSpace(txtCustodia.Text) Then
+            Toast.Show(Me, "Ingrese el detalle de custodia (obligatorio por decreto).", ToastType.Warning)
+            Return False
+        End If
+
         If dtpVencimiento.Value.Date < dtpInicio.Value.Date Then
             Toast.Show(Me, "La fecha de vencimiento no puede ser menor a la fecha de inicio.", ToastType.Warning)
+            Return False
+        End If
+
+        If dtpFechaNotificacion.Checked AndAlso dtpFechaNotificacion.Value.Date < dtpInicio.Value.Date Then
+            Toast.Show(Me, "La fecha de notificación al juez no puede ser menor al inicio.", ToastType.Warning)
             Return False
         End If
 
@@ -412,10 +474,26 @@ Public Class frmRenovacionesArt120
                 End If
 
                 entidad.Activo = nuevoEstado
+                If Not nuevoEstado Then
+                    Dim motivo = InputBox("Ingrese motivo de suspensión (obligatorio):", "Motivo de suspensión")
+                    If String.IsNullOrWhiteSpace(motivo) Then
+                        Toast.Show(Me, "Debe ingresar el motivo para suspender la salida.", ToastType.Warning)
+                        Return
+                    End If
+
+                    Dim marcaTiempo = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    Dim detalleSuspension = $"[{marcaTiempo}] Suspensión preventiva: {motivo.Trim()}"
+                    If String.IsNullOrWhiteSpace(entidad.Observaciones) Then
+                        entidad.Observaciones = detalleSuspension
+                    Else
+                        entidad.Observaciones &= Environment.NewLine & detalleSuspension
+                    End If
+                End If
+
                 Await uow.CommitAsync()
             End Using
 
-            Toast.Show(Me, If(nuevoEstado, "Salida reactivada.", "Salida desactivada."), ToastType.Success)
+            Toast.Show(Me, If(nuevoEstado, "Salida reactivada.", "Salida suspendida y motivo registrado."), ToastType.Success)
             Await CargarSalidasAsync()
         Catch ex As Exception
             Toast.Show(Me, "No se pudo actualizar el estado: " & ex.Message, ToastType.Error)
@@ -441,9 +519,13 @@ Public Class frmRenovacionesArt120
         txtRecluso.Clear()
         lblIdRecluso.Text = "ID: (ninguno)"
         txtLugarTrabajo.Clear()
+        txtHorario.Clear()
+        txtCustodia.Clear()
         dtpInicio.Value = Date.Today
         dtpVencimiento.Value = Date.Today.AddMonths(1)
         chkActivoRegistro.Checked = True
+        dtpFechaNotificacion.Checked = False
+        dtpFechaNotificacion.Value = Date.Today
         CargarDocumentosRespaldoVacio()
         LimpiarDocumentosSeleccionados()
         txtObservaciones.Clear()

@@ -24,10 +24,21 @@ Public Class frmBandeja
     ' =======================================================
     ' CARGA INICIAL
     ' =======================================================
+    Private Sub AjustarAlContenedorMdi()
+        If Me.MdiParent Is Nothing Then Return
+
+        Me.FormBorderStyle = FormBorderStyle.None
+        Me.ControlBox = False
+        Me.WindowState = FormWindowState.Normal
+        Me.Dock = DockStyle.Fill
+    End Sub
+
     Private Async Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             AppTheme.Aplicar(Me)
             ' Configuración inicial
+
+            AjustarAlContenedorMdi()
 
             UIUtils.SetPlaceholder(txtBuscar, "Buscar por Nombre, ID, Tipo, etc...")
 
@@ -40,17 +51,22 @@ Public Class frmBandeja
             _timerBusqueda.Interval = 500
 
             ' Configuración Visual
-            Me.WindowState = FormWindowState.Maximized
             Me.Text = "VECTOR - Bandeja de: " & SesionGlobal.NombreOficina & " (" & SesionGlobal.NombreUsuario & ")"
             _fontNormal = dgvPendientes.Font
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
 
             ConfigurarBotones(False, False, False, False)
+            AjustarLayoutInferior()
             Await CargarGrillaAsync()
         Catch ex As Exception
             Me.Text = "VECTOR - Sistema de Gestión"
             ConfigurarBotones(False, False, False, False)
         End Try
+    End Sub
+
+    Private Sub frmBandeja_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        AjustarAlContenedorMdi()
+        AjustarLayoutInferior()
     End Sub
 
 

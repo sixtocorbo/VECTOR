@@ -21,8 +21,21 @@ Public Module UIUtils
         End If
     End Sub
 
+    Private Function ResolveMdiContainer(owner As Form) As Form
+        If owner Is Nothing Then
+            Return Nothing
+        End If
+
+        If owner.IsMdiContainer Then
+            Return owner
+        End If
+
+        Return owner.MdiParent
+    End Function
+
     Public Sub ShowFormInMdi(owner As Form, child As Form, Optional onClosed As FormClosedEventHandler = Nothing)
-        If owner Is Nothing OrElse owner.MdiParent Is Nothing Then
+        Dim mdiContainer = ResolveMdiContainer(owner)
+        If mdiContainer Is Nothing Then
             If onClosed IsNot Nothing Then
                 AddHandler child.FormClosed, onClosed
             End If
@@ -31,7 +44,7 @@ Public Module UIUtils
             Return
         End If
 
-        child.MdiParent = owner.MdiParent
+        child.MdiParent = mdiContainer
         child.WindowState = FormWindowState.Maximized
         child.ShowIcon = False
 
@@ -41,6 +54,70 @@ Public Module UIUtils
 
         child.Show()
         child.BringToFront()
+    End Sub
+
+    ''' <summary>
+    ''' Abre un formulario MDI único sin parámetros (si existe, lo reutiliza).
+    ''' </summary>
+    Public Sub ShowUniqueFormInMdi(Of T As {Form, New})(owner As Form,
+                                                        Optional sourceForm As Form = Nothing,
+                                                        Optional onClosed As FormClosedEventHandler = Nothing)
+        Dim mdiContainer = ResolveMdiContainer(owner)
+        If mdiContainer Is Nothing Then Return
+
+        Dim formulario As Form = mdiContainer.MdiChildren.FirstOrDefault(Function(f) TypeOf f Is T)
+        If formulario Is Nothing Then
+            formulario = New T()
+            If onClosed IsNot Nothing Then
+                AddHandler formulario.FormClosed, onClosed
+            End If
+            ShowFormInMdi(mdiContainer, formulario)
+        Else
+            formulario.ShowIcon = False
+            If formulario.WindowState <> FormWindowState.Maximized Then
+                formulario.WindowState = FormWindowState.Maximized
+            End If
+            formulario.Activate()
+            formulario.BringToFront()
+        End If
+
+        If sourceForm IsNot Nothing AndAlso Not ReferenceEquals(sourceForm, formulario) Then
+            sourceForm.Close()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' Abre un formulario de detalle único por tipo y reemplaza cualquier instancia previa.
+    ''' </summary>
+    Public Sub ShowUniqueDetailFormInMdi(Of T As Form)(owner As Form,
+                                                       id As Integer,
+                                                       Optional sourceForm As Form = Nothing,
+                                                       Optional onClosed As FormClosedEventHandler = Nothing)
+        Dim mdiContainer = ResolveMdiContainer(owner)
+        If mdiContainer Is Nothing Then Return
+
+        Dim existente = mdiContainer.MdiChildren.OfType(Of T)().FirstOrDefault()
+        If existente IsNot Nothing Then
+            existente.Close()
+        End If
+
+        Dim nuevoFormulario = CType(Activator.CreateInstance(GetType(T), id), Form)
+        If onClosed IsNot Nothing Then
+            AddHandler nuevoFormulario.FormClosed, onClosed
+        End If
+
+        ShowFormInMdi(mdiContainer, nuevoFormulario)
+
+        If sourceForm IsNot Nothing AndAlso Not ReferenceEquals(sourceForm, nuevoFormulario) Then
+            sourceForm.Close()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' Abre una nueva instancia en el contenedor MDI actual.
+    ''' </summary>
+    Public Sub ShowNewInstanceInMdi(owner As Form, formularioAAbrir As Form, Optional onClosed As FormClosedEventHandler = Nothing)
+        ShowFormInMdi(owner, formularioAAbrir, onClosed)
     End Sub
 
 End Module

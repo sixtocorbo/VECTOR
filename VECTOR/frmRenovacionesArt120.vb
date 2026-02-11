@@ -28,6 +28,11 @@ Public Class frmRenovacionesArt120
     Private Class DocumentoRespaldoDto
         Public Property IdDocumento As Long
         Public Property Texto As String
+        ' Esto obliga al ListBox a mostrar el texto limpio en lugar del nombre de la clase
+        Public Overrides Function ToString() As String
+            Return Texto
+        End Function
+        ' --------------------
     End Class
 
     Private _listaOriginal As New List(Of SalidaGridDto)
@@ -518,14 +523,14 @@ Public Class frmRenovacionesArt120
 
                 entidad.Activo = nuevoEstado
                 If Not nuevoEstado Then
-                    Dim motivo = InputBox("Ingrese motivo de suspensión (obligatorio):", "Motivo de suspensión")
+                    Dim motivo = InputBox("Ingrese motivo de cese (obligatorio):", "Motivo de cese de salidas")
                     If String.IsNullOrWhiteSpace(motivo) Then
-                        Notifier.Warn(Me, "Debe ingresar el motivo para suspender la salida.")
+                        Notifier.Warn(Me, "Debe ingresar el motivo de cese de salidas.")
                         Return
                     End If
 
                     Dim marcaTiempo = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-                    Dim detalleSuspension = $"[{marcaTiempo}] Suspensión preventiva: {motivo.Trim()}"
+                    Dim detalleSuspension = $"[{marcaTiempo}] Motivo cese: {motivo.Trim()}"
                     If String.IsNullOrWhiteSpace(entidad.Observaciones) Then
                         entidad.Observaciones = detalleSuspension
                     Else
@@ -625,17 +630,19 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Function ConstruirTextoSugeridoDocumento(idDocumento As Long, tipoDocumento As String) As String
-        Dim tipo = If(String.IsNullOrWhiteSpace(tipoDocumento), "DOC", tipoDocumento.ToUpper())
+        ' AGREGADO: .Trim() elimina los espacios vacíos a la derecha que causan que se vea desalineado en el ListBox
+        Dim tipo = If(String.IsNullOrWhiteSpace(tipoDocumento), "DOC", tipoDocumento.Trim().ToUpper())
+
         Return $"ID {idDocumento} {tipo}"
     End Function
 
     Private Sub RefrescarListaDocumentosSeleccionados()
+        ' CORRECCIÓN: Quitamos la parte de ".Select(Function(d) New With...)"
+        ' Al pasar la lista directa, el ListBox usará correctamente la propiedad "Texto"
+        ' definida en el DisplayMember, en lugar de mostrar la estructura interna del objeto.
+
         Dim lista = _documentosSeleccionados _
             .OrderBy(Function(d) d.Texto) _
-            .Select(Function(d) New With {
-                .Texto = d.Texto,
-                .IdDocumento = d.IdDocumento
-            }) _
             .ToList()
 
         lstDocumentosRespaldo.DisplayMember = "Texto"

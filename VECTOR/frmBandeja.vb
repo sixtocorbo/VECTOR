@@ -21,12 +21,27 @@ Public Class frmBandeja
     Private _cantVencidasArt120 As Integer = 0
     Private _ultimoResumenArt120 As String = ""
 
+    Private Sub AjustarAlContenedorMdi()
+        If Me.MdiParent Is Nothing Then Return
+
+        ' Evita desbordes visuales y barras de desplazamiento en el MDI
+        ' al mantener la bandeja ocupando exactamente el área cliente.
+        If Me.FormBorderStyle <> FormBorderStyle.None Then
+            Me.FormBorderStyle = FormBorderStyle.None
+        End If
+
+        Me.ControlBox = False
+        Me.WindowState = FormWindowState.Normal
+        Me.Dock = DockStyle.Fill
+    End Sub
+
     ' =======================================================
     ' CARGA INICIAL
     ' =======================================================
     Private Async Sub frmBandeja_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             AppTheme.Aplicar(Me)
+            AjustarAlContenedorMdi()
             ' Configuración inicial
             ConfigurarGrilla()
 
@@ -44,7 +59,6 @@ Public Class frmBandeja
             _timerBusqueda.Interval = 500
 
             ' Configuración Visual
-            Me.WindowState = FormWindowState.Maximized
             Me.Text = "VECTOR - Bandeja de: " & SesionGlobal.NombreOficina & " (" & SesionGlobal.NombreUsuario & ")"
             _fontNormal = dgvPendientes.Font
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
@@ -65,6 +79,7 @@ Public Class frmBandeja
     ' =========================================================================
 
     Private Sub frmBandeja_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        AjustarAlContenedorMdi()
         AplicarLayoutResponsivo()
     End Sub
 

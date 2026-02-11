@@ -59,6 +59,8 @@ Partial Class frmRenovacionesArt120
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
+        Me.cboAutorizacion = New System.Windows.Forms.ComboBox()
+        Me.Label12 = New System.Windows.Forms.Label()
         Me.PanelFiltros.SuspendLayout()
         CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelEditor.SuspendLayout()
@@ -232,6 +234,8 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.cboDocumentoRespaldo)
         Me.PanelEditor.Controls.Add(Me.btnRefrescarDocumentos)
         Me.PanelEditor.Controls.Add(Me.Label7)
+        Me.PanelEditor.Controls.Add(Me.cboAutorizacion)
+        Me.PanelEditor.Controls.Add(Me.Label12)
         Me.PanelEditor.Controls.Add(Me.chkActivoRegistro)
         Me.PanelEditor.Controls.Add(Me.dtpVencimiento)
         Me.PanelEditor.Controls.Add(Me.Label6)
@@ -353,6 +357,24 @@ Partial Class frmRenovacionesArt120
         Me.Label7.Size = New System.Drawing.Size(322, 20)
         Me.Label7.TabIndex = 11
         Me.Label7.Text = "Expediente / Documento respaldo (opcional)"
+        '
+        'cboAutorizacion
+        '
+        Me.cboAutorizacion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboAutorizacion.FormattingEnabled = True
+        Me.cboAutorizacion.Location = New System.Drawing.Point(15, 203)
+        Me.cboAutorizacion.Name = "cboAutorizacion"
+        Me.cboAutorizacion.Size = New System.Drawing.Size(432, 28)
+        Me.cboAutorizacion.TabIndex = 11
+        '
+        'Label12
+        '
+        Me.Label12.AutoSize = True
+        Me.Label12.Location = New System.Drawing.Point(11, 180)
+        Me.Label12.Name = "Label12"
+        Me.Label12.Size = New System.Drawing.Size(213, 20)
+        Me.Label12.TabIndex = 22
+        Me.Label12.Text = "Autorización de salida (oblig.)"
         '
         'chkActivoRegistro
         '
@@ -512,8 +534,8 @@ Partial Class frmRenovacionesArt120
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(962, 28)
         Me.Label2.TabIndex = 0
-        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) fechas/notifi" &
-    "cación 4) respaldo"
+        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) autorización 4) fechas/no" &
+    "tificación 5) respaldo"
         '
         'txtDocumentoDescripcion
         '
@@ -586,4 +608,6 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents btnGuardar As Button
     Friend WithEvents btnCancelar As Button
     Friend WithEvents txtDocumentoDescripcion As TextBox
+    Friend WithEvents cboAutorizacion As ComboBox
+    Friend WithEvents Label12 As Label
 End Class

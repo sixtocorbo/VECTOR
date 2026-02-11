@@ -121,9 +121,7 @@ Public Class frmRenovacionesArt120
                                                   Dim estaActiva = x.Activo.HasValue AndAlso x.Activo.Value
                                                   Dim idsDocs = If(documentosPorSalida.ContainsKey(x.IdSalida), documentosPorSalida(x.IdSalida), New List(Of Long)())
                                                   Dim cantidadDocs = idsDocs.Count
-                                                  Dim referencia = If(cantidadDocs > 0,
-                                                                      $"SAL-{x.IdSalida} ({cantidadDocs})",
-                                                                      "Sin documentación")
+                                                  Dim referencia = FormatearReferenciaDocumentacion(cantidadDocs)
                                                   Dim estado = CalcularEstado(estaActiva, dias)
 
                                                   Return New SalidaGridDto With {
@@ -187,6 +185,14 @@ Public Class frmRenovacionesArt120
         End If
 
         Return "Pendiente"
+    End Function
+
+    Private Function FormatearReferenciaDocumentacion(cantidadDocs As Integer) As String
+        If cantidadDocs <= 0 Then
+            Return "Sin documentación"
+        End If
+
+        Return $"Documentos({cantidadDocs})"
     End Function
 
     Private Function CalcularEstado(estaActiva As Boolean, dias As Integer) As String

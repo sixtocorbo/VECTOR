@@ -3,6 +3,8 @@ Imports System.Drawing
 
 Public Class frmGestionTiempos
 
+    Private _guardando As Boolean
+
     Private Class ItemTiempoViewModel
         Public Property IdTipo As Integer
         Public Property NombreTipo As String
@@ -74,7 +76,19 @@ Public Class frmGestionTiempos
         e.ThrowException = False
     End Sub
 
+    Private Sub frmGestionTiempos_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If Not _guardando Then Return
+
+        e.Cancel = True
+        MessageBox.Show("Hay un guardado en progreso. Espere a que finalice.", "Guardado en progreso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
+        If _guardando Then Return
+
+        _guardando = True
+        CambiarEstadoGuardado(True)
+
         Try
             Dim lista = TryCast(dgvTiempos.DataSource, List(Of ItemTiempoViewModel))
             If lista Is Nothing Then Return
@@ -116,6 +130,15 @@ Public Class frmGestionTiempos
             End Using
         Catch ex As Exception
             MessageBox.Show("Error al guardar: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            _guardando = False
+            CambiarEstadoGuardado(False)
         End Try
+    End Sub
+
+    Private Sub CambiarEstadoGuardado(guardando As Boolean)
+        btnGuardar.Enabled = Not guardando
+        dgvTiempos.Enabled = Not guardando
+        UseWaitCursor = guardando
     End Sub
 End Class

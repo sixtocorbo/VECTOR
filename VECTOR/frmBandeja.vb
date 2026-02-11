@@ -856,12 +856,11 @@ Public Class frmBandeja
     End Sub
 
     Private Sub btnRenovacionesArt120_Click(sender As Object, e As EventArgs) Handles btnRenovacionesArt120.Click
-        Dim fRenovaciones As New frmRenovacionesArt120()
-        AddHandler fRenovaciones.FormClosed,
-            Async Sub(sender2, args2)
-                Await CargarGrillaAsync()
-            End Sub
-        ShowFormInMdi(Me, fRenovaciones)
+        ShowUniqueFormInMdi(Of frmRenovacionesArt120)(
+            Me,
+            onClosed:=Async Sub(sender2, args2)
+                          Await CargarGrillaAsync()
+                      End Sub)
     End Sub
 
     Private Async Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click

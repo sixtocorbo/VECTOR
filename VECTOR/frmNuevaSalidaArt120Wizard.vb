@@ -1,14 +1,22 @@
-﻿Imports System.Linq
+﻿Imports System.Data.Entity
+Imports System.Linq
 
 Public Class frmNuevaSalidaArt120Wizard
 
     ' Definimos constantes
-    Private Const CodigoAutorizacionResolucionJuez As String = "RES_JUEZ"
+    Private Const CodigoAutorizacionResolucionJuez As String = "RESOLUCION_JUEZ"
     Private Const CodigoAutorizacionActa As String = "ACTA"
-    Private Const PrefijoAutorizacionObservaciones As String = "[AUTORIZACION] "
+    Private Const PrefijoAutorizacionObservaciones As String = "#AUTORIZACION#:"
+
+    Private Class ObservacionesSalidaDto
+        Public Property CodigoAutorizacion As String
+        Public Property ObservacionesUsuario As String
+    End Class
 
     Private _idReclusoSeleccionado As Integer?
+    Private _idSalidaEditando As Integer?
     Private _pasoActual As Integer = 0
+    Private _cargandoEdicion As Boolean
 
     Public Sub New()
         ' Esta llamada es obligatoria para inicializar los controles definidos en el Diseñador
@@ -20,6 +28,28 @@ Public Class frmNuevaSalidaArt120Wizard
 
         ' Inicializamos vencimiento por defecto
         DtpVencimiento.Value = Date.Today.AddMonths(1)
+    End Sub
+
+    Public Sub New(idSalida As Integer)
+        Me.New()
+        _idSalidaEditando = idSalida
+        Me.Text = "Editar salida laboral - Art. 120"
+    End Sub
+
+    Private Async Sub frmNuevaSalidaArt120Wizard_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+        If _cargandoEdicion OrElse Not _idSalidaEditando.HasValue Then Return
+
+        _cargandoEdicion = True
+
+        Try
+            Await CargarDatosEdicionAsync(_idSalidaEditando.Value)
+        Catch ex As Exception
+            Notifier.Error(Me, "No se pudo cargar la salida seleccionada para edición: " & ex.Message)
+            Me.DialogResult = DialogResult.Cancel
+            Me.Close()
+        Finally
+            _cargandoEdicion = False
+        End Try
     End Sub
 
     Private Sub CargarOpcionesAutorizacion()
@@ -90,7 +120,18 @@ Public Class frmNuevaSalidaArt120Wizard
         Try
             Using uow As New UnitOfWork()
                 Dim repo = uow.Repository(Of Tra_SalidasLaborales)()
-                Dim entidad As New Tra_SalidasLaborales()
+                Dim entidad As Tra_SalidasLaborales = Nothing
+
+                If _idSalidaEditando.HasValue Then
+                    entidad = repo.GetQueryable(tracking:=True).FirstOrDefault(Function(s) s.IdSalida = _idSalidaEditando.Value)
+                    If entidad Is Nothing Then
+                        Notifier.Warn(Me, "La salida seleccionada ya no existe.")
+                        Return
+                    End If
+                Else
+                    entidad = New Tra_SalidasLaborales()
+                    repo.Add(entidad)
+                End If
 
                 entidad.IdRecluso = _idReclusoSeleccionado.Value
                 entidad.LugarTrabajo = TxtLugarTrabajo.Text.Trim()
@@ -101,13 +142,14 @@ Public Class frmNuevaSalidaArt120Wizard
                 entidad.FechaNotificacionJuez = If(DtpNotificacion.Checked, CType(DtpNotificacion.Value.Date, Nullable(Of Date)), Nothing)
                 entidad.Activo = ChkActivo.Checked
                 entidad.Observaciones = ConstruirObservacionesConAutorizacion(ObtenerCodigoAutorizacionSeleccionado(), TxtObservaciones.Text)
-                entidad.IdDocumentoRespaldo = Nothing
+                If Not _idSalidaEditando.HasValue Then
+                    entidad.IdDocumentoRespaldo = Nothing
+                End If
 
-                repo.Add(entidad)
                 uow.Commit()
             End Using
 
-            Notifier.Success(Me, "Registro creado correctamente.")
+            Notifier.Success(Me, If(_idSalidaEditando.HasValue, "Registro actualizado correctamente.", "Registro creado correctamente."))
             Me.DialogResult = DialogResult.OK
             Me.Close()
         Catch ex As Exception
@@ -237,5 +279,88 @@ Public Class frmNuevaSalidaArt120Wizard
 
         If lineas.Count = 0 Then Return Nothing
         Return String.Join(Environment.NewLine, lineas)
+    End Function
+
+    Private Async Function CargarDatosEdicionAsync(idSalida As Integer) As Task
+        Using uow As New UnitOfWork()
+            Dim repo = uow.Repository(Of Tra_SalidasLaborales)()
+
+            Dim salida = Await repo.GetQueryable() _
+                .Include("Mae_Reclusos") _
+                .FirstOrDefaultAsync(Function(s) s.IdSalida = idSalida)
+
+            If salida Is Nothing Then
+                Throw New InvalidOperationException("La salida no existe.")
+            End If
+
+            _idReclusoSeleccionado = salida.IdRecluso
+            TxtRecluso.Text = If(salida.Mae_Reclusos IsNot Nothing, salida.Mae_Reclusos.NombreCompleto, "")
+            LblIdRecluso.Text = "ID: " & salida.IdRecluso
+            BtnBuscarRecluso.Enabled = False
+
+            Dim datosObservaciones = ParsearObservacionesConAutorizacion(salida.Observaciones)
+            SeleccionarAutorizacionEnCombo(datosObservaciones.CodigoAutorizacion)
+
+            DtpInicio.Value = salida.FechaInicio.Date
+            DtpVencimiento.Value = salida.FechaVencimiento.Date
+
+            If salida.FechaNotificacionJuez.HasValue Then
+                DtpNotificacion.Checked = True
+                DtpNotificacion.Value = salida.FechaNotificacionJuez.Value.Date
+            Else
+                DtpNotificacion.Checked = False
+                DtpNotificacion.Value = Date.Today
+            End If
+
+            TxtLugarTrabajo.Text = If(salida.LugarTrabajo, "")
+            TxtHorario.Text = If(salida.Horario, "")
+            TxtCustodia.Text = If(salida.DetalleCustodia, "")
+            ChkActivo.Checked = (salida.Activo.HasValue AndAlso salida.Activo.Value)
+            TxtObservaciones.Text = datosObservaciones.ObservacionesUsuario
+        End Using
+    End Function
+
+    Private Sub SeleccionarAutorizacionEnCombo(codigo As String)
+        Dim codigoNormalizado = If(codigo, "").Trim().ToUpperInvariant()
+        If String.IsNullOrWhiteSpace(codigoNormalizado) Then
+            CboAutorizacion.SelectedIndex = 0
+            Return
+        End If
+
+        CboAutorizacion.SelectedValue = codigoNormalizado
+        If If(CboAutorizacion.SelectedValue, "").ToString().Trim().ToUpperInvariant() <> codigoNormalizado Then
+            CboAutorizacion.SelectedIndex = 0
+        End If
+    End Sub
+
+    Private Function ParsearObservacionesConAutorizacion(observaciones As String) As ObservacionesSalidaDto
+        Dim resultado As New ObservacionesSalidaDto With {
+            .CodigoAutorizacion = "",
+            .ObservacionesUsuario = ""
+        }
+        Dim observacionesLimpias = If(observaciones, "")
+
+        If String.IsNullOrWhiteSpace(observacionesLimpias) Then
+            Return resultado
+        End If
+
+        Dim lineas = observacionesLimpias.Split({Environment.NewLine}, StringSplitOptions.None).ToList()
+        If lineas.Count > 0 Then
+            Dim primeraLinea = lineas(0).Trim()
+
+            If primeraLinea.StartsWith(PrefijoAutorizacionObservaciones, StringComparison.OrdinalIgnoreCase) Then
+                resultado.CodigoAutorizacion = primeraLinea.Substring(PrefijoAutorizacionObservaciones.Length).Trim().ToUpperInvariant()
+                lineas.RemoveAt(0)
+            ElseIf primeraLinea.StartsWith("[AUTORIZACION]", StringComparison.OrdinalIgnoreCase) Then
+                resultado.CodigoAutorizacion = primeraLinea.Substring("[AUTORIZACION]".Length).Trim().ToUpperInvariant()
+                If resultado.CodigoAutorizacion = "RES_JUEZ" Then
+                    resultado.CodigoAutorizacion = CodigoAutorizacionResolucionJuez
+                End If
+                lineas.RemoveAt(0)
+            End If
+        End If
+
+        resultado.ObservacionesUsuario = String.Join(Environment.NewLine, lineas).Trim()
+        Return resultado
     End Function
 End Class

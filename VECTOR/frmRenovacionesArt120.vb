@@ -61,7 +61,6 @@ Public Class frmRenovacionesArt120
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         UIUtils.SetPlaceholder(txtBuscar, "Buscar por recluso, lugar, estado o documento...")
-        CargarOpcionesAutorizacion()
 
         Await CargarConfiguracionDiasAlertaAsync()
 
@@ -69,7 +68,7 @@ Public Class frmRenovacionesArt120
         Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
         propertyInfo.SetValue(dgvSalidas, True, Nothing)
 
-        LimpiarEditor()
+        PanelEditor.Visible = False
         Await CargarSalidasAsync()
     End Sub
 
@@ -341,7 +340,6 @@ Public Class frmRenovacionesArt120
     Private Async Sub btnNueva_Click(sender As Object, e As EventArgs) Handles btnNueva.Click
         Using wizard As New frmNuevaSalidaArt120Wizard()
             If wizard.ShowDialog(Me) = DialogResult.OK Then
-                LimpiarEditor()
                 Await CargarSalidasAsync()
             End If
         End Using
@@ -354,29 +352,11 @@ Public Class frmRenovacionesArt120
             Return
         End If
 
-        _idSalidaEditando = sel.IdSalida
-        _idReclusoSeleccionado = sel.IdRecluso
-
-        txtRecluso.Text = sel.Recluso
-        lblIdRecluso.Text = "ID: " & sel.IdRecluso
-        txtLugarTrabajo.Text = sel.LugarTrabajo
-        txtHorario.Text = sel.Horario
-        txtCustodia.Text = sel.DetalleCustodia
-        SeleccionarAutorizacionEnCombo(ConvertirDescripcionACodigoAutorizacion(sel.Autorizacion))
-        dtpInicio.Value = sel.FechaInicio
-        dtpVencimiento.Value = sel.FechaVencimiento
-        If sel.FechaNotificacionJuez.HasValue Then
-            dtpFechaNotificacion.Checked = True
-            dtpFechaNotificacion.Value = sel.FechaNotificacionJuez.Value
-        Else
-            dtpFechaNotificacion.Checked = False
-            dtpFechaNotificacion.Value = Date.Today
-        End If
-        chkActivoRegistro.Checked = sel.Activo
-        txtObservaciones.Text = sel.Observaciones
-        txtLugarTrabajo.Focus()
-
-        Await CargarDocumentosRespaldoAsync(sel.IdRecluso, sel.Recluso, sel.IdDocumentoRespaldo)
+        Using wizard As New frmNuevaSalidaArt120Wizard(sel.IdSalida)
+            If wizard.ShowDialog(Me) = DialogResult.OK Then
+                Await CargarSalidasAsync()
+            End If
+        End Using
     End Sub
 
     Private Async Sub btnBuscarRecluso_Click(sender As Object, e As EventArgs) Handles btnBuscarRecluso.Click

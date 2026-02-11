@@ -37,6 +37,10 @@ Public Class frmRenovacionesArt120
     Private _documentosDisponibles As New List(Of DocumentoRespaldoDto)
     Private _documentosSeleccionados As New List(Of DocumentoRespaldoDto)
     Private _guardando As Boolean
+    Private _diasAnticipacionAlerta As Integer = ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto
+
+    Private Const DiasAlertaMinimo As Integer = 1
+    Private Const DiasAlertaMaximo As Integer = 365
 
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
@@ -62,14 +66,12 @@ Public Class frmRenovacionesArt120
     Private Async Function CargarConfiguracionDiasAlertaAsync() As Task
         Try
             Dim diasConfigurados = Await ConfiguracionSistemaService.ObtenerDiasAlertaRenovacionesAsync()
-            Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), diasConfigurados))
-            nudDiasAlerta.Value = dias
+            _diasAnticipacionAlerta = Math.Max(DiasAlertaMinimo, Math.Min(DiasAlertaMaximo, diasConfigurados))
 
             Dim mostrarSoloActivas = Await ConfiguracionSistemaService.ObtenerMostrarSoloActivasPorDefectoRenovacionesAsync()
             chkSoloActivas.Checked = mostrarSoloActivas
         Catch ex As Exception
-            Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto))
-            nudDiasAlerta.Value = dias
+            _diasAnticipacionAlerta = Math.Max(DiasAlertaMinimo, Math.Min(DiasAlertaMaximo, ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto))
             chkSoloActivas.Checked = ConfiguracionSistemaService.MostrarSoloActivasPorDefectoRenovacionesPorDefecto
             Notifier.Warn(Me, "No se pudo cargar la configuración de alertas. Se usarán valores por defecto.")
         End Try
@@ -195,7 +197,7 @@ Public Class frmRenovacionesArt120
     End Function
 
     Private Function ObtenerDiasAnticipacionAlerta() As Integer
-        Return CInt(nudDiasAlerta.Value)
+        Return _diasAnticipacionAlerta
     End Function
 
     Private Sub RecalcularEstadosDesdeConfiguracion()
@@ -264,10 +266,6 @@ Public Class frmRenovacionesArt120
 
         ' 3. Asignación al Label con interpolación de cadenas
         lblResumen.Text = $"Total: {total} | Vencidas: {vencidas} | En alerta ({ObtenerDiasAnticipacionAlerta()} días): {alertas}"
-    End Sub
-
-    Private Sub nudDiasAlerta_ValueChanged(sender As Object, e As EventArgs) Handles nudDiasAlerta.ValueChanged
-        AplicarFiltro()
     End Sub
 
     Private Function ObtenerSeleccionActual() As SalidaGridDto

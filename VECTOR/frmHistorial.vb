@@ -26,7 +26,7 @@ Public Class frmHistorial
             Dim docActual = db.Mae_Documento.Find(_idDocumento)
 
             If docActual Is Nothing Then
-                Toast.Show(Me, "El documento no existe.", ToastType.Error)
+                Notifier.[Error](Me, "El documento no existe.")
                 Return
             End If
 
@@ -100,7 +100,7 @@ Public Class frmHistorial
             dgvHistoria.CurrentCell = Nothing
 
         Catch ex As Exception
-            Toast.Show(Me, "Error al leer la trazabilidad: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al leer la trazabilidad: " & ex.Message)
         End Try
     End Sub
 

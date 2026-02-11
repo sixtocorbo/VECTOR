@@ -196,7 +196,7 @@ Public Class frmBandeja
             AplicarFiltroRapido()
 
         Catch ex As Exception
-            Toast.Show(Me, "Error al cargar datos: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al cargar datos: " & ex.Message)
         End Try
     End Function
 
@@ -293,7 +293,7 @@ Public Class frmBandeja
 
             Dim resumenTexto = $"Vencidas: {_cantVencidasArt120} | Por vencer ({DiasAnticipacionAlertaSalidas} días): {_cantAlertasArt120 - _cantVencidasArt120}"
             If _ultimoResumenArt120 <> resumenTexto Then
-                Toast.Show(Me, "⚠ Alertas de salidas laborales Art. 120" & vbCrLf & resumenTexto, ToastType.Warning)
+                Notifier.Warn(Me, "⚠ Alertas de salidas laborales Art. 120" & vbCrLf & resumenTexto)
                 _ultimoResumenArt120 = resumenTexto
             End If
         Catch ex As Exception
@@ -512,17 +512,17 @@ Public Class frmBandeja
             Dim docRepo = uow.Repository(Of Mae_Documento)()
             Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
             If doc Is Nothing Then
-                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Notifier.[Error](Me, "Documento no encontrado.")
                 Return
             End If
             If doc.IdOficinaActual <> SesionGlobal.OficinaID Then
-                Toast.Show(Me, "⛔ No puedes editar documentos que no están en tu oficina.", ToastType.Error)
+                Notifier.[Error](Me, "⛔ No puedes editar documentos que no están en tu oficina.")
                 Return
             End If
 
             Dim tieneRespuestas As Boolean = Await docRepo.AnyAsync(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5)
             If tieneRespuestas Then
-                Toast.Show(Me, "⛔ EDICIÓN BLOQUEADA." & vbCrLf & "Este documento ya tiene respuestas oficiales.", ToastType.Error)
+                Notifier.[Error](Me, "⛔ EDICIÓN BLOQUEADA." & vbCrLf & "Este documento ya tiene respuestas oficiales.")
                 Return
             End If
         End Using
@@ -534,7 +534,7 @@ Public Class frmBandeja
     Private Async Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
         ' [VALIDACIONES INICIALES IGUAL QUE SIEMPRE...]
         If dgvPendientes.SelectedRows.Count = 0 Then
-            Toast.Show(Me, "Seleccione el documento.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione el documento.")
             Return
         End If
         Dim idOficinaDoc As Integer = CInt(dgvPendientes.SelectedRows(0).Cells("IdOficinaActual").Value)
@@ -683,12 +683,12 @@ Public Class frmBandeja
             Dim docRepo = uow.Repository(Of Mae_Documento)()
             Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
             If doc Is Nothing Then
-                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Notifier.[Error](Me, "Documento no encontrado.")
                 Return
             End If
 
             If Await docRepo.AnyAsync(Function(d) d.IdDocumentoPadre = idDoc And d.IdEstadoActual <> 5) Then
-                Toast.Show(Me, "Tiene hijos activos. No se puede eliminar.", ToastType.Error)
+                Notifier.[Error](Me, "Tiene hijos activos. No se puede eliminar.")
                 Return
             End If
 
@@ -767,7 +767,7 @@ Public Class frmBandeja
                 docPadreNumero = docPadre.Cat_TipoDocumento.Codigo & " " & docPadre.NumeroOficial
 
                 If idOficinaOrigen = SesionGlobal.OficinaID Then
-                    Toast.Show(Me, "Este documento/paquete ya está en tu oficina.", ToastType.Info)
+                    Notifier.Info(Me, "Este documento/paquete ya está en tu oficina.")
                     Return
                 End If
 
@@ -775,7 +775,7 @@ Public Class frmBandeja
                 Dim totalDocs As Integer = docsA_Recibir.Count
 
                 If totalDocs = 0 Then
-                    Toast.Show("El documento ya no está disponible", ToastType.Warning)
+                    Notifier.Warn("El documento ya no está disponible")
                     Return
                 End If
 
@@ -833,7 +833,7 @@ Public Class frmBandeja
 
         ' 🔄 RECUPERACIÓN: Ejecutamos el Await fuera del bloque Catch
         If huboError Then
-            Toast.Show("Error crítico al intentar recibir: " & mensajeError, ToastType.Error)
+            Notifier.[Error]("Error crítico al intentar recibir: " & mensajeError)
             Await CargarGrillaAsync()
         End If
 
@@ -866,7 +866,7 @@ Public Class frmBandeja
     Private Async Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click
         ' 1. VALIDACIÓN: ¿HAY ALGO SELECCIONADO?
         If dgvPendientes.SelectedRows.Count = 0 Then
-            Toast.Show("Seleccione el documento a desvincular (sacar de la familia).", ToastType.Warning)
+            Notifier.Warn("Seleccione el documento a desvincular (sacar de la familia).")
             Return
         End If
 
@@ -876,14 +876,14 @@ Public Class frmBandeja
             Dim docRepo = uow.Repository(Of Mae_Documento)()
             Dim doc = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
             If doc Is Nothing Then
-                Toast.Show(Me, "Documento no encontrado.", ToastType.Error)
+                Notifier.[Error](Me, "Documento no encontrado.")
                 Return
             End If
 
             ' 2. VALIDACIÓN: ¿REALMENTE ES UN HIJO?
             If Not doc.IdDocumentoPadre.HasValue Then
-                Toast.Show("Este documento YA es independiente (no tiene padre)." & vbCrLf &
-                                "No se puede desvincular.", ToastType.Warning)
+                Notifier.Warn("Este documento YA es independiente (no tiene padre)." & vbCrLf &
+                               "No se puede desvincular.")
                 Return
             End If
 
@@ -918,7 +918,7 @@ Public Class frmBandeja
                 Await uow.CommitAsync()
 
                 AuditoriaSistema.RegistrarEvento($"Documento {doc.NumeroOficial} independizado del exp {nombrePadre}.", "DESVINCULACION")
-                Toast.Show("✅ Documento independizado correctamente.", ToastType.Success)
+                Notifier.Success("✅ Documento independizado correctamente.")
 
                 Await CargarGrillaAsync()
             End If

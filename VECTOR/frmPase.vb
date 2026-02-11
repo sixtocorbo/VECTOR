@@ -111,7 +111,7 @@ Public Class frmPase
                 OrderBy(Function(o) o.Nombre).
                 ToList()
         Catch ex As Exception
-            Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al cargar oficinas: " & ex.Message)
         End Try
     End Sub
 
@@ -347,18 +347,18 @@ Public Class frmPase
     Private Sub btnConfirmar_Click(sender As Object, e As EventArgs) Handles btnConfirmar.Click
         ' Validación de integridad antes de proceder
         If _documentosAEnviar Is Nothing OrElse _documentosAEnviar.Count = 0 OrElse _docPadre Is Nothing Then
-            Toast.Show(Me, "No hay documentos válidos para realizar el pase.", ToastType.Warning)
+            Notifier.Warn(Me, "No hay documentos válidos para realizar el pase.")
             Return
         End If
 
         If _oficinaSeleccionada Is Nothing Then
-            Toast.Show(Me, "Seleccione Oficina de Destino.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione Oficina de Destino.")
             txtBuscar.Focus()
             Return
         End If
 
         If String.IsNullOrWhiteSpace(txtObservacion.Text) Then
-            Toast.Show(Me, "La observación es obligatoria.", ToastType.Warning)
+            Notifier.Warn(Me, "La observación es obligatoria.")
             Return
         End If
 
@@ -399,14 +399,14 @@ Public Class frmPase
 
             AuditoriaSistema.RegistrarEvento($"Pase de {_documentosAEnviar.Count} documento(s) a {nombreDestino}. Observación: {obs}. Fojas agregadas: {fojasNuevas}.", "PASE", unitOfWorkExterno:=_unitOfWork)
             _unitOfWork.Commit()
-            Toast.Show(Me, "✅ PASE EXITOSO." & vbCrLf & vbCrLf &
-                            "Se han enviado " & count & " documento(s) a " & nombreDestino & ".", ToastType.Success)
+            Notifier.Success(Me, "✅ PASE EXITOSO." & vbCrLf & vbCrLf &
+                              "Se han enviado " & count & " documento(s) a " & nombreDestino & ".")
 
             Me.DialogResult = DialogResult.OK
             Me.Close()
 
         Catch ex As Exception
-            Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al guardar: " & ex.Message)
         End Try
     End Sub
 

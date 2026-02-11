@@ -15,7 +15,7 @@
         Catch ex As Exception
             nudDiasAlertaRenovaciones.Value = ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto
             chkMostrarSoloActivasPorDefectoRenovaciones.Checked = ConfiguracionSistemaService.MostrarSoloActivasPorDefectoRenovacionesPorDefecto
-            Toast.Show(Me, "No se pudo cargar la configuración. Se mostrarán valores por defecto.", ToastType.Warning)
+            Notifier.Warn(Me, "No se pudo cargar la configuración. Se mostrarán valores por defecto.")
         End Try
     End Function
 
@@ -32,11 +32,11 @@
 
             Await ConfiguracionSistemaService.GuardarDiasAlertaRenovacionesAsync(CInt(nudDiasAlertaRenovaciones.Value), usuario)
             Await ConfiguracionSistemaService.GuardarMostrarSoloActivasPorDefectoRenovacionesAsync(chkMostrarSoloActivasPorDefectoRenovaciones.Checked, usuario)
-            Toast.Show(Me, "Configuración guardada correctamente.", ToastType.Success)
+            Notifier.Success(Me, "Configuración guardada correctamente.")
             DialogResult = DialogResult.OK
             Close()
         Catch ex As Exception
-            Toast.Show(Me, "No se pudo guardar la configuración: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "No se pudo guardar la configuración: " & ex.Message)
         Finally
             btnGuardar.Enabled = True
         End Try

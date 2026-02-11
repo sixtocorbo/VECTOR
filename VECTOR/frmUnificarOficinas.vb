@@ -50,7 +50,7 @@ Public Class frmUnificarOficinas
             End Using
 
         Catch ex As Exception
-            Toast.Show(Me, "Error al cargar oficinas: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al cargar oficinas: " & ex.Message)
         End Try
     End Function
 
@@ -60,7 +60,7 @@ Public Class frmUnificarOficinas
 
     Private Async Sub btnUnificar_Click(sender As Object, e As EventArgs) Handles btnUnificar.Click
         If String.IsNullOrWhiteSpace(txtNombreOficial.Text) Then
-            Toast.Show(Me, "Por favor, escribe el NOMBRE OFICIAL (Destino).", ToastType.Warning)
+            Notifier.Warn(Me, "Por favor, escribe el NOMBRE OFICIAL (Destino).")
             txtNombreOficial.Focus()
             Return
         End If
@@ -78,7 +78,7 @@ Public Class frmUnificarOficinas
         Next
 
         If idsParaBorrar.Count = 0 Then
-            Toast.Show(Me, "Selecciona al menos una oficina para unificar.", ToastType.Warning)
+            Notifier.Warn(Me, "Selecciona al menos una oficina para unificar.")
             Return
         End If
 
@@ -106,19 +106,19 @@ Public Class frmUnificarOficinas
                 If resultado IsNot Nothing Then
                     If resultado.Resultado = 1 Then
                         AuditoriaSistema.RegistrarEvento($"Unificación de {listaIds.Count} oficina(s) en '{nombreDestino}'.", "OFICINAS")
-                        Toast.Show(Me, resultado.Mensaje & " 🚀", ToastType.Success)
+                        Notifier.Success(Me, resultado.Mensaje & " 🚀")
 
                         txtBuscar.Text = ""
                         txtNombreOficial.Text = ""
                         Await CargarOficinasAsync("")
                     Else
-                        Toast.Show(Me, "Error SQL: " & resultado.Mensaje, ToastType.Error)
+                        Notifier.[Error](Me, "Error SQL: " & resultado.Mensaje)
                     End If
                 End If
             End Using
 
         Catch ex As Exception
-            Toast.Show(Me, "Error crítico: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error crítico: " & ex.Message)
         End Try
     End Function
 

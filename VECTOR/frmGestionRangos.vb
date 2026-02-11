@@ -480,7 +480,7 @@ Public Class frmGestionRangos
 
     Private Async Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
         If dgvRangos.SelectedRows.Count = 0 Then
-            Toast.Show(Me, "Seleccione un rango.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione un rango.")
             Return
         End If
 
@@ -493,7 +493,7 @@ Public Class frmGestionRangos
             Await uow.CommitAsync()
         End Using
 
-        Toast.Show(Me, "Rango eliminado.", ToastType.Success)
+        Notifier.Success(Me, "Rango eliminado.")
         ActualizarVisualizadorStock()
         Await CargarGrillaAsync()
     End Sub
@@ -501,17 +501,17 @@ Public Class frmGestionRangos
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         ' 1. Validaciones Básicas
         If cmbTipo.SelectedIndex = -1 Then
-            Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
             Return
         End If
         If cmbOficina.SelectedIndex = -1 Then
-            Toast.Show(Me, "Debe asignar el rango a una Oficina.", ToastType.Warning)
+            Notifier.Warn(Me, "Debe asignar el rango a una Oficina.")
             Return
         End If
 
         Dim ini, fin, ult, cantidad As Integer
         If Not Integer.TryParse(txtInicio.Text, ini) OrElse Not Integer.TryParse(txtCantidad.Text, cantidad) Then
-            Toast.Show(Me, "Datos numéricos inválidos.", ToastType.Warning)
+            Notifier.Warn(Me, "Datos numéricos inválidos.")
             Return
         End If
 
@@ -519,7 +519,7 @@ Public Class frmGestionRangos
         Integer.TryParse(txtUltimo.Text, ult)
 
         If ult <> 0 AndAlso (ult < (ini - 1) Or ult > fin) Then
-            Toast.Show(Me, "El campo 'Último Utilizado' está fuera del rango.", ToastType.Warning)
+            Notifier.Warn(Me, "El campo 'Último Utilizado' está fuera del rango.")
             Return
         End If
 
@@ -530,7 +530,7 @@ Public Class frmGestionRangos
         ' 2. VALIDACIÓN DE STOCK (Control Secretaría General)
         Dim idTipo As Integer
         If Not TryObtenerIdTipoSeleccionado(idTipo) Then
-            Toast.Show(Me, "Seleccione el Tipo de Documento.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione el Tipo de Documento.")
             Return
         End If
         Dim anio As Integer = CInt(numAnio.Value)
@@ -579,7 +579,7 @@ Public Class frmGestionRangos
                 For Each c In colisiones
                     If (rango.NumeroInicio <= c.NumeroFin) And (rango.NumeroFin >= c.NumeroInicio) Then
                         Dim nombreOficinaChoque = If(c.Cat_Oficina IsNot Nothing, c.Cat_Oficina.Nombre, "Otra Oficina")
-                        Toast.Show(Me, $"CONFLICTO: El rango {rango.NumeroInicio}-{rango.NumeroFin} se superpone con el asignado a '{nombreOficinaChoque}' ({c.NumeroInicio}-{c.NumeroFin}).", ToastType.Error)
+                        Notifier.[Error](Me, $"CONFLICTO: El rango {rango.NumeroInicio}-{rango.NumeroFin} se superpone con el asignado a '{nombreOficinaChoque}' ({c.NumeroInicio}-{c.NumeroFin}).")
                         Return
                     End If
                 Next
@@ -587,13 +587,13 @@ Public Class frmGestionRangos
                 If _idEdicion = 0 Then repo.Add(rango)
                 Await uow.CommitAsync()
 
-                Toast.Show(Me, "Rango asignado correctamente.", ToastType.Success)
+                Notifier.Success(Me, "Rango asignado correctamente.")
                 ModoEdicion(False)
                 ActualizarVisualizadorStock()
                 Await CargarGrillaAsync()
             End Using
         Catch ex As Exception
-            Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al guardar: " & ex.Message)
         End Try
     End Sub
 

@@ -15,6 +15,7 @@ Public Class frmGestionTiposDocumento
 
     Private _bindingList As BindingList(Of TipoDocumentoViewModel)
     Private ReadOnly _eliminados As New HashSet(Of Integer)
+    Private _guardando As Boolean
 
     Private Async Sub frmGestionTiposDocumento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
@@ -88,6 +89,10 @@ Public Class frmGestionTiposDocumento
     End Sub
 
     Private Sub btnNuevo_Click(sender As Object, e As EventArgs) Handles btnNuevo.Click
+        If _guardando Then
+            Return
+        End If
+
         If _bindingList Is Nothing Then
             _bindingList = New BindingList(Of TipoDocumentoViewModel)()
             dgvTipos.DataSource = _bindingList
@@ -113,6 +118,10 @@ Public Class frmGestionTiposDocumento
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
+        If _guardando Then
+            Return
+        End If
+
         Dim row = dgvTipos.CurrentRow
         If row Is Nothing Then
             Return
@@ -140,6 +149,13 @@ Public Class frmGestionTiposDocumento
     End Sub
 
     Private Async Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
+        If _guardando Then
+            Return
+        End If
+
+        _guardando = True
+        SetGuardadoUIState(True)
+
         Try
             Dim lista = If(_bindingList IsNot Nothing, _bindingList.ToList(), New List(Of TipoDocumentoViewModel))
 
@@ -214,6 +230,26 @@ Public Class frmGestionTiposDocumento
             Await CargarDatosAsync()
         Catch ex As Exception
             MessageBox.Show("Error al guardar: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            _guardando = False
+            SetGuardadoUIState(False)
         End Try
+    End Sub
+
+    Private Sub frmGestionTiposDocumento_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If Not _guardando Then
+            Return
+        End If
+
+        e.Cancel = True
+        MessageBox.Show("Hay un guardado en progreso. Espere a que finalice para cerrar la ventana.", "Guardado en progreso", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub SetGuardadoUIState(guardando As Boolean)
+        btnGuardar.Enabled = Not guardando
+        btnNuevo.Enabled = Not guardando
+        btnEliminar.Enabled = Not guardando
+        dgvTipos.Enabled = Not guardando
+        UseWaitCursor = guardando
     End Sub
 End Class

@@ -5,7 +5,7 @@ Imports System.Threading.Tasks
 
 Public Class frmRenovacionesArt120
 
-    Private Const DiasAnticipacionAlerta As Integer = 30
+    Private Const DiasAnticipacionAlertaPorDefecto As Integer = 30
 
     Private Class SalidaGridDto
         Public Property IdSalida As Integer
@@ -38,6 +38,7 @@ Public Class frmRenovacionesArt120
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         UIUtils.SetPlaceholder(txtBuscar, "Buscar por recluso, lugar, estado o documento...")
+        nudDiasAlerta.Value = DiasAnticipacionAlertaPorDefecto
 
         Dim typeDGV As Type = dgvSalidas.GetType()
         Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
@@ -91,16 +92,7 @@ Public Class frmRenovacionesArt120
                                                   Dim referencia = If(cantidadDocs > 0,
                                                                       $"SAL-{x.IdSalida} ({cantidadDocs})",
                                                                       "Sin documentación")
-                                                  Dim estado As String
-                                                  If Not estaActiva Then
-                                                      estado = "INACTIVA"
-                                                  ElseIf dias < 0 Then
-                                                      estado = "VENCIDA"
-                                                  ElseIf dias <= DiasAnticipacionAlerta Then
-                                                      estado = "ALERTA"
-                                                  Else
-                                                      estado = "OK"
-                                                  End If
+                                                  Dim estado = CalcularEstado(estaActiva, dias)
 
                                                   Return New SalidaGridDto With {
                                                     .IdSalida = x.IdSalida,
@@ -127,6 +119,8 @@ Public Class frmRenovacionesArt120
     End Function
 
     Private Sub AplicarFiltro()
+        RecalcularEstadosDesdeConfiguracion()
+
         Dim texto = txtBuscar.Text.Trim().ToUpper()
         Dim lista = _listaOriginal.AsEnumerable()
 
@@ -144,6 +138,23 @@ Public Class frmRenovacionesArt120
         dgvSalidas.DataSource = final
         DisenarGrilla()
         Resumir(final)
+    End Sub
+
+    Private Function CalcularEstado(estaActiva As Boolean, dias As Integer) As String
+        If Not estaActiva Then Return "INACTIVA"
+        If dias < 0 Then Return "VENCIDA"
+        If dias <= ObtenerDiasAnticipacionAlerta() Then Return "ALERTA"
+        Return "OK"
+    End Function
+
+    Private Function ObtenerDiasAnticipacionAlerta() As Integer
+        Return CInt(nudDiasAlerta.Value)
+    End Function
+
+    Private Sub RecalcularEstadosDesdeConfiguracion()
+        For Each salida In _listaOriginal
+            salida.Estado = CalcularEstado(salida.Activo, salida.DiasRestantes)
+        Next
     End Sub
 
     Private Sub DisenarGrilla()
@@ -194,7 +205,11 @@ Public Class frmRenovacionesArt120
         Dim alertas = lista.Where(Function(s) s.Estado = "ALERTA").Count()
 
         ' 3. Asignación al Label con interpolación de cadenas
-        lblResumen.Text = $"Total: {total} | Vencidas: {vencidas} | En alerta ({DiasAnticipacionAlerta} días): {alertas}"
+        lblResumen.Text = $"Total: {total} | Vencidas: {vencidas} | En alerta ({ObtenerDiasAnticipacionAlerta()} días): {alertas}"
+    End Sub
+
+    Private Sub nudDiasAlerta_ValueChanged(sender As Object, e As EventArgs) Handles nudDiasAlerta.ValueChanged
+        AplicarFiltro()
     End Sub
 
     Private Function ObtenerSeleccionActual() As SalidaGridDto

@@ -82,7 +82,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelFiltros.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelFiltros.Location = New System.Drawing.Point(0, 0)
         Me.PanelFiltros.Name = "PanelFiltros"
-        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 89)
+        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 215)
         Me.PanelFiltros.TabIndex = 0
         '
         'btnReactivar
@@ -210,14 +210,14 @@ Partial Class frmRenovacionesArt120
         Me.dgvSalidas.BackgroundColor = System.Drawing.Color.White
         Me.dgvSalidas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvSalidas.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvSalidas.Location = New System.Drawing.Point(0, 89)
+        Me.dgvSalidas.Location = New System.Drawing.Point(0, 215)
         Me.dgvSalidas.MultiSelect = False
         Me.dgvSalidas.Name = "dgvSalidas"
         Me.dgvSalidas.ReadOnly = True
         Me.dgvSalidas.RowHeadersVisible = False
         Me.dgvSalidas.RowHeadersWidth = 62
         Me.dgvSalidas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 210)
+        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 6)
         Me.dgvSalidas.TabIndex = 1
         '
         'PanelEditor
@@ -255,7 +255,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.Label3)
         Me.PanelEditor.Controls.Add(Me.Label2)
         Me.PanelEditor.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelEditor.Location = New System.Drawing.Point(0, 299)
+        Me.PanelEditor.Location = New System.Drawing.Point(0, 221)
         Me.PanelEditor.Name = "PanelEditor"
         Me.PanelEditor.Size = New System.Drawing.Size(1650, 326)
         Me.PanelEditor.TabIndex = 2
@@ -551,7 +551,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1650, 420)
+        Me.ClientSize = New System.Drawing.Size(1650, 547)
         Me.Controls.Add(Me.dgvSalidas)
         Me.Controls.Add(Me.PanelEditor)
         Me.Controls.Add(Me.PanelFiltros)

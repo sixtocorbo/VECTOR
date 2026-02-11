@@ -254,6 +254,9 @@
     <Compile Include="frmRenovacionesArt120.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmNuevaSalidaArt120Wizard.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmUnificarOficinas.Designer.vb">
       <DependentUpon>frmUnificarOficinas.vb</DependentUpon>
     </Compile>

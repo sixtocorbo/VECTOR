@@ -36,6 +36,7 @@ Public Class frmMesaEntrada
     Private _filtroVersionOrigen As Integer = 0
     Private _validacionNumeroVersion As Integer = 0
     Private _cerrandoFormulario As Boolean = False
+    Private _guardando As Boolean = False
     Private _seleccionandoOrigen As Boolean = False
     Private ReadOnly _lstSugerenciasOrigen As New ListBox()
 
@@ -667,6 +668,12 @@ Public Class frmMesaEntrada
     ' GUARDAR (INSERT O UPDATE) - AQUÍ ESTÁ LA MAGIA 🪄
     ' =======================================================
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
+        If _guardando Then Return
+
+        _guardando = True
+        btnGuardar.Enabled = False
+        btnCancelar.Enabled = False
+        Me.UseWaitCursor = True
 
         ' 1. VALIDACIONES BÁSICAS DE INTERFAZ
         If cboTipo.SelectedIndex = -1 Then
@@ -904,6 +911,13 @@ Public Class frmMesaEntrada
 
         Catch ex As Exception
             Notifier.[Error](Me, "Error al guardar: " & ex.Message)
+        Finally
+            If Not IsDisposed Then
+                _guardando = False
+                btnGuardar.Enabled = True
+                btnCancelar.Enabled = True
+                Me.UseWaitCursor = False
+            End If
         End Try
     End Sub
 
@@ -930,6 +944,12 @@ Public Class frmMesaEntrada
     End Sub
 
     Private Sub frmMesaEntrada_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If _guardando Then
+            e.Cancel = True
+            Notifier.Warn(Me, "Hay un guardado en progreso. Espere a que finalice la operación.")
+            Return
+        End If
+
         Me.ShowIcon = False
         _cerrandoFormulario = True
         Interlocked.Increment(_filtroVersionOrigen)
@@ -976,4 +996,3 @@ Public Class frmMesaEntrada
         End Using
     End Sub
 End Class
-

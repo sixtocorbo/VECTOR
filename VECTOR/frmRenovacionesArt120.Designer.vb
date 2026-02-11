@@ -30,6 +30,7 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen = New System.Windows.Forms.Label()
         Me.dgvSalidas = New System.Windows.Forms.DataGridView()
         Me.PanelEditor = New System.Windows.Forms.Panel()
+        Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.txtObservaciones = New System.Windows.Forms.TextBox()
@@ -40,6 +41,8 @@ Partial Class frmRenovacionesArt120
         Me.cboDocumentoRespaldo = New System.Windows.Forms.ComboBox()
         Me.btnRefrescarDocumentos = New System.Windows.Forms.Button()
         Me.Label7 = New System.Windows.Forms.Label()
+        Me.cboAutorizacion = New System.Windows.Forms.ComboBox()
+        Me.Label12 = New System.Windows.Forms.Label()
         Me.chkActivoRegistro = New System.Windows.Forms.CheckBox()
         Me.dtpVencimiento = New System.Windows.Forms.DateTimePicker()
         Me.Label6 = New System.Windows.Forms.Label()
@@ -58,9 +61,6 @@ Partial Class frmRenovacionesArt120
         Me.txtRecluso = New System.Windows.Forms.TextBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
-        Me.cboAutorizacion = New System.Windows.Forms.ComboBox()
-        Me.Label12 = New System.Windows.Forms.Label()
         Me.PanelFiltros.SuspendLayout()
         CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelEditor.SuspendLayout()
@@ -217,7 +217,7 @@ Partial Class frmRenovacionesArt120
         Me.dgvSalidas.RowHeadersVisible = False
         Me.dgvSalidas.RowHeadersWidth = 62
         Me.dgvSalidas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 487)
+        Me.dgvSalidas.Size = New System.Drawing.Size(1650, 210)
         Me.dgvSalidas.TabIndex = 1
         '
         'PanelEditor
@@ -255,10 +255,19 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.Label3)
         Me.PanelEditor.Controls.Add(Me.Label2)
         Me.PanelEditor.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelEditor.Location = New System.Drawing.Point(0, 576)
+        Me.PanelEditor.Location = New System.Drawing.Point(0, 299)
         Me.PanelEditor.Name = "PanelEditor"
-        Me.PanelEditor.Size = New System.Drawing.Size(1650, 274)
+        Me.PanelEditor.Size = New System.Drawing.Size(1650, 326)
         Me.PanelEditor.TabIndex = 2
+        '
+        'txtDocumentoDescripcion
+        '
+        Me.txtDocumentoDescripcion.Location = New System.Drawing.Point(853, 153)
+        Me.txtDocumentoDescripcion.Multiline = True
+        Me.txtDocumentoDescripcion.Name = "txtDocumentoDescripcion"
+        Me.txtDocumentoDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtDocumentoDescripcion.Size = New System.Drawing.Size(381, 77)
+        Me.txtDocumentoDescripcion.TabIndex = 21
         '
         'btnCancelar
         '
@@ -277,7 +286,7 @@ Partial Class frmRenovacionesArt120
         Me.btnGuardar.BackColor = System.Drawing.Color.SeaGreen
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(1262, 224)
+        Me.btnGuardar.Location = New System.Drawing.Point(1254, 221)
         Me.btnGuardar.Name = "btnGuardar"
         Me.btnGuardar.Size = New System.Drawing.Size(185, 36)
         Me.btnGuardar.TabIndex = 15
@@ -286,7 +295,7 @@ Partial Class frmRenovacionesArt120
         '
         'txtObservaciones
         '
-        Me.txtObservaciones.Location = New System.Drawing.Point(1262, 36)
+        Me.txtObservaciones.Location = New System.Drawing.Point(1254, 33)
         Me.txtObservaciones.Multiline = True
         Me.txtObservaciones.Name = "txtObservaciones"
         Me.txtObservaciones.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
@@ -296,7 +305,7 @@ Partial Class frmRenovacionesArt120
         'Label8
         '
         Me.Label8.AutoSize = True
-        Me.Label8.Location = New System.Drawing.Point(1258, 13)
+        Me.Label8.Location = New System.Drawing.Point(1254, 10)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(114, 20)
         Me.Label8.TabIndex = 13
@@ -305,7 +314,7 @@ Partial Class frmRenovacionesArt120
         'btnQuitarDocumento
         '
         Me.btnQuitarDocumento.Enabled = False
-        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1188, 69)
+        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1180, 66)
         Me.btnQuitarDocumento.Name = "btnQuitarDocumento"
         Me.btnQuitarDocumento.Size = New System.Drawing.Size(54, 31)
         Me.btnQuitarDocumento.TabIndex = 15
@@ -316,7 +325,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.lstDocumentosRespaldo.FormattingEnabled = True
         Me.lstDocumentosRespaldo.ItemHeight = 20
-        Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(861, 70)
+        Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(853, 67)
         Me.lstDocumentosRespaldo.Name = "lstDocumentosRespaldo"
         Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(321, 84)
         Me.lstDocumentosRespaldo.TabIndex = 14
@@ -324,7 +333,7 @@ Partial Class frmRenovacionesArt120
         'btnAgregarDocumento
         '
         Me.btnAgregarDocumento.Enabled = False
-        Me.btnAgregarDocumento.Location = New System.Drawing.Point(1188, 35)
+        Me.btnAgregarDocumento.Location = New System.Drawing.Point(1180, 32)
         Me.btnAgregarDocumento.Name = "btnAgregarDocumento"
         Me.btnAgregarDocumento.Size = New System.Drawing.Size(54, 31)
         Me.btnAgregarDocumento.TabIndex = 13
@@ -335,14 +344,14 @@ Partial Class frmRenovacionesArt120
         '
         Me.cboDocumentoRespaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboDocumentoRespaldo.FormattingEnabled = True
-        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(861, 36)
+        Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(853, 33)
         Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
         Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
         Me.cboDocumentoRespaldo.TabIndex = 12
         '
         'btnRefrescarDocumentos
         '
-        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1188, 123)
+        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1180, 120)
         Me.btnRefrescarDocumentos.Name = "btnRefrescarDocumentos"
         Me.btnRefrescarDocumentos.Size = New System.Drawing.Size(54, 31)
         Me.btnRefrescarDocumentos.TabIndex = 16
@@ -352,7 +361,7 @@ Partial Class frmRenovacionesArt120
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(857, 13)
+        Me.Label7.Location = New System.Drawing.Point(853, 10)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(322, 20)
         Me.Label7.TabIndex = 11
@@ -362,7 +371,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.cboAutorizacion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboAutorizacion.FormattingEnabled = True
-        Me.cboAutorizacion.Location = New System.Drawing.Point(15, 203)
+        Me.cboAutorizacion.Location = New System.Drawing.Point(7, 242)
         Me.cboAutorizacion.Name = "cboAutorizacion"
         Me.cboAutorizacion.Size = New System.Drawing.Size(432, 28)
         Me.cboAutorizacion.TabIndex = 11
@@ -370,9 +379,9 @@ Partial Class frmRenovacionesArt120
         'Label12
         '
         Me.Label12.AutoSize = True
-        Me.Label12.Location = New System.Drawing.Point(11, 180)
+        Me.Label12.Location = New System.Drawing.Point(7, 214)
         Me.Label12.Name = "Label12"
-        Me.Label12.Size = New System.Drawing.Size(213, 20)
+        Me.Label12.Size = New System.Drawing.Size(215, 20)
         Me.Label12.TabIndex = 22
         Me.Label12.Text = "Autorización de salida (oblig.)"
         '
@@ -381,7 +390,7 @@ Partial Class frmRenovacionesArt120
         Me.chkActivoRegistro.AutoSize = True
         Me.chkActivoRegistro.Checked = True
         Me.chkActivoRegistro.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkActivoRegistro.Location = New System.Drawing.Point(462, 203)
+        Me.chkActivoRegistro.Location = New System.Drawing.Point(454, 200)
         Me.chkActivoRegistro.Name = "chkActivoRegistro"
         Me.chkActivoRegistro.Size = New System.Drawing.Size(140, 24)
         Me.chkActivoRegistro.TabIndex = 17
@@ -391,7 +400,7 @@ Partial Class frmRenovacionesArt120
         'dtpVencimiento
         '
         Me.dtpVencimiento.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
-        Me.dtpVencimiento.Location = New System.Drawing.Point(660, 171)
+        Me.dtpVencimiento.Location = New System.Drawing.Point(652, 168)
         Me.dtpVencimiento.Name = "dtpVencimiento"
         Me.dtpVencimiento.Size = New System.Drawing.Size(185, 26)
         Me.dtpVencimiento.TabIndex = 10
@@ -399,7 +408,7 @@ Partial Class frmRenovacionesArt120
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(656, 148)
+        Me.Label6.Location = New System.Drawing.Point(648, 145)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(97, 20)
         Me.Label6.TabIndex = 9
@@ -409,7 +418,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.dtpFechaNotificacion.Checked = False
         Me.dtpFechaNotificacion.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
-        Me.dtpFechaNotificacion.Location = New System.Drawing.Point(462, 105)
+        Me.dtpFechaNotificacion.Location = New System.Drawing.Point(454, 102)
         Me.dtpFechaNotificacion.Name = "dtpFechaNotificacion"
         Me.dtpFechaNotificacion.ShowCheckBox = True
         Me.dtpFechaNotificacion.Size = New System.Drawing.Size(185, 26)
@@ -418,7 +427,7 @@ Partial Class frmRenovacionesArt120
         'Label11
         '
         Me.Label11.AutoSize = True
-        Me.Label11.Location = New System.Drawing.Point(458, 82)
+        Me.Label11.Location = New System.Drawing.Point(454, 79)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(152, 20)
         Me.Label11.TabIndex = 20
@@ -427,7 +436,7 @@ Partial Class frmRenovacionesArt120
         'dtpInicio
         '
         Me.dtpInicio.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
-        Me.dtpInicio.Location = New System.Drawing.Point(462, 171)
+        Me.dtpInicio.Location = New System.Drawing.Point(454, 168)
         Me.dtpInicio.Name = "dtpInicio"
         Me.dtpInicio.Size = New System.Drawing.Size(185, 26)
         Me.dtpInicio.TabIndex = 8
@@ -435,7 +444,7 @@ Partial Class frmRenovacionesArt120
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(458, 148)
+        Me.Label5.Location = New System.Drawing.Point(454, 145)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(46, 20)
         Me.Label5.TabIndex = 7
@@ -443,7 +452,7 @@ Partial Class frmRenovacionesArt120
         '
         'txtLugarTrabajo
         '
-        Me.txtLugarTrabajo.Location = New System.Drawing.Point(15, 105)
+        Me.txtLugarTrabajo.Location = New System.Drawing.Point(7, 102)
         Me.txtLugarTrabajo.Name = "txtLugarTrabajo"
         Me.txtLugarTrabajo.Size = New System.Drawing.Size(432, 26)
         Me.txtLugarTrabajo.TabIndex = 6
@@ -451,7 +460,7 @@ Partial Class frmRenovacionesArt120
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(11, 82)
+        Me.Label4.Location = New System.Drawing.Point(7, 79)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(125, 20)
         Me.Label4.TabIndex = 5
@@ -459,7 +468,7 @@ Partial Class frmRenovacionesArt120
         '
         'txtHorario
         '
-        Me.txtHorario.Location = New System.Drawing.Point(462, 36)
+        Me.txtHorario.Location = New System.Drawing.Point(454, 33)
         Me.txtHorario.Name = "txtHorario"
         Me.txtHorario.Size = New System.Drawing.Size(383, 26)
         Me.txtHorario.TabIndex = 4
@@ -467,7 +476,7 @@ Partial Class frmRenovacionesArt120
         'Label9
         '
         Me.Label9.AutoSize = True
-        Me.Label9.Location = New System.Drawing.Point(458, 13)
+        Me.Label9.Location = New System.Drawing.Point(454, 10)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(67, 20)
         Me.Label9.TabIndex = 18
@@ -475,7 +484,7 @@ Partial Class frmRenovacionesArt120
         '
         'txtCustodia
         '
-        Me.txtCustodia.Location = New System.Drawing.Point(15, 171)
+        Me.txtCustodia.Location = New System.Drawing.Point(7, 168)
         Me.txtCustodia.Name = "txtCustodia"
         Me.txtCustodia.Size = New System.Drawing.Size(432, 26)
         Me.txtCustodia.TabIndex = 7
@@ -483,7 +492,7 @@ Partial Class frmRenovacionesArt120
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(11, 148)
+        Me.Label10.Location = New System.Drawing.Point(7, 145)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(78, 20)
         Me.Label10.TabIndex = 19
@@ -493,7 +502,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.lblIdRecluso.AutoSize = True
         Me.lblIdRecluso.ForeColor = System.Drawing.Color.DimGray
-        Me.lblIdRecluso.Location = New System.Drawing.Point(660, 108)
+        Me.lblIdRecluso.Location = New System.Drawing.Point(652, 105)
         Me.lblIdRecluso.Name = "lblIdRecluso"
         Me.lblIdRecluso.Size = New System.Drawing.Size(101, 20)
         Me.lblIdRecluso.TabIndex = 4
@@ -501,7 +510,7 @@ Partial Class frmRenovacionesArt120
         '
         'btnBuscarRecluso
         '
-        Me.btnBuscarRecluso.Location = New System.Drawing.Point(402, 35)
+        Me.btnBuscarRecluso.Location = New System.Drawing.Point(394, 32)
         Me.btnBuscarRecluso.Name = "btnBuscarRecluso"
         Me.btnBuscarRecluso.Size = New System.Drawing.Size(45, 31)
         Me.btnBuscarRecluso.TabIndex = 3
@@ -510,7 +519,7 @@ Partial Class frmRenovacionesArt120
         '
         'txtRecluso
         '
-        Me.txtRecluso.Location = New System.Drawing.Point(15, 36)
+        Me.txtRecluso.Location = New System.Drawing.Point(7, 33)
         Me.txtRecluso.Name = "txtRecluso"
         Me.txtRecluso.ReadOnly = True
         Me.txtRecluso.Size = New System.Drawing.Size(381, 26)
@@ -519,7 +528,7 @@ Partial Class frmRenovacionesArt120
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(11, 13)
+        Me.Label3.Location = New System.Drawing.Point(7, 10)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(201, 20)
         Me.Label3.TabIndex = 1
@@ -530,27 +539,18 @@ Partial Class frmRenovacionesArt120
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.Label2.ForeColor = System.Drawing.Color.MidnightBlue
-        Me.Label2.Location = New System.Drawing.Point(11, 236)
+        Me.Label2.Location = New System.Drawing.Point(7, 283)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(962, 28)
+        Me.Label2.Size = New System.Drawing.Size(1111, 28)
         Me.Label2.TabIndex = 0
-        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) autorización 4) fechas/no" &
-    "tificación 5) respaldo"
-        '
-        'txtDocumentoDescripcion
-        '
-        Me.txtDocumentoDescripcion.Location = New System.Drawing.Point(861, 156)
-        Me.txtDocumentoDescripcion.Multiline = True
-        Me.txtDocumentoDescripcion.Name = "txtDocumentoDescripcion"
-        Me.txtDocumentoDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDocumentoDescripcion.Size = New System.Drawing.Size(381, 77)
-        Me.txtDocumentoDescripcion.TabIndex = 21
+        Me.Label2.Text = "Registro Decreto 434/013: 1) persona 2) trabajo/horario/custodia 3) autorización " &
+    "4) fechas/notificación 5) respaldo"
         '
         'frmRenovacionesArt120
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1650, 850)
+        Me.ClientSize = New System.Drawing.Size(1650, 625)
         Me.Controls.Add(Me.dgvSalidas)
         Me.Controls.Add(Me.PanelEditor)
         Me.Controls.Add(Me.PanelFiltros)

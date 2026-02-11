@@ -1,157 +1,180 @@
-﻿Public Class frmPrincipal
+﻿Imports System.ComponentModel
 
+Public Class frmPrincipal
+
+    ' =============================================================================
+    ' CARGA Y CONFIGURACIÓN INICIAL
+    ' =============================================================================
     Private Sub frmPrincipal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
-        ' 1. Configuración Visual
         Me.IsMdiContainer = True
 
-        ' 2. Mostrar datos de Sesión en la barra inferior
-        Try
-            ' NOTA: Asegúrate de que SesionGlobal existe en tu proyecto.
-            lblEstadoUsuario.Text = "👤 Usuario: " & SesionGlobal.NombreUsuario
-            lblEstadoOficina.Text = "🏢 Oficina: " & SesionGlobal.NombreOficina
-        Catch ex As Exception
-            lblEstadoUsuario.Text = "Usuario: Admin (Modo Prueba)"
-            lblEstadoOficina.Text = "Oficina: Mesa Central"
-        End Try
+        ConfigurarBarraEstado()
+        ConfigurarSeguridadMenu()
 
-        ConfigurarPermisosMenu()
-
-        ' 3. Opcional: Abrir la bandeja automáticamente al iniciar
+        ' Abrir la herramienta principal al iniciar
         AbrirFormularioHijo(Of frmBandeja)()
     End Sub
 
-    Private Sub ConfigurarPermisosMenu()
-        Dim esAdmin As Boolean
+    Private Sub ConfigurarBarraEstado()
+        Try
+            lblEstadoUsuario.Text = "👤 Usuario: " & SesionGlobal.NombreUsuario
+            lblEstadoOficina.Text = "🏢 Oficina: " & SesionGlobal.NombreOficina
+        Catch ex As Exception
+            lblEstadoUsuario.Text = "Modo Prueba"
+        End Try
+    End Sub
 
+    Private Sub ConfigurarSeguridadMenu()
+        ' Aquí ocultamos o deshabilitamos menús completos según el rol
+        Dim esAdmin As Boolean = False
         Try
             esAdmin = SesionGlobal.EsAdmin
-        Catch ex As Exception
-            esAdmin = True
+        Catch
+            esAdmin = True ' Fallback para desarrollo
         End Try
 
+        ' La pestaña SISTEMA y ADMINISTRACIÓN suele ser solo para admins
+        ' Asumiendo que has renombrado los ToolStripMenuItem principales:
+        ' MenuSistema.Visible = esAdmin
+        ' MenuAdministracion.Visible = esAdmin 
+
+        ' Manteniendo la lógica original para usuarios específicos:
         GestionUsuariosToolStripMenuItem.Enabled = esAdmin
     End Sub
 
-    ' =================================================================
-    ' MÉTODO GENÉRICO MAESTRO PARA ABRIR VENTANAS HIJAS (MEJORADO)
-    ' =================================================================
-    Private Sub AbrirFormularioHijo(Of T As {Form, New})()
+    ' =============================================================================
+    ' MOTOR MDI (AbrirFormularioHijo + Reparador)
+    ' =============================================================================
 
-        ' Buscamos si ya hay un hijo de este tipo abierto
+    Private Sub AbrirFormularioHijo(Of T As {Form, New})()
         Dim formulario As Form = Me.MdiChildren.FirstOrDefault(Function(f) TypeOf f Is T)
 
         If formulario Is Nothing Then
-            ' A. NO EXISTE -> LO CREAMOS
             formulario = New T()
             formulario.MdiParent = Me
             formulario.ShowIcon = False
             formulario.WindowState = FormWindowState.Maximized
-
-            ' --- [SOLUCIÓN MAESTRA] ---
-            ' Le decimos al formulario: "Cuando te cierres, avisa al método reparador"
+            ' VACUNA: El evento que arregla la bandeja al cerrar este formulario
             AddHandler formulario.FormClosed, AddressOf AlCerrarCualquierHijo
-            ' --------------------------
-
             formulario.Show()
         Else
-            ' B. YA EXISTE -> LO TRAEMOS AL FRENTE
             formulario.ShowIcon = False
             If formulario.WindowState <> FormWindowState.Maximized Then
                 formulario.WindowState = FormWindowState.Maximized
             End If
-
             formulario.Activate()
             formulario.BringToFront()
         End If
     End Sub
 
-    ' =================================================================
-    ' REPARADOR AUTOMÁTICO DE BANDEJA (SOLUCIÓN GENERAL)
-    ' =================================================================
     Private Sub AlCerrarCualquierHijo(sender As Object, e As FormClosedEventArgs)
-        ' Este método se dispara cada vez que CUALQUIER ventana hija se cierra.
-
-        ' Buscamos si la bandeja está viva en el sistema
+        ' Lógica de auto-reparación visual de la bandeja
         Dim fBandeja = Me.MdiChildren.OfType(Of frmBandeja)().FirstOrDefault()
-
         If fBandeja IsNot Nothing Then
-            ' Si la bandeja existe, forzamos su redibujado al tamaño máximo
-            ' Esto corrige el bug visual de Windows Forms MDI
             fBandeja.WindowState = FormWindowState.Normal
             fBandeja.WindowState = FormWindowState.Maximized
         End If
     End Sub
 
-    ' =================================================================
-    ' EVENTOS DEL MENÚ
-    ' =================================================================
+    ' =============================================================================
+    ' SECCIÓN A: INICIO (Operación Diaria)
+    ' =============================================================================
 
     Private Sub BandejaDeEntradaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BandejaDeEntradaToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmBandeja)()
     End Sub
 
-    Private Sub GestionRangosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionRangosToolStripMenuItem.Click
-        AbrirFormularioHijo(Of frmGestionRangos)()
+    ' He añadido esto porque vi el archivo frmBuscadorReclusos.vb en tu lista
+    ' Te sugiero agregarlo al menú Inicio.
+    Private Sub BuscadorReclusosToolStripMenuItem_Click(sender As Object, e As EventArgs)
+        AbrirFormularioHijo(Of frmBuscadorReclusos)()
     End Sub
 
-    Private Sub GestionTiemposToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionTiemposToolStripMenuItem.Click
-        AbrirFormularioHijo(Of frmGestionTiempos)()
+    Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
+        ConfirmarSalida()
     End Sub
 
-    Private Sub GestionTiposDocumentoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionTiposDocumentoToolStripMenuItem.Click
-        AbrirFormularioHijo(Of frmGestionTiposDocumento)()
-    End Sub
+    ' =============================================================================
+    ' SECCIÓN B: CONTROL (Reportes y Auditoría)
+    ' =============================================================================
 
-    Private Sub GestionUsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionUsuariosToolStripMenuItem.Click
-        If Not PuedeGestionarUsuarios() Then
-            Toast.Show(Me, "Solo los usuarios con rol Administrador pueden gestionar usuarios.", ToastType.Warning)
-            Return
-        End If
-
-        AbrirFormularioHijo(Of frmUsuarios)()
+    Private Sub EstadisticasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EstadisticasToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmEstadisticas)()
     End Sub
 
     Private Sub AuditoriaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoriaToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmAuditoria)()
     End Sub
 
-    Private Sub EstadisticasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EstadisticasToolStripMenuItem.Click
-        AbrirFormularioHijo(Of frmEstadisticas)()
+    ' =============================================================================
+    ' SECCIÓN C: ADMINISTRACIÓN (Datos Maestros)
+    ' =============================================================================
+
+    Private Sub GestionUsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionUsuariosToolStripMenuItem.Click
+        If VerificarPermisoAdmin() Then
+            AbrirFormularioHijo(Of frmUsuarios)()
+        End If
+    End Sub
+
+    Private Sub GestionRangosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionRangosToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmGestionRangos)()
     End Sub
 
     Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
-        AbrirFormularioHijo(Of frmUnificarOficinas)()
+        ' Esta es una herramienta peligrosa/avanzada, mejor tenerla bajo Admin
+        If VerificarPermisoAdmin() Then
+            AbrirFormularioHijo(Of frmUnificarOficinas)()
+        End If
     End Sub
 
+    ' =============================================================================
+    ' SECCIÓN D: SISTEMA (Configuración Técnica)
+    ' =============================================================================
+
     Private Sub ConfiguracionSistemaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfiguracionSistemaToolStripMenuItem.Click
-        ' Ahora este evento queda limpio, la magia la hace AbrirFormularioHijo
         AbrirFormularioHijo(Of frmConfiguracionSistema)()
     End Sub
 
-    Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
+    Private Sub GestionTiposDocumentoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionTiposDocumentoToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmGestionTiposDocumento)()
+    End Sub
+
+    Private Sub GestionTiemposToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionTiemposToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmGestionTiempos)()
+    End Sub
+
+    ' =============================================================================
+    ' UTILIDADES Y CIERRE
+    ' =============================================================================
+
+    Private Function VerificarPermisoAdmin() As Boolean
+        Try
+            If Not SesionGlobal.EsAdmin Then
+                Toast.Show(Me, "Acceso denegado. Se requieren permisos de Administrador.", ToastType.Warning)
+                Return False
+            End If
+            Return True
+        Catch ex As Exception
+            Return True ' Modo Fallback
+        End Try
+    End Function
+
+    Private Sub ConfirmarSalida()
         If MessageBox.Show("¿Desea salir del sistema?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            AuditoriaSistema.RegistrarEvento("Salida del sistema desde menú principal.", "SISTEMA")
+            AuditoriaSistema.RegistrarEvento("Salida del sistema desde menú.", "SISTEMA")
             Application.Exit()
         End If
     End Sub
 
     Private Sub frmPrincipal_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If e.CloseReason = CloseReason.UserClosing Then
-            If MessageBox.Show("¿Seguro que desea cerrar el sistema?", "VECTOR", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+            If MessageBox.Show("¿Seguro que desea cerrar la aplicación VECTOR?", "Cerrar Sistema", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
                 e.Cancel = True
             Else
-                AuditoriaSistema.RegistrarEvento("Salida del sistema desde cierre de ventana.", "SISTEMA")
+                AuditoriaSistema.RegistrarEvento("Cierre de aplicación.", "SISTEMA")
             End If
         End If
     End Sub
-
-    Private Function PuedeGestionarUsuarios() As Boolean
-        Try
-            Return SesionGlobal.EsAdmin
-        Catch ex As Exception
-            Return True
-        End Try
-    End Function
 
 End Class

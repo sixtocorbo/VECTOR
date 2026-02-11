@@ -25,8 +25,6 @@ Partial Class frmRenovacionesArt120
         Me.btnAbrirDocumento = New System.Windows.Forms.Button()
         Me.btnConfigurarRenovaciones = New System.Windows.Forms.Button()
         Me.chkSoloActivas = New System.Windows.Forms.CheckBox()
-        Me.nudDiasAlerta = New System.Windows.Forms.NumericUpDown()
-        Me.lblDiasAlerta = New System.Windows.Forms.Label()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.lblResumen = New System.Windows.Forms.Label()
@@ -61,7 +59,6 @@ Partial Class frmRenovacionesArt120
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.PanelFiltros.SuspendLayout()
-        CType(Me.nudDiasAlerta, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelEditor.SuspendLayout()
         Me.SuspendLayout()
@@ -76,8 +73,6 @@ Partial Class frmRenovacionesArt120
         Me.PanelFiltros.Controls.Add(Me.btnAbrirDocumento)
         Me.PanelFiltros.Controls.Add(Me.btnConfigurarRenovaciones)
         Me.PanelFiltros.Controls.Add(Me.chkSoloActivas)
-        Me.PanelFiltros.Controls.Add(Me.nudDiasAlerta)
-        Me.PanelFiltros.Controls.Add(Me.lblDiasAlerta)
         Me.PanelFiltros.Controls.Add(Me.txtBuscar)
         Me.PanelFiltros.Controls.Add(Me.Label1)
         Me.PanelFiltros.Controls.Add(Me.lblResumen)
@@ -176,25 +171,6 @@ Partial Class frmRenovacionesArt120
         Me.chkSoloActivas.Text = "Solo activas"
         Me.chkSoloActivas.UseVisualStyleBackColor = True
         '
-        'nudDiasAlerta
-        '
-        Me.nudDiasAlerta.Location = New System.Drawing.Point(313, 16)
-        Me.nudDiasAlerta.Maximum = New Decimal(New Integer() {365, 0, 0, 0})
-        Me.nudDiasAlerta.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
-        Me.nudDiasAlerta.Name = "nudDiasAlerta"
-        Me.nudDiasAlerta.Size = New System.Drawing.Size(74, 26)
-        Me.nudDiasAlerta.TabIndex = 5
-        Me.nudDiasAlerta.Value = New Decimal(New Integer() {30, 0, 0, 0})
-        '
-        'lblDiasAlerta
-        '
-        Me.lblDiasAlerta.AutoSize = True
-        Me.lblDiasAlerta.Location = New System.Drawing.Point(195, 18)
-        Me.lblDiasAlerta.Name = "lblDiasAlerta"
-        Me.lblDiasAlerta.Size = New System.Drawing.Size(111, 20)
-        Me.lblDiasAlerta.TabIndex = 4
-        Me.lblDiasAlerta.Text = "Días de alerta:"
-        '
         'txtBuscar
         '
         Me.txtBuscar.Location = New System.Drawing.Point(71, 52)
@@ -216,7 +192,7 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen.AutoSize = True
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
-        Me.lblResumen.Location = New System.Drawing.Point(393, 14)
+        Me.lblResumen.Location = New System.Drawing.Point(195, 14)
         Me.lblResumen.Name = "lblResumen"
         Me.lblResumen.Size = New System.Drawing.Size(155, 28)
         Me.lblResumen.TabIndex = 0
@@ -550,7 +526,6 @@ Partial Class frmRenovacionesArt120
         Me.Text = "Renovaciones de salidas laborales - Art. 120"
         Me.PanelFiltros.ResumeLayout(False)
         Me.PanelFiltros.PerformLayout()
-        CType(Me.nudDiasAlerta, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvSalidas, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PanelEditor.ResumeLayout(False)
         Me.PanelEditor.PerformLayout()
@@ -564,8 +539,6 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents txtBuscar As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents chkSoloActivas As CheckBox
-    Friend WithEvents nudDiasAlerta As NumericUpDown
-    Friend WithEvents lblDiasAlerta As Label
     Friend WithEvents btnAbrirDocumento As Button
     Friend WithEvents btnConfigurarRenovaciones As Button
     Friend WithEvents btnNueva As Button

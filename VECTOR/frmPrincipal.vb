@@ -48,24 +48,7 @@ Public Class frmPrincipal
     ' =============================================================================
 
     Private Sub AbrirFormularioHijo(Of T As {Form, New})()
-        Dim formulario As Form = Me.MdiChildren.FirstOrDefault(Function(f) TypeOf f Is T)
-
-        If formulario Is Nothing Then
-            formulario = New T()
-            formulario.MdiParent = Me
-            formulario.ShowIcon = False
-            formulario.WindowState = FormWindowState.Maximized
-            ' VACUNA: El evento que arregla la bandeja al cerrar este formulario
-            AddHandler formulario.FormClosed, AddressOf AlCerrarCualquierHijo
-            formulario.Show()
-        Else
-            formulario.ShowIcon = False
-            If formulario.WindowState <> FormWindowState.Maximized Then
-                formulario.WindowState = FormWindowState.Maximized
-            End If
-            formulario.Activate()
-            formulario.BringToFront()
-        End If
+        ShowUniqueFormInMdi(Of T)(Me, onClosed:=AddressOf AlCerrarCualquierHijo)
     End Sub
 
     Private Sub AlCerrarCualquierHijo(sender As Object, e As FormClosedEventArgs)

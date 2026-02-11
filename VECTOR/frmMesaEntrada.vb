@@ -366,9 +366,9 @@ Public Class frmMesaEntrada
             Dim nombrePropietario = If(rangoAjeno.Cat_Oficina IsNot Nothing, rangoAjeno.Cat_Oficina.Nombre, "Otra Oficina")
 
             ' Mostramos el Toast con duración extendida
-            Toast.Show(Me, $"⛔ ACCIÓN BLOQUEADA" & vbCrLf &
-                           $"El número {numeroBase} pertenece al rango reservado de: {nombrePropietario}." & vbCrLf &
-                           $"Tu oficina tiene rangos configurados y debes respetarlos.", ToastType.Error)
+            Notifier.[Error](Me, $"⛔ ACCIÓN BLOQUEADA" & vbCrLf &
+                                 $"El número {numeroBase} pertenece al rango reservado de: {nombrePropietario}." & vbCrLf &
+                                 $"Tu oficina tiene rangos configurados y debes respetarlos.")
 
             txtNumeroRef.BackColor = Color.MistyRose
 
@@ -656,7 +656,7 @@ Public Class frmMesaEntrada
         End If
 
         If String.IsNullOrWhiteSpace(ruta) OrElse Not File.Exists(ruta) Then
-            Toast.Show(Me, "El archivo no está disponible en el sistema.", ToastType.Warning)
+            Notifier.Warn(Me, "El archivo no está disponible en el sistema.")
             Return
         End If
 
@@ -670,20 +670,20 @@ Public Class frmMesaEntrada
 
         ' 1. VALIDACIONES BÁSICAS DE INTERFAZ
         If cboTipo.SelectedIndex = -1 Then
-            Toast.Show(Me, "Seleccione el TIPO de documento.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione el TIPO de documento.")
             Return
         End If
 
         Dim idOrigenSeleccionado = ObtenerIdOrigenSeleccionado()
         If Not idOrigenSeleccionado.HasValue Then
-            Toast.Show(Me, "Seleccione Organismo / Oficina de origen.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione Organismo / Oficina de origen.")
             txtBuscarOrigen.Focus()
             Return
         End If
 
         ' Si es manual, validamos que haya escrito algo
         If Not _generacionAutomatica AndAlso String.IsNullOrWhiteSpace(txtNumeroRef.Text) Then
-            Toast.Show(Me, "Ingrese la Referencia/Número.", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese la Referencia/Número.")
             Return
         End If
 
@@ -705,7 +705,7 @@ Public Class frmMesaEntrada
 
             Dim numeroBase As Integer
             If Not TryObtenerNumeroBase(txtNumeroRef.Text, numeroBase) Then
-                Toast.Show(Me, "Ingrese un número válido.", ToastType.Warning)
+                Notifier.Warn(Me, "Ingrese un número válido.")
                 Return
             End If
 
@@ -732,7 +732,7 @@ Public Class frmMesaEntrada
 
                     If rangoPropietario IsNot Nothing Then
                         Dim nombreOficinaDueña = If(rangoPropietario.Cat_Oficina IsNot Nothing, rangoPropietario.Cat_Oficina.Nombre, "Otra Oficina")
-                        Toast.Show(Me, $"ERROR DE NUMERACIÓN: Tu oficina trabaja con rangos y el número {numeroBase} invade el rango reservado de: {nombreOficinaDueña}.", ToastType.Error)
+                        Notifier.[Error](Me, $"ERROR DE NUMERACIÓN: Tu oficina trabaja con rangos y el número {numeroBase} invade el rango reservado de: {nombreOficinaDueña}.")
                         Return
                     End If
                 Else
@@ -749,7 +749,7 @@ Public Class frmMesaEntrada
                                     d.Tra_Movimiento.Any(Function(m) m.IdOficinaOrigen = idOrigenSeleccionado.Value))
 
                 If yaExiste Then
-                    Toast.Show(Me, $"El número '{txtNumeroRef.Text}' ya fue registrado previamente por esta oficina.", ToastType.Error)
+                    Notifier.[Error](Me, $"El número '{txtNumeroRef.Text}' ya fue registrado previamente por esta oficina.")
                     Return
                 End If
             End Using
@@ -775,7 +775,7 @@ Public Class frmMesaEntrada
                 GuardarAdjuntos(doc.IdDocumento)
                 AuditoriaSistema.RegistrarEvento($"Edición de documento {doc.NumeroOficial}...", "DOCUMENTOS", unitOfWorkExterno:=_unitOfWork)
                 _unitOfWork.Commit()
-                Toast.Show(Me, "✅ Documento corregido exitosamente.", ToastType.Success)
+                Notifier.Success(Me, "✅ Documento corregido exitosamente.")
 
             Else
                 ' --- MODO NUEVO (INSERT) ---
@@ -790,7 +790,7 @@ Public Class frmMesaEntrada
                     Dim nuevoNumero As Integer = CalcularSiguienteNumero(idTipo, idOrigenSeleccionado.Value, anioObjetivo)
 
                     If nuevoNumero <= 0 Then
-                        Toast.Show(Me, "Error: No se pudo obtener un número válido o el rango de la oficina se agotó.", ToastType.Error)
+                        Notifier.[Error](Me, "Error: No se pudo obtener un número válido o el rango de la oficina se agotó.")
                         Return
                     End If
 
@@ -801,7 +801,7 @@ Public Class frmMesaEntrada
                     If rangoA_Actualizar IsNot Nothing Then
                         rangoA_Actualizar.UltimoUtilizado = nuevoNumero
                     Else
-                        Toast.Show(Me, "Error crítico: Se generó un número fuera de rango.", ToastType.Error)
+                        Notifier.[Error](Me, "Error crítico: Se generó un número fuera de rango.")
                         Return
                     End If
 
@@ -896,14 +896,14 @@ Public Class frmMesaEntrada
                 sb.AppendLine("⏳ PLAZO: Asignado automáticamente por el sistema.") ' Feedback nuevo
                 sb.AppendLine()
 
-                Toast.Show(Me, sb.ToString(), ToastType.Success)
+                Notifier.Success(Me, sb.ToString())
             End If
 
             Me.ShowIcon = False
             Me.Close()
 
         Catch ex As Exception
-            Toast.Show(Me, "Error al guardar: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al guardar: " & ex.Message)
         End Try
     End Sub
 

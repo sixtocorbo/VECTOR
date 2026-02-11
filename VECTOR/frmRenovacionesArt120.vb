@@ -63,7 +63,7 @@ Public Class frmRenovacionesArt120
             Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto))
             nudDiasAlerta.Value = dias
             chkSoloActivas.Checked = ConfiguracionSistemaService.MostrarSoloActivasPorDefectoRenovacionesPorDefecto
-            Toast.Show(Me, "No se pudo cargar la configuración de alertas. Se usarán valores por defecto.", ToastType.Warning)
+            Notifier.Warn(Me, "No se pudo cargar la configuración de alertas. Se usarán valores por defecto.")
         End Try
     End Function
 
@@ -140,7 +140,7 @@ Public Class frmRenovacionesArt120
 
             AplicarFiltro()
         Catch ex As Exception
-            Toast.Show(Me, "Error al cargar salidas laborales: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al cargar salidas laborales: " & ex.Message)
         End Try
     End Function
 
@@ -312,7 +312,7 @@ Public Class frmRenovacionesArt120
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
         Dim sel = ObtenerSeleccionActual()
         If sel Is Nothing Then
-            Toast.Show(Me, "Seleccione una salida para editar.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione una salida para editar.")
             Return
         End If
 
@@ -356,7 +356,7 @@ Public Class frmRenovacionesArt120
                 recluso = repo.GetQueryable().FirstOrDefault(Function(r) r.NombreCompleto = nombre)
             End If
             If recluso Is Nothing Then
-                Toast.Show(Me, "No se encontró el recluso seleccionado.", ToastType.Warning)
+                Notifier.Warn(Me, "No se encontró el recluso seleccionado.")
                 Return
             End If
 
@@ -379,7 +379,7 @@ Public Class frmRenovacionesArt120
                 If _idSalidaEditando.HasValue Then
                     entidad = Await repo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(s) s.IdSalida = _idSalidaEditando.Value)
                     If entidad Is Nothing Then
-                        Toast.Show(Me, "La salida seleccionada ya no existe.", ToastType.Warning)
+                        Notifier.Warn(Me, "La salida seleccionada ya no existe.")
                         Return
                     End If
                 Else
@@ -403,47 +403,47 @@ Public Class frmRenovacionesArt120
                 Await uow.CommitAsync()
             End Using
 
-            Toast.Show(Me, "Datos de renovación guardados correctamente.", ToastType.Success)
+            Notifier.Success(Me, "Datos de renovación guardados correctamente.")
             LimpiarEditor()
             Await CargarSalidasAsync()
         Catch ex As Exception
-            Toast.Show(Me, "No se pudo guardar la salida: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "No se pudo guardar la salida: " & ex.Message)
         End Try
     End Sub
 
     Private Function ValidarEditor() As Boolean
         If Not _idReclusoSeleccionado.HasValue Then
-            Toast.Show(Me, "Debe seleccionar una persona privada de libertad.", ToastType.Warning)
+            Notifier.Warn(Me, "Debe seleccionar una persona privada de libertad.")
             Return False
         End If
 
         If String.IsNullOrWhiteSpace(txtLugarTrabajo.Text) Then
-            Toast.Show(Me, "Ingrese el lugar de trabajo.", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese el lugar de trabajo.")
             Return False
         End If
 
         If String.IsNullOrWhiteSpace(txtHorario.Text) Then
-            Toast.Show(Me, "Ingrese el horario autorizado.", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese el horario autorizado.")
             Return False
         End If
 
         If String.IsNullOrWhiteSpace(txtCustodia.Text) Then
-            Toast.Show(Me, "Ingrese el detalle de custodia (obligatorio por decreto).", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese el detalle de custodia (obligatorio por decreto).")
             Return False
         End If
 
         If dtpVencimiento.Value.Date < dtpInicio.Value.Date Then
-            Toast.Show(Me, "La fecha de vencimiento no puede ser menor a la fecha de inicio.", ToastType.Warning)
+            Notifier.Warn(Me, "La fecha de vencimiento no puede ser menor a la fecha de inicio.")
             Return False
         End If
 
         If dtpFechaNotificacion.Checked AndAlso dtpFechaNotificacion.Value.Date < dtpInicio.Value.Date Then
-            Toast.Show(Me, "La fecha de notificación al juez no puede ser menor al inicio.", ToastType.Warning)
+            Notifier.Warn(Me, "La fecha de notificación al juez no puede ser menor al inicio.")
             Return False
         End If
 
         If _idSalidaEditando.HasValue AndAlso Not chkActivoRegistro.Checked AndAlso chkSoloActivas.Checked Then
-            Toast.Show(Me, "Al guardar, el registro quedará oculto porque tiene activado el filtro 'Solo activas'.", ToastType.Info)
+            Notifier.Info(Me, "Al guardar, el registro quedará oculto porque tiene activado el filtro 'Solo activas'.")
         End If
 
         Return True
@@ -460,7 +460,7 @@ Public Class frmRenovacionesArt120
     Private Async Function CambiarEstadoSeleccionAsync(nuevoEstado As Boolean) As Task
         Dim sel = ObtenerSeleccionActual()
         If sel Is Nothing Then
-            Toast.Show(Me, "Seleccione una salida.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione una salida.")
             Return
         End If
 
@@ -469,7 +469,7 @@ Public Class frmRenovacionesArt120
                 Dim repo = uow.Repository(Of Tra_SalidasLaborales)()
                 Dim entidad = Await repo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(s) s.IdSalida = sel.IdSalida)
                 If entidad Is Nothing Then
-                    Toast.Show(Me, "La salida seleccionada ya no existe.", ToastType.Warning)
+                    Notifier.Warn(Me, "La salida seleccionada ya no existe.")
                     Return
                 End If
 
@@ -477,7 +477,7 @@ Public Class frmRenovacionesArt120
                 If Not nuevoEstado Then
                     Dim motivo = InputBox("Ingrese motivo de suspensión (obligatorio):", "Motivo de suspensión")
                     If String.IsNullOrWhiteSpace(motivo) Then
-                        Toast.Show(Me, "Debe ingresar el motivo para suspender la salida.", ToastType.Warning)
+                        Notifier.Warn(Me, "Debe ingresar el motivo para suspender la salida.")
                         Return
                     End If
 
@@ -493,10 +493,10 @@ Public Class frmRenovacionesArt120
                 Await uow.CommitAsync()
             End Using
 
-            Toast.Show(Me, If(nuevoEstado, "Salida reactivada.", "Salida suspendida y motivo registrado."), ToastType.Success)
+            Notifier.Success(Me, If(nuevoEstado, "Salida reactivada.", "Salida suspendida y motivo registrado."))
             Await CargarSalidasAsync()
         Catch ex As Exception
-            Toast.Show(Me, "No se pudo actualizar el estado: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "No se pudo actualizar el estado: " & ex.Message)
         End Try
     End Function
 
@@ -665,7 +665,7 @@ Public Class frmRenovacionesArt120
             End Using
         Catch ex As Exception
             CargarDocumentosRespaldoVacio()
-            Toast.Show(Me, "No se pudieron cargar expedientes/documentos sugeridos: " & ex.Message, ToastType.Warning)
+            Notifier.Warn(Me, "No se pudieron cargar expedientes/documentos sugeridos: " & ex.Message)
         Finally
             _cargandoDocumentos = False
             btnRefrescarDocumentos.Enabled = True
@@ -745,7 +745,7 @@ Public Class frmRenovacionesArt120
                     .Texto = $"Documento {idSeleccionado.Value}"
                 })
             End If
-            Toast.Show(Me, "No se pudo cargar la lista de documentos respaldo: " & ex.Message, ToastType.Warning)
+            Notifier.Warn(Me, "No se pudo cargar la lista de documentos respaldo: " & ex.Message)
         End Try
 
         RefrescarListaDocumentosSeleccionados()
@@ -764,7 +764,7 @@ Public Class frmRenovacionesArt120
                     idDoc)
             Next
         Catch ex As Exception
-            Toast.Show(Me, "No se pudieron guardar los documentos de respaldo asociados: " & ex.Message, ToastType.Warning)
+            Notifier.Warn(Me, "No se pudieron guardar los documentos de respaldo asociados: " & ex.Message)
         End Try
     End Function
 
@@ -920,7 +920,7 @@ Public Class frmRenovacionesArt120
 
     Private Async Sub btnRefrescarDocumentos_Click(sender As Object, e As EventArgs) Handles btnRefrescarDocumentos.Click
         If Not _idReclusoSeleccionado.HasValue Then
-            Toast.Show(Me, "Primero seleccione una persona privada de libertad.", ToastType.Warning)
+            Notifier.Warn(Me, "Primero seleccione una persona privada de libertad.")
             Return
         End If
 
@@ -938,12 +938,12 @@ Public Class frmRenovacionesArt120
 
         Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
         If Not idDoc.HasValue Then
-            Toast.Show(Me, "Seleccione un documento para agregarlo a la lista.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione un documento para agregarlo a la lista.")
             Return
         End If
 
         If _documentosSeleccionados.Any(Function(d) d.IdDocumento = idDoc.Value) Then
-            Toast.Show(Me, "Ese documento ya está agregado.", ToastType.Info)
+            Notifier.Info(Me, "Ese documento ya está agregado.")
             Return
         End If
 
@@ -970,19 +970,19 @@ Public Class frmRenovacionesArt120
     Private Async Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click
         Dim sel = ObtenerSeleccionActual()
         If sel Is Nothing Then
-            Toast.Show(Me, "Seleccione una salida.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione una salida.")
             Return
         End If
 
         If sel.CantidadDocumentos = 0 Then
-            Toast.Show(Me, "La salida seleccionada no tiene documentación vinculada.", ToastType.Warning)
+            Notifier.Warn(Me, "La salida seleccionada no tiene documentación vinculada.")
             Return
         End If
 
         Try
             Dim docs = Await ObtenerDocumentosSalidaAsync(sel.IdSalida)
             If docs.Count = 0 Then
-                Toast.Show(Me, "No se encontraron documentos para la salida seleccionada.", ToastType.Warning)
+                Notifier.Warn(Me, "No se encontraron documentos para la salida seleccionada.")
                 Return
             End If
 
@@ -998,7 +998,7 @@ Public Class frmRenovacionesArt120
             Dim f As New frmDetalleDocumento(idSeleccionado.Value)
             ShowFormInMdi(Me, f)
         Catch ex As Exception
-            Toast.Show(Me, "No se pudo abrir la documentación: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "No se pudo abrir la documentación: " & ex.Message)
         End Try
     End Sub
 

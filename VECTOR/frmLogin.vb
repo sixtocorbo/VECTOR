@@ -8,7 +8,7 @@ Public Class frmLogin
 
         ' Validación de campos vacíos
         If String.IsNullOrEmpty(u) OrElse String.IsNullOrEmpty(p) Then
-            Toast.Show(Me, "Por favor, ingrese su usuario y contraseña.", ToastType.Warning)
+            Notifier.Warn(Me, "Por favor, ingrese su usuario y contraseña.")
             Return
         End If
 
@@ -36,11 +36,11 @@ Public Class frmLogin
                     principal.Show()
                     Me.Hide()
                 Else
-                    Toast.Show(Me, "Credenciales incorrectas o usuario desactivado.", ToastType.Error)
+                    Notifier.[Error](Me, "Credenciales incorrectas o usuario desactivado.")
                 End If
             End Using
         Catch ex As Exception
-            Toast.Show(Me, "Error al conectar con la base de datos: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error al conectar con la base de datos: " & ex.Message)
         Finally
             btnIngresar.Enabled = True
         End Try

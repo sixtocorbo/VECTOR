@@ -7,7 +7,7 @@ Public Class frmUsuarios
     Private Async Sub frmUsuarios_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         If Not SesionGlobal.EsAdmin Then
-            Toast.Show(Me, "Acceso Denegado. Solo Administradores.", ToastType.Error)
+            Notifier.[Error](Me, "Acceso Denegado. Solo Administradores.")
             Me.ShowIcon = False
             Me.Close()
             Return
@@ -41,7 +41,7 @@ Public Class frmUsuarios
         Dim rol = cmbRol.Text
 
         If String.IsNullOrWhiteSpace(nombre) Or String.IsNullOrWhiteSpace(login) Then
-            Toast.Show(Me, "Complete nombre y usuario.", ToastType.Warning)
+            Notifier.Warn(Me, "Complete nombre y usuario.")
             Return
         End If
 
@@ -50,12 +50,12 @@ Public Class frmUsuarios
             If _usuarioEnEdicionId.HasValue Then
                 Dim usuario = Await repoUsuarios.GetQueryable().FirstOrDefaultAsync(Function(u) u.IdUsuario = _usuarioEnEdicionId.Value)
                 If usuario Is Nothing Then
-                    Toast.Show(Me, "Usuario no encontrado.", ToastType.Warning)
+                    Notifier.Warn(Me, "Usuario no encontrado.")
                     Return
                 End If
 
                 If usuario.UsuarioLogin <> login AndAlso Await repoUsuarios.AnyAsync(Function(u) u.UsuarioLogin = login) Then
-                    Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
+                    Notifier.Warn(Me, "El usuario (login) ya existe.")
                     Return
                 End If
 
@@ -70,15 +70,15 @@ Public Class frmUsuarios
                 repoUsuarios.Update(usuario)
                 Await uow.CommitAsync()
                 AuditoriaSistema.RegistrarEvento($"Usuario actualizado: {usuario.UsuarioLogin}.", "USUARIOS")
-                Toast.Show(Me, "Usuario actualizado correctamente.", ToastType.Success)
+                Notifier.Success(Me, "Usuario actualizado correctamente.")
             Else
                 If String.IsNullOrWhiteSpace(clave) Then
-                    Toast.Show(Me, "Complete la contraseña.", ToastType.Warning)
+                    Notifier.Warn(Me, "Complete la contraseña.")
                     Return
                 End If
 
                 If Await repoUsuarios.AnyAsync(Function(u) u.UsuarioLogin = login) Then
-                    Toast.Show(Me, "El usuario (login) ya existe.", ToastType.Warning)
+                    Notifier.Warn(Me, "El usuario (login) ya existe.")
                     Return
                 End If
 
@@ -94,7 +94,7 @@ Public Class frmUsuarios
                 Await uow.CommitAsync()
 
                 AuditoriaSistema.RegistrarEvento($"Alta de usuario {nuevo.UsuarioLogin} en Mesa de Entrada (ID 13).", "USUARIOS")
-                Toast.Show(Me, "Usuario creado correctamente.", ToastType.Success)
+                Notifier.Success(Me, "Usuario creado correctamente.")
             End If
 
             Await CargarUsuariosAsync()
@@ -104,7 +104,7 @@ Public Class frmUsuarios
 
     Private Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
         If dgvUsuarios.SelectedRows.Count = 0 Then
-            Toast.Show(Me, "Seleccione un usuario para editar.", ToastType.Warning)
+            Notifier.Warn(Me, "Seleccione un usuario para editar.")
             Return
         End If
 
@@ -128,7 +128,7 @@ Public Class frmUsuarios
         Dim idUser As Integer = Convert.ToInt32(dgvUsuarios.SelectedRows(0).Cells("ID").Value)
 
         If idUser = SesionGlobal.UsuarioID Then
-            Toast.Show(Me, "No puedes eliminar tu propio usuario.", ToastType.Warning)
+            Notifier.Warn(Me, "No puedes eliminar tu propio usuario.")
             Return
         End If
 
@@ -139,7 +139,7 @@ Public Class frmUsuarios
 
                 Dim u = Await repoUsuarios.GetQueryable("Mae_Documento,Tra_Movimiento").FirstOrDefaultAsync(Function(x) x.IdUsuario = idUser)
                 If u Is Nothing Then
-                    Toast.Show(Me, "Usuario no encontrado.", ToastType.Warning)
+                    Notifier.Warn(Me, "Usuario no encontrado.")
                     Return
                 End If
 
@@ -149,7 +149,7 @@ Public Class frmUsuarios
                         repoUsuarios.Update(u)
                         Await uow.CommitAsync()
                         AuditoriaSistema.RegistrarEvento($"Usuario desactivado: {u.UsuarioLogin}.", "USUARIOS")
-                        Toast.Show(Me, "Usuario desactivado.", ToastType.Success)
+                        Notifier.Success(Me, "Usuario desactivado.")
                     End If
                 Else
                     Dim logs = Await repoEventos.GetAllByPredicateAsync(Function(ev) ev.UsuarioId = idUser)
@@ -157,7 +157,7 @@ Public Class frmUsuarios
                     repoUsuarios.Remove(u)
                     Await uow.CommitAsync()
                     AuditoriaSistema.RegistrarEvento($"Usuario eliminado: {u.UsuarioLogin}.", "USUARIOS")
-                    Toast.Show(Me, "Usuario eliminado.", ToastType.Success)
+                    Notifier.Success(Me, "Usuario eliminado.")
                 End If
 
                 Await CargarUsuariosAsync()

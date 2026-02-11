@@ -21,11 +21,11 @@ Public Class frmVincular
     Private Async Sub btnConfirmar_Click(sender As Object, e As EventArgs) Handles btnConfirmar.Click
         ' 1. VALIDACIÓN DE ENTRADA
         If String.IsNullOrWhiteSpace(txtIdHijo.Text) OrElse Not IsNumeric(txtIdHijo.Text) Then
-            Toast.Show(Me, "Ingrese un ID de Hijo válido.", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese un ID de Hijo válido.")
             Return
         End If
         If String.IsNullOrWhiteSpace(txtIdPadre.Text) OrElse Not IsNumeric(txtIdPadre.Text) Then
-            Toast.Show(Me, "Ingrese un ID de Padre válido.", ToastType.Warning)
+            Notifier.Warn(Me, "Ingrese un ID de Padre válido.")
             Return
         End If
 
@@ -33,7 +33,7 @@ Public Class frmVincular
         Dim idNuevoPadre As Long = CLng(txtIdPadre.Text)
 
         If idHijo = idNuevoPadre Then
-            Toast.Show(Me, "El ID Hijo y el ID Padre no pueden ser el mismo.", ToastType.Warning)
+            Notifier.Warn(Me, "El ID Hijo y el ID Padre no pueden ser el mismo.")
             Return
         End If
 
@@ -50,7 +50,7 @@ Public Class frmVincular
                                            .FirstOrDefaultAsync(Function(d) d.IdDocumento = idHijo)
 
                 If docHijo Is Nothing Then
-                    Toast.Show(Me, "El Documento HIJO no existe.", ToastType.Error)
+                    Notifier.[Error](Me, "El Documento HIJO no existe.")
                     Return
                 End If
 
@@ -60,7 +60,7 @@ Public Class frmVincular
                                                    .FirstOrDefaultAsync(Function(d) d.IdDocumento = idNuevoPadre)
 
                 If docPadreDestino Is Nothing Then
-                    Toast.Show(Me, "El Documento PADRE no existe.", ToastType.Error)
+                    Notifier.[Error](Me, "El Documento PADRE no existe.")
                     Return
                 End If
 
@@ -72,7 +72,7 @@ Public Class frmVincular
 
                     ' Verificamos si ya es hijo del mismo padre que intentamos asignar
                     If idPadreActual = idNuevoPadre Then
-                        Toast.Show(Me, "Este documento YA está vinculado a ese Padre.", ToastType.Info)
+                        Notifier.Info(Me, "Este documento YA está vinculado a ese Padre.")
                         Return
                     End If
 
@@ -82,10 +82,10 @@ Public Class frmVincular
                         infoPadre = docPadreActual.Cat_TipoDocumento.Codigo & " " & docPadreActual.NumeroOficial
                     End If
 
-                    Toast.Show(Me, "⛔ ACCIÓN BLOQUEADA" & vbCrLf & vbCrLf &
-                                    "El documento HIJO no es libre. Actualmente pertenece a:" & vbCrLf &
-                                    "📂 " & infoPadre & vbCrLf & vbCrLf &
-                                    "Para moverlo, primero debe desvincularlo.", ToastType.Warning)
+                    Notifier.Warn(Me, "⛔ ACCIÓN BLOQUEADA" & vbCrLf & vbCrLf &
+                                      "El documento HIJO no es libre. Actualmente pertenece a:" & vbCrLf &
+                                      "📂 " & infoPadre & vbCrLf & vbCrLf &
+                                      "Para moverlo, primero debe desvincularlo.")
                     Return
                 End If
 
@@ -129,7 +129,7 @@ Public Class frmVincular
                                                      .FirstOrDefaultAsync(Function(d) d.IdDocumento = idAbuelo)
 
                         If docPadreDestino Is Nothing Then
-                            Toast.Show(Me, "No se encontró el expediente raíz del destino.", ToastType.Error)
+                            Notifier.[Error](Me, "No se encontró el expediente raíz del destino.")
                             Return
                         End If
                         ' Actualizamos el textbox para que el usuario vea el cambio real
@@ -139,7 +139,7 @@ Public Class frmVincular
 
                 ' Validación final anti-circular
                 If docPadreDestino.IdDocumento = docHijo.IdDocumento Then
-                    Toast.Show(Me, "⛔ ERROR: Referencia circular directa.", ToastType.Error)
+                    Notifier.[Error](Me, "⛔ ERROR: Referencia circular directa.")
                     Return
                 End If
 
@@ -202,7 +202,7 @@ Public Class frmVincular
                     Await uow.CommitAsync()
 
                     AuditoriaSistema.RegistrarEvento($"Vinculación manual de {docHijo.NumeroOficial} (ID:{idHijo}) a {docPadreDestino.NumeroOficial} (ID:{docPadreDestino.IdDocumento}).", "DOCUMENTOS")
-                    Toast.Show(Me, "✅ Vinculación exitosa.", ToastType.Success)
+                    Notifier.Success(Me, "✅ Vinculación exitosa.")
 
                     Me.DialogResult = DialogResult.OK
                     Me.Close()
@@ -211,7 +211,7 @@ Public Class frmVincular
             End Using
 
         Catch ex As Exception
-            Toast.Show(Me, "Error: " & ex.Message, ToastType.Error)
+            Notifier.[Error](Me, "Error: " & ex.Message)
         Finally
             Me.Cursor = Cursors.Default
             btnConfirmar.Enabled = True

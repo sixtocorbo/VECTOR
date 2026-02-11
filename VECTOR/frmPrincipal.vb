@@ -134,7 +134,7 @@ Public Class frmPrincipal
     Private Function VerificarPermisoAdmin() As Boolean
         Try
             If Not SesionGlobal.EsAdmin Then
-                Toast.Show(Me, "Acceso denegado. Se requieren permisos de Administrador.", ToastType.Warning)
+                Notifier.Warn(Me, "Acceso denegado. Se requieren permisos de Administrador.")
                 Return False
             End If
             Return True

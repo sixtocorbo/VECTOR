@@ -104,6 +104,11 @@
     End Sub
     ' -----------------------------------------------------
 
+
+    Private Sub ConfiguracionSistemaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfiguracionSistemaToolStripMenuItem.Click
+        AbrirFormularioHijo(Of frmConfiguracionSistema)()
+    End Sub
+
     Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
         If MessageBox.Show("¿Desea salir del sistema?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             AuditoriaSistema.RegistrarEvento("Salida del sistema desde menú principal.", "SISTEMA")

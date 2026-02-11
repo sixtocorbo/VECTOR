@@ -5,8 +5,6 @@ Imports System.Threading.Tasks
 
 Public Class frmRenovacionesArt120
 
-    Private Const DiasAnticipacionAlertaPorDefecto As Integer = 30
-
     Private Class SalidaGridDto
         Public Property IdSalida As Integer
         Public Property IdRecluso As Integer
@@ -38,7 +36,8 @@ Public Class frmRenovacionesArt120
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         UIUtils.SetPlaceholder(txtBuscar, "Buscar por recluso, lugar, estado o documento...")
-        nudDiasAlerta.Value = DiasAnticipacionAlertaPorDefecto
+
+        Await CargarConfiguracionDiasAlertaAsync()
 
         Dim typeDGV As Type = dgvSalidas.GetType()
         Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
@@ -47,6 +46,18 @@ Public Class frmRenovacionesArt120
         LimpiarEditor()
         Await CargarSalidasAsync()
     End Sub
+
+    Private Async Function CargarConfiguracionDiasAlertaAsync() As Task
+        Try
+            Dim diasConfigurados = Await ConfiguracionSistemaService.ObtenerDiasAlertaRenovacionesAsync()
+            Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), diasConfigurados))
+            nudDiasAlerta.Value = dias
+        Catch ex As Exception
+            Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto))
+            nudDiasAlerta.Value = dias
+            Toast.Show(Me, "No se pudo cargar la configuración de alertas. Se usará 30 días por defecto.", ToastType.Warning)
+        End Try
+    End Function
 
     Private Async Function CargarSalidasAsync() As Task
         Try

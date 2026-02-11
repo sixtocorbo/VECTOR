@@ -145,9 +145,16 @@
     <Compile Include="Cfg_TiemposRespuesta_Historial.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="ConfiguracionSistemaService.vb" />
     <Compile Include="CupoSecretariaModels.vb" />
     <Compile Include="EventosSistema.vb">
       <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="frmConfiguracionSistema.Designer.vb">
+      <DependentUpon>frmConfiguracionSistema.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmConfiguracionSistema.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmDetalleDocumento.Designer.vb">
       <DependentUpon>frmDetalleDocumento.vb</DependentUpon>

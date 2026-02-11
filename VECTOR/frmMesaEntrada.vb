@@ -927,6 +927,7 @@ Public Class frmMesaEntrada
             End If
 
             Me.ShowIcon = False
+            _guardando = False
             Me.Close()
 
         Catch ex As Exception

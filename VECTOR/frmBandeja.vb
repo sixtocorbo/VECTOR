@@ -3,6 +3,7 @@ Imports System.Drawing
 Imports System.Text
 Imports System.Reflection
 Imports System.Threading.Tasks
+Imports System.Windows.Forms ' Necesario para los Anchors
 
 Public Class frmBandeja
 
@@ -28,8 +29,16 @@ Public Class frmBandeja
             AppTheme.Aplicar(Me)
             ' Configuración inicial
             ConfigurarGrilla()
-            AplicarLayoutResponsivo() ' Acomodar botones al iniciar
+
+            ' --- CORRECCIÓN CLAVE: ANCLAJES ---
+            ' Acomodamos los botones una vez y fijamos sus Anchors
+            ConfigurarAnclajesInferiores()
+
+            ' Acomodamos solo el panel superior (Buscador)
+            AplicarLayoutResponsivo()
+
             UIUtils.SetPlaceholder(txtBuscar, "Buscar por Nombre, ID, Tipo, etc...")
+
             ' --- TRUCO PRO: DOBLE BUFFER ---
             Dim typeDGV As Type = dgvPendientes.GetType()
             Dim propertyInfo As PropertyInfo = typeDGV.GetProperty("DoubleBuffered", BindingFlags.Instance Or BindingFlags.NonPublic)
@@ -51,73 +60,80 @@ Public Class frmBandeja
             ConfigurarBotones(False, False, False, False)
         End Try
     End Sub
+
     ' =========================================================================
-    ' LÓGICA RESPONSIVA (El método que recordabas de Apex)
+    ' LÓGICA RESPONSIVA (CORREGIDA)
     ' =========================================================================
 
     Private Sub frmBandeja_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         AplicarLayoutResponsivo()
     End Sub
+
     Private Sub ConfigurarGrilla()
-        ' Configuración visual básica de la grilla para evitar áreas grises
         dgvPendientes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
         dgvPendientes.BackgroundColor = Color.WhiteSmoke
         dgvPendientes.BorderStyle = BorderStyle.None
     End Sub
 
+    ' --- NUEVO MÉTODO PARA SOLUCIONAR EL PROBLEMA DE LOS BOTONES ---
+    Private Sub ConfigurarAnclajesInferiores()
+        ' Este método coloca los botones en su lugar y los "ancla" (Anchor)
+        ' para que Windows los mueva automáticamente al maximizar sin errores.
+
+        Dim margen As Integer = 10
+        Dim xActual As Integer = PanelInferior.Width - margen
+        Dim topPos As Integer = 20 ' Altura estándar según tu diseño
+
+        ' 1. Lista de botones que van a la DERECHA (en orden de aparición de Der a Izq)
+        Dim botonesDerecha As Button() = {btnHistorial, btnVincular, btnEliminar, btnEditar, btnDesvincular}
+
+        For Each btn In botonesDerecha
+            ' Primero lo colocamos en su sitio
+            btn.Location = New Point(xActual - btn.Width, topPos)
+            ' Luego le decimos que se quede pegado a la esquina inferior derecha
+            btn.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+            ' Calculamos la posición del siguiente botón
+            xActual -= (btn.Width + margen)
+        Next
+
+        ' 2. Botón de la IZQUIERDA (Refrescar)
+        btnRefrescar.Location = New Point(18, topPos)
+        btnRefrescar.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left
+    End Sub
+
     Private Sub AplicarLayoutResponsivo()
         ' Evitar errores si el formulario está minimizado o cerrándose
         If Me.WindowState = FormWindowState.Minimized Then Return
-        If PanelSuperior.ClientSize.Width <= 0 OrElse PanelInferior.ClientSize.Width <= 0 Then Return
+        If PanelSuperior.ClientSize.Width <= 0 Then Return
 
         Dim margen As Integer = 10
         Dim anchoTotal As Integer = PanelSuperior.ClientSize.Width
-        Dim topPanelInferior As Integer = Math.Max(4, (PanelInferior.ClientSize.Height - btnHistorial.Height) \ 2)
 
         PanelSuperior.SuspendLayout()
-        PanelInferior.SuspendLayout()
 
-        ' --- 1. ACOMODAR PANEL SUPERIOR (Botones a la derecha) ---
-        ' Orden visual deseado (de derecha a izquierda): 
-        ' [Renovaciones] [Dar Pase] [Nuevo Ingreso]
+        ' --- 1. ACOMODAR PANEL SUPERIOR (Solo movemos esto manualmente) ---
 
         ' A. Posicionar Renovaciones (Pegado a la derecha)
         btnRenovacionesArt120.Location = New Point(anchoTotal - btnRenovacionesArt120.Width - margen, 52)
+        btnRenovacionesArt120.Anchor = AnchorStyles.Top Or AnchorStyles.Right
 
         ' B. Posicionar Dar Pase (A la izquierda de Renovaciones)
         btnDarPase.Location = New Point(btnRenovacionesArt120.Left - btnDarPase.Width - margen, 52)
+        btnDarPase.Anchor = AnchorStyles.Top Or AnchorStyles.Right
 
         ' C. Posicionar Nuevo Ingreso (A la izquierda de Dar Pase)
         btnNuevoIngreso.Location = New Point(btnDarPase.Left - btnNuevoIngreso.Width - margen, 52)
+        btnNuevoIngreso.Anchor = AnchorStyles.Top Or AnchorStyles.Right
 
-        ' D. Ajustar el Buscador para que no choque
-        ' El buscador va desde la izquierda (93px) hasta donde empieza el botón "Nuevo Ingreso"
+        ' D. Ajustar el Buscador para que no choque (Ancho dinámico)
         Dim limiteDerechoBuscador As Integer = btnNuevoIngreso.Left - 20
         If limiteDerechoBuscador > 93 Then
             txtBuscar.Width = limiteDerechoBuscador - 93
         End If
 
-        ' --- 2. ACOMODAR PANEL INFERIOR (Botones a la derecha) ---
-        ' Orden: [Historial] [Vincular] [Eliminar] [Editar] [Desvincular] ... [Actualizar (Izq)]
+        ' --- 2. PANEL INFERIOR: YA NO LO TOCAMOS AQUÍ ---
+        ' Se maneja solo gracias a ConfigurarAnclajesInferiores() en el Load.
 
-        Dim xActual As Integer = PanelInferior.ClientSize.Width - margen
-
-        ' Función auxiliar interna para mover botones en fila
-        Dim moverBoton = Sub(btn As Button)
-                             btn.Location = New Point(xActual - btn.Width, topPanelInferior)
-                             xActual -= (btn.Width + margen)
-                         End Sub
-
-        moverBoton(btnHistorial)
-        moverBoton(btnVincular)
-        moverBoton(btnEliminar)
-        moverBoton(btnEditar)
-        moverBoton(btnDesvincular)
-
-        ' El botón Refrescar se queda fijo a la izquierda
-        btnRefrescar.Location = New Point(18, Math.Max(4, (PanelInferior.ClientSize.Height - btnRefrescar.Height) \ 2))
-
-        PanelInferior.ResumeLayout()
         PanelSuperior.ResumeLayout()
     End Sub
 
@@ -230,15 +246,14 @@ Public Class frmBandeja
             Dim palabrasClave As String() = textoBusqueda.Split(" "c)
 
             resultado = _listaOriginal.Where(Function(item As Object)
-                                                 ' Concatenamos usando la propiedad .Origen restaurada
                                                  Dim superString As String = (item.ID.ToString() & " " &
-                                                                              item.Tipo & " " &
-                                                                              If(item.Referencia IsNot Nothing, item.Referencia.ToString(), "") & " " &
-                                                                              item.Origen & " " &
-                                                                              item.Asunto & " " &
-                                                                              item.Descripcion & " " &
-                                                                              item.RefPadre & " " &
-                                                                              item.Ubicacion).ToString().ToUpper()
+                                                  item.Tipo & " " &
+                                                  If(item.Referencia IsNot Nothing, item.Referencia.ToString(), "") & " " &
+                                                  item.Origen & " " &
+                                                  item.Asunto & " " &
+                                                  item.Descripcion & " " &
+                                                  item.RefPadre & " " &
+                                                  item.Ubicacion).ToString().ToUpper()
 
                                                  Dim cumpleTodas As Boolean = True
                                                  For Each palabra In palabrasClave
@@ -256,7 +271,7 @@ Public Class frmBandeja
         dgvPendientes.AutoGenerateColumns = True
         dgvPendientes.Columns.Clear()
         dgvPendientes.DataSource = resultado
-        DiseñarColumnas() ' Aplicamos tu diseño visual
+        DiseñarColumnas()
         dgvPendientes.ClearSelection()
         If dgvPendientes.RowCount > 0 Then
             dgvPendientes.Rows(0).Selected = True
@@ -316,7 +331,7 @@ Public Class frmBandeja
         ' 1. DEFINIR COLUMNAS QUE QUEREMOS VER
         Dim columnasVisibles As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
             "ID",
-            "Vencimiento", ' <--- Asegúrate que esté aquí
+            "Vencimiento",
             "Tipo",
             "Referencia",
             "Fecha",
@@ -328,8 +343,7 @@ Public Class frmBandeja
             "Observaciones"
         }
 
-        ' 2. OCULTAR COLUMNAS TÉCNICAS O NO DESEADAS
-        ' (Es mejor ocultar primero todo lo que no esté en la lista)
+        ' 2. OCULTAR COLUMNAS TÉCNICAS
         For Each columna As DataGridViewColumn In dgvPendientes.Columns
             If Not columnasVisibles.Contains(columna.Name) Then
                 columna.Visible = False
@@ -338,21 +352,18 @@ Public Class frmBandeja
 
         ' 3. CONFIGURAR COLUMNAS ESPECÍFICAS
         With dgvPendientes
-            ' Configuración ID
             .Columns("ID").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("ID").HeaderText = "ID"
             .Columns("ID").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             .Columns("ID").Visible = True
 
-            ' --- CONFIGURACIÓN DE VENCIMIENTO (EL PROBLEMA) ---
             If .Columns.Contains("Vencimiento") Then
                 With .Columns("Vencimiento")
-                    .Visible = True ' <--- FORZAR VISIBILIDAD
+                    .Visible = True
                     .HeaderText = "Vence"
                     .DefaultCellStyle.Format = "dd/MM"
                     .AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
                     .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
-                    ' Intentamos moverla al principio con seguridad
                     Try
                         .DisplayIndex = 1
                     Catch
@@ -360,38 +371,31 @@ Public Class frmBandeja
                 End With
             End If
 
-            ' Configuración Tipo
             .Columns("Tipo").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Tipo").HeaderText = "Tipo"
             .Columns("Tipo").Visible = True
 
-            ' Configuración Referencia
             .Columns("Referencia").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Referencia").HeaderText = "Referencia"
             .Columns("Referencia").DefaultCellStyle.Font = New Font(dgvPendientes.Font, FontStyle.Bold)
             .Columns("Referencia").DisplayIndex = 3
             .Columns("Referencia").Visible = True
 
-            ' Configuración Fecha
             .Columns("Fecha").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy"
             .Columns("Fecha").Visible = True
 
-            ' Configuración Estado
             .Columns("Estado").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Estado").Visible = True
 
-            ' Configuración Origen
             .Columns("Origen").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Origen").HeaderText = "Origen"
             .Columns("Origen").Visible = True
 
-            ' Configuración Ubicación
             .Columns("Ubicacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
             .Columns("Ubicacion").HeaderText = "Ubicación"
             .Columns("Ubicacion").Visible = True
 
-            ' Configuración Asunto
             If .Columns.Contains("Asunto") Then
                 .Columns("Asunto").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 .Columns("Asunto").MinimumWidth = 220
@@ -462,7 +466,6 @@ Public Class frmBandeja
         Dim colorActivo As Color = AppTheme.Palette.Primary
         Dim colorTextoActivo As Color = Color.White
 
-        ' 1. BOTONES DE GESTIÓN
         Dim habilitarPase As Boolean = haySeleccion AndAlso ((esMio And esBandejaEntrada) OrElse (Not esBandejaEntrada))
         ConfigurarEstadoBoton(btnDarPase, habilitarPase, colorActivo, colorTextoActivo, bgApagado, fgApagado)
 
@@ -472,7 +475,6 @@ Public Class frmBandeja
         ConfigurarEstadoBoton(btnHistorial, haySeleccion, colorActivo, colorTextoActivo, bgApagado, fgApagado)
         ConfigurarEstadoBoton(btnDesvincular, haySeleccion And esMio And esHijo, colorActivo, colorTextoActivo, bgApagado, fgApagado)
 
-        ' 2. BOTÓN NUEVO INGRESO
         btnNuevoIngreso.Text = "➕ NUEVO INGRESO"
         btnNuevoIngreso.BackColor = Color.ForestGreen
         btnNuevoIngreso.ForeColor = Color.White
@@ -540,7 +542,6 @@ Public Class frmBandeja
     End Sub
 
     Private Async Sub btnDarPase_Click(sender As Object, e As EventArgs) Handles btnDarPase.Click
-        ' [VALIDACIONES INICIALES IGUAL QUE SIEMPRE...]
         If dgvPendientes.SelectedRows.Count = 0 Then
             Notifier.Warn(Me, "Seleccione el documento.")
             Return
@@ -555,7 +556,6 @@ Public Class frmBandeja
         Using uow As New UnitOfWork()
             Dim docRepo = uow.Repository(Of Mae_Documento)()
 
-            ' [OBTENER DOCS - IGUAL QUE SIEMPRE]
             Dim docSeleccionado = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idDoc)
             If docSeleccionado Is Nothing Then Return
 
@@ -563,32 +563,24 @@ Public Class frmBandeja
             Dim docPadre = Await docRepo.GetQueryable(tracking:=True).FirstOrDefaultAsync(Function(d) d.IdDocumento = idPadreReal)
             If docPadre Is Nothing Then Return
 
-            ' =========================================================================
-            ' 🧠 LÓGICA 4.0: PRINCIPIO DE NOVEDAD
-            ' =========================================================================
             Dim preguntarPorRespuesta As Boolean = True
             Dim miOficinaId = SesionGlobal.OficinaID
 
-            ' 1. Obtener el ÚLTIMO documento creado en el hilo (Contenido)
             Dim ultimoDocCreado = Await docRepo.GetQueryable() _
                                             .Where(Function(d) d.IdHiloConversacion = docPadre.IdHiloConversacion) _
                                             .OrderByDescending(Function(d) d.FechaCreacion) _
                                             .FirstOrDefaultAsync()
 
-            ' 2. Obtener el ÚLTIMO movimiento del Padre (La Carpeta)
             Dim ultimoMovimientoPadre = Await uow.Context.Set(Of Tra_Movimiento)() _
                                             .Where(Function(m) m.IdDocumento = idPadreReal) _
                                             .OrderByDescending(Function(m) m.FechaMovimiento) _
                                             .FirstOrDefaultAsync()
 
-            ' 3. Contar movimientos para detectar "Expedientes Nuevos" (Recién nacidos)
             Dim cantidadMovimientos As Integer = Await uow.Context.Set(Of Tra_Movimiento)() _
                                             .CountAsync(Function(m) m.IdDocumento = idPadreReal)
 
 
             If ultimoDocCreado IsNot Nothing Then
-                ' A. Chequeamos ORIGEN (¿Lo último lo escribí yo?)
-                ' Buscamos el primer movimiento de ESE documento específico para saber su autor real
                 Dim movCreacionUltimoDoc = Await uow.Context.Set(Of Tra_Movimiento)() _
                                             .Where(Function(m) m.IdDocumento = ultimoDocCreado.IdDocumento) _
                                             .OrderBy(Function(m) m.FechaMovimiento) _
@@ -597,35 +589,18 @@ Public Class frmBandeja
                 Dim soyElAutor As Boolean = (movCreacionUltimoDoc IsNot Nothing AndAlso movCreacionUltimoDoc.IdOficinaOrigen = miOficinaId)
 
                 If soyElAutor Then
-                    ' B. Chequeamos TEMPORALIDAD (¿Es nuevo o viejo?)
-
                     If cantidadMovimientos <= 1 Then
-                        ' CASO 1: Es un documento NUEVO (recién creado, 1 movimiento).
-                        ' Si yo lo creé y es nuevo -> No me pregunto a mí mismo.
                         preguntarPorRespuesta = False
-
                     ElseIf ultimoMovimientoPadre IsNot Nothing AndAlso ultimoDocCreado.FechaCreacion >= ultimoMovimientoPadre.FechaMovimiento Then
-                        ' CASO 2: RESPUESTA RECIENTE.
-                        ' Creé el documento DESPUÉS (o al mismo tiempo) de que la carpeta se moviera por última vez.
-                        ' Significa que ya actué sobre lo que llegó.
                         preguntarPorRespuesta = False
-
                     Else
-                        ' CASO 3: ARCHIVO / RETORNO / ACTUACIÓN VIEJA.
-                        ' Yo fui el último en escribir, PERO la carpeta se movió DESPUÉS de eso (ej. vino del Archivo).
-                        ' Entonces lo que escribí es "noticia vieja". Debo preguntar si quiero actuar de nuevo.
                         preguntarPorRespuesta = True
                     End If
-
                 Else
-                    ' Si el último documento NO es mío (viene de afuera) -> SIEMPRE PREGUNTAR.
                     preguntarPorRespuesta = True
                 End If
             End If
 
-            ' =========================================================================
-            ' 🗣️ INTERACCIÓN
-            ' =========================================================================
             If preguntarPorRespuesta Then
                 Dim hilo = docPadre.IdHiloConversacion
                 Dim ultimoHijo = Await docRepo.GetQueryable().Where(Function(d) d.IdHiloConversacion = hilo And d.IdDocumento <> docPadre.IdDocumento And d.IdEstadoActual <> 5).OrderByDescending(Function(d) d.FechaCreacion).FirstOrDefaultAsync()
@@ -658,22 +633,16 @@ Public Class frmBandeja
                 End If
             End If
 
-            ' =========================================================================
-            ' 🚀 PASE DIRECTO
-            ' =========================================================================
             Await AbrirPaseAsync(idPadreReal)
         End Using
     End Sub
 
     Private Sub btnVincular_Click(sender As Object, e As EventArgs) Handles btnVincular.Click
-        ' Preparamos un ID sugerido si hay selección, pero no es obligatorio
         Dim idSugerido As Long = 0
         If dgvPendientes.SelectedRows.Count > 0 Then
             idSugerido = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
         End If
 
-        ' Abrimos el nuevo formulario de vinculación manual
-        ' Le pasamos el ID seleccionado para que lo pre-complete en el campo "Hijo"
         Dim fVincular As New frmVincular(idSugerido)
         AddHandler fVincular.FormClosed, Async Sub(sender2, args2)
                                              If fVincular.DialogResult = DialogResult.OK Then
@@ -720,26 +689,15 @@ Public Class frmBandeja
         Await CargarGrillaAsync()
     End Sub
 
-    ' =========================================================================
-    ' NUEVO INGRESO (MODIFICADO PARA MDI ASÍNCRONO)
-    ' =========================================================================
     Private Sub btnNuevoIngreso_Click(sender As Object, e As EventArgs) Handles btnNuevoIngreso.Click
         Dim fNuevo As New frmMesaEntrada()
-
-        ' 1. Asignamos el Padre MDI para mantenerlo dentro del contenedor
         fNuevo.MdiParent = Me.MdiParent
         fNuevo.WindowState = FormWindowState.Maximized
 
-        ' 2. MANEJO DE CIERRE:
-        ' Como usamos .Show() (no bloqueante), usamos el evento FormClosed
-        ' para recargar la grilla solo cuando el usuario termine.
         AddHandler fNuevo.FormClosed, Async Sub(s, args)
                                           Await CargarGrillaAsync()
-                                          ' Aseguramos que la bandeja recupere el foco maximizado
                                           Me.WindowState = FormWindowState.Maximized
                                       End Sub
-
-        ' 3. Mostrar formulario de forma no modal
         fNuevo.Show()
     End Sub
 
@@ -747,7 +705,6 @@ Public Class frmBandeja
         If dgvPendientes.SelectedRows.Count = 0 Then Return
         Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
 
-        ' VARIABLES PARA MANEJO DE ERROR FUERA DEL CATCH
         Dim huboError As Boolean = False
         Dim mensajeError As String = ""
 
@@ -802,7 +759,6 @@ Public Class frmBandeja
                     Return
                 End If
 
-                ' Tomamos la decisión ANTES de ejecutar cambios de estado para mantener el flujo atómico.
                 Dim deseaCargarActuacion As Boolean =
                     MessageBox.Show("¿Desea cargar una ACTUACIÓN FÍSICA ahora?", "Digitalizar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes
 
@@ -824,27 +780,22 @@ Public Class frmBandeja
                 AuditoriaSistema.RegistrarEvento($"Recepción de paquete desde {nombreOficinaRemota}. Docs: {totalDocs}. Exp: {docPadreNumero}.", "RECEPCION")
 
                 If deseaCargarActuacion Then
-                    ' IMPORTANTE: Asegúrate de que frmMesaEntrada tenga el constructor adecuado (4 parámetros)
                     Dim fRespuesta As New frmMesaEntrada(idPadreReal, docPadreHilo, docPadreAsunto, idOficinaOrigen)
                     ShowFormInMdi(Me, fRespuesta, AddressOf RecargarAlCerrarAsync)
                 End If
             End Using
 
-            ' ✅ ÉXITO: Cargamos grilla dentro del flujo normal
             Await CargarGrillaAsync()
 
         Catch ex As Exception
-            ' ⚡ CAPTURA: No usamos Await aquí dentro para evitar el error del compilador
             huboError = True
             mensajeError = ex.Message
         End Try
 
-        ' 🔄 RECUPERACIÓN: Ejecutamos el Await fuera del bloque Catch
         If huboError Then
             Notifier.[Error]("Error crítico al intentar recibir: " & mensajeError)
             Await CargarGrillaAsync()
         End If
-
     End Function
 
     Private Sub btnHistorial_Click(sender As Object, e As EventArgs) Handles btnHistorial.Click
@@ -872,7 +823,6 @@ Public Class frmBandeja
     End Sub
 
     Private Async Sub btnDesvincular_Click(sender As Object, e As EventArgs) Handles btnDesvincular.Click
-        ' 1. VALIDACIÓN: ¿HAY ALGO SELECCIONADO?
         If dgvPendientes.SelectedRows.Count = 0 Then
             Notifier.Warn("Seleccione el documento a desvincular (sacar de la familia).")
             Return
@@ -888,18 +838,15 @@ Public Class frmBandeja
                 Return
             End If
 
-            ' 2. VALIDACIÓN: ¿REALMENTE ES UN HIJO?
             If Not doc.IdDocumentoPadre.HasValue Then
                 Notifier.Warn("Este documento YA es independiente (no tiene padre)." & vbCrLf &
                                "No se puede desvincular.")
                 Return
             End If
 
-            ' Obtenemos datos del padre para el mensaje
             Dim padre = Await docRepo.GetQueryable().FirstOrDefaultAsync(Function(d) d.IdDocumento = doc.IdDocumentoPadre.Value)
             Dim nombrePadre As String = If(padre IsNot Nothing, padre.NumeroOficial, "Desconocido")
 
-            ' 3. CONFIRMACIÓN DE SEGURIDAD
             Dim mensajeConfirmacion As String =
                 "¿Está seguro de DESVINCULAR (Sacar) el documento " & doc.NumeroOficial & " (ID " & doc.IdDocumento & ")" & vbCrLf &
                 "del expediente " & nombrePadre & " (ID " & doc.IdDocumentoPadre.Value & ")?" & vbCrLf & vbCrLf &
@@ -910,21 +857,16 @@ Public Class frmBandeja
             If MessageBox.Show(mensajeConfirmacion,
                                "Confirmar Desvinculación", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
 
-                ' 4. EJECUCIÓN: ROMPER CADENAS
                 doc.IdDocumentoPadre = Nothing
-
-                ' IMPORTANTE: Le damos un nuevo ADN (Hilo) para que su historia se separe de la familia anterior
                 Dim nuevoHilo As Guid = Guid.NewGuid()
                 doc.IdHiloConversacion = nuevoHilo
 
-                ' 5. GESTIÓN DE ARRASTRE (Si este hijo tenía sus propios sub-adjuntos, se los lleva con él)
                 Dim susHijos = Await docRepo.GetQueryable(tracking:=True).Where(Function(h) h.IdDocumentoPadre = doc.IdDocumento).ToListAsync()
                 For Each hijo In susHijos
                     hijo.IdHiloConversacion = nuevoHilo
                 Next
 
                 Await uow.CommitAsync()
-
                 AuditoriaSistema.RegistrarEvento($"Documento {doc.NumeroOficial} independizado del exp {nombrePadre}.", "DESVINCULACION")
                 Notifier.Success("✅ Documento independizado correctamente.")
 
@@ -932,60 +874,34 @@ Public Class frmBandeja
             End If
         End Using
     End Sub
-    ' =======================================================
-    ' EVENTO: DOBLE CLIC PARA VER DETALLE
-    ' =======================================================
+
     Private Sub dgvPendientes_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvPendientes.CellDoubleClick
-        ' Validamos que el clic sea en una fila válida (no en la cabecera)
         If e.RowIndex < 0 Then Return
-
-        ' Obtenemos el ID del documento seleccionado
         Dim idDoc As Long = CLng(dgvPendientes.Rows(e.RowIndex).Cells("ID").Value)
-
-        ' Instanciamos el formulario de detalle
         Dim fDetalle As New frmDetalleDocumento(idDoc)
-
-        ' Abrirlo como ventana MDI cuando el formulario principal soporte MDI.
         ShowFormInMdi(Me, fDetalle)
     End Sub
-    ' En frmBandeja.vb
 
     Private Sub dgvPendientes_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles dgvPendientes.CellFormatting
         If e.RowIndex < 0 Then Return
-
-        ' Verificar si la columna existe para evitar errores
         If Not dgvPendientes.Columns.Contains("Semaforo") Then Return
 
-        ' Solo aplicamos lógica a la columna "Vencimiento"
         If dgvPendientes.Columns(e.ColumnIndex).Name = "Vencimiento" Then
-
             Dim semaforo As String = Convert.ToString(dgvPendientes.Rows(e.RowIndex).Cells("Semaforo").Value)
-
             Select Case semaforo
                 Case "ROJO"
-                    ' Estado Normal
                     e.CellStyle.BackColor = Color.Salmon
                     e.CellStyle.ForeColor = Color.White
-
-                    ' Estado SELECCIONADO (El truco es usar un rojo más oscuro)
                     e.CellStyle.SelectionBackColor = Color.DarkRed
                     e.CellStyle.SelectionForeColor = Color.White
-
                 Case "AMARILLO"
-                    ' Estado Normal
                     e.CellStyle.BackColor = Color.Gold
                     e.CellStyle.ForeColor = Color.Black
-
-                    ' Estado SELECCIONADO (Usamos un dorado oscuro o naranja)
                     e.CellStyle.SelectionBackColor = Color.Goldenrod
                     e.CellStyle.SelectionForeColor = Color.Black
-
                 Case "VERDE"
-                    ' Estado Normal
                     e.CellStyle.BackColor = Color.LightGreen
                     e.CellStyle.ForeColor = Color.DarkGreen
-
-                    ' Estado SELECCIONADO (Usamos un verde fuerte)
                     e.CellStyle.SelectionBackColor = Color.Green
                     e.CellStyle.SelectionForeColor = Color.White
             End Select

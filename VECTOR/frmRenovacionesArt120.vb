@@ -624,6 +624,11 @@ Public Class frmRenovacionesArt120
         RefrescarListaDocumentosSeleccionados()
     End Sub
 
+    Private Function ConstruirTextoSugeridoDocumento(idDocumento As Long, tipoDocumento As String) As String
+        Dim tipo = If(String.IsNullOrWhiteSpace(tipoDocumento), "DOC", tipoDocumento.ToUpper())
+        Return $"ID {idDocumento} {tipo}"
+    End Function
+
     Private Sub RefrescarListaDocumentosSeleccionados()
         Dim lista = _documentosSeleccionados _
             .OrderBy(Function(d) d.Texto) _
@@ -707,8 +712,7 @@ Public Class frmRenovacionesArt120
                 _documentosDisponibles = New List(Of DocumentoRespaldoDto)()
 
                 For Each doc In docsIds
-                    Dim tipo = If(String.IsNullOrWhiteSpace(doc.Tipo), "DOC", doc.Tipo.ToUpper())
-                    Dim etiqueta = $"ID {doc.IdDocumento} {tipo}"
+                    Dim etiqueta = ConstruirTextoSugeridoDocumento(doc.IdDocumento, doc.Tipo)
 
                     _documentosDisponibles.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = doc.IdDocumento,
@@ -748,7 +752,7 @@ Public Class frmRenovacionesArt120
                 Else
                     _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = idSeleccionado.Value,
-                        .Texto = $"Documento {idSeleccionado.Value}"
+                        .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
                     })
                 End If
             End If
@@ -771,7 +775,7 @@ Public Class frmRenovacionesArt120
                                     If encontrado IsNot Nothing Then Return encontrado
                                     Return New DocumentoRespaldoDto With {
                                         .IdDocumento = id,
-                                        .Texto = $"Documento {id}"
+                                        .Texto = ConstruirTextoSugeridoDocumento(id, Nothing)
                                     }
                                 End Function) _
                         .ToList()
@@ -783,7 +787,7 @@ Public Class frmRenovacionesArt120
                         Else
                             _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                                 .IdDocumento = idSeleccionado.Value,
-                                .Texto = $"Documento {idSeleccionado.Value}"
+                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
                             })
                         End If
                     End If
@@ -796,7 +800,7 @@ Public Class frmRenovacionesArt120
                         Else
                             _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                                 .IdDocumento = idSeleccionado.Value,
-                                .Texto = $"Documento {idSeleccionado.Value}"
+                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
                             })
                         End If
                     End If
@@ -807,7 +811,7 @@ Public Class frmRenovacionesArt120
             If idSeleccionado.HasValue Then
                 _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                     .IdDocumento = idSeleccionado.Value,
-                    .Texto = $"Documento {idSeleccionado.Value}"
+                    .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
                 })
             End If
             Notifier.Warn(Me, "No se pudo cargar la lista de documentos respaldo: " & ex.Message)
@@ -1016,7 +1020,7 @@ Public Class frmRenovacionesArt120
         If doc Is Nothing Then
             doc = New DocumentoRespaldoDto With {
                 .IdDocumento = idDoc.Value,
-                .Texto = $"Documento {idDoc.Value}"
+                .Texto = ConstruirTextoSugeridoDocumento(idDoc.Value, Nothing)
             }
         End If
 

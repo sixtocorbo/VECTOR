@@ -28,10 +28,6 @@ Public Class frmBandeja
         Try
             AppTheme.Aplicar(Me)
             ' Configuración inicial
-            ConfigurarGrilla()
-
-            ' Acomodamos solo el panel superior (Buscador)
-            AplicarLayoutResponsivo()
 
             UIUtils.SetPlaceholder(txtBuscar, "Buscar por Nombre, ID, Tipo, etc...")
 
@@ -49,9 +45,6 @@ Public Class frmBandeja
             _fontNormal = dgvPendientes.Font
             _fontItalic = New Font(dgvPendientes.Font, FontStyle.Italic)
 
-            ' Reaplicar layout cuando el formulario ya quedó maximizado dentro del MDI
-            AplicarLayoutResponsivo()
-
             ConfigurarBotones(False, False, False, False)
             Await CargarGrillaAsync()
         Catch ex As Exception
@@ -60,19 +53,6 @@ Public Class frmBandeja
         End Try
     End Sub
 
-    ' =========================================================================
-    ' LÓGICA RESPONSIVA (CORREGIDA)
-    ' =========================================================================
-
-    Private Sub frmBandeja_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
-        AplicarLayoutResponsivo()
-    End Sub
-
-    Private Sub ConfigurarGrilla()
-        dgvPendientes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-        dgvPendientes.BackgroundColor = Color.WhiteSmoke
-        dgvPendientes.BorderStyle = BorderStyle.None
-    End Sub
 
     ' Recalcula y ancla los botones inferiores para evitar que queden fuera de vista
     ' cuando el formulario se maximiza dentro del contenedor MDI.
@@ -98,42 +78,6 @@ Public Class frmBandeja
         ' 2. Botón de la IZQUIERDA (Refrescar)
         btnRefrescar.Location = New Point(18, topPos)
         btnRefrescar.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left
-    End Sub
-
-    Private Sub AplicarLayoutResponsivo()
-        ' Evitar errores si el formulario está minimizado o cerrándose
-        If Me.WindowState = FormWindowState.Minimized Then Return
-        If PanelSuperior.ClientSize.Width <= 0 Then Return
-
-        Dim margen As Integer = 10
-        Dim anchoTotal As Integer = PanelSuperior.ClientSize.Width
-
-        PanelSuperior.SuspendLayout()
-
-        ' --- 1. ACOMODAR PANEL SUPERIOR (Solo movemos esto manualmente) ---
-
-        ' A. Posicionar Renovaciones (Pegado a la derecha)
-        btnRenovacionesArt120.Location = New Point(anchoTotal - btnRenovacionesArt120.Width - margen, 52)
-        btnRenovacionesArt120.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-        ' B. Posicionar Dar Pase (A la izquierda de Renovaciones)
-        btnDarPase.Location = New Point(btnRenovacionesArt120.Left - btnDarPase.Width - margen, 52)
-        btnDarPase.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-        ' C. Posicionar Nuevo Ingreso (A la izquierda de Dar Pase)
-        btnNuevoIngreso.Location = New Point(btnDarPase.Left - btnNuevoIngreso.Width - margen, 52)
-        btnNuevoIngreso.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-        ' D. Ajustar el Buscador para que no choque (Ancho dinámico)
-        Dim limiteDerechoBuscador As Integer = btnNuevoIngreso.Left - 20
-        If limiteDerechoBuscador > 93 Then
-            txtBuscar.Width = limiteDerechoBuscador - 93
-        End If
-
-        ' --- 2. ACOMODAR PANEL INFERIOR ---
-        AjustarLayoutInferior()
-
-        PanelSuperior.ResumeLayout()
     End Sub
 
     Private Sub frmBandeja_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed

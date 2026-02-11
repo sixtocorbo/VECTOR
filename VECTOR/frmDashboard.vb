@@ -84,6 +84,7 @@ Public Class frmDashboard
         ' Configuración UI
         ConfigurarEstilosIniciales()
         AplicarLayoutResponsivo(force:=True)
+        SetNavCollapsedState(True)
 
         ' Cargar datos del usuario
         ConfigurarInfoSesion()
@@ -91,7 +92,9 @@ Public Class frmDashboard
         ' Eventos de Mouse para Animación "Peek"
         AddHandler panelNavegacion.MouseEnter, AddressOf panelNavegacion_MouseEnter
         AddHandler panelNavegacion.MouseLeave, AddressOf panelNavegacion_MouseLeave
+        AddHandler panelNavegacion.Leave, AddressOf panelNavegacion_Leave
         AddHandler panelContenido.MouseEnter, AddressOf panelContenido_MouseEnter
+        AddHandler panelContenido.Enter, AddressOf panelContenido_Enter
 
         ' Eventos extra
         AddHandler panelLogo.Click, AddressOf ToggleNav
@@ -102,6 +105,8 @@ Public Class frmDashboard
         For Each b In NavButtons()
             AddHandler b.MouseEnter, AddressOf panelNavegacion_MouseEnter
             AddHandler b.MouseLeave, AddressOf panelNavegacion_MouseLeave
+            AddHandler b.Enter, AddressOf panelNavegacion_MouseEnter
+            AddHandler b.Leave, AddressOf panelNavegacion_MouseLeave
         Next
 
         ' Abrir Inicio
@@ -305,6 +310,10 @@ Public Class frmDashboard
         If _hoverExpanded Then _hoverOutTimer.Start()
     End Sub
 
+    Private Sub panelNavegacion_Leave(sender As Object, e As EventArgs)
+        If _hoverExpanded Then _hoverOutTimer.Start()
+    End Sub
+
     Private Sub HoverOutTimer_Tick(sender As Object, e As EventArgs) Handles _hoverOutTimer.Tick
         If Not _hoverExpanded Then
             _hoverOutTimer.Stop()
@@ -313,13 +322,17 @@ Public Class frmDashboard
 
         ' Verificar coordenadas reales
         Dim r As New Rectangle(panelNavegacion.PointToScreen(Point.Empty), panelNavegacion.Size)
-        If Not r.Contains(Cursor.Position) Then
+        If Not r.Contains(Cursor.Position) AndAlso Not panelNavegacion.ContainsFocus Then
             _hoverOutTimer.Stop()
             CollapsePeekAnimated()
         End If
     End Sub
 
     Private Sub panelContenido_MouseEnter(sender As Object, e As EventArgs)
+        If _hoverExpanded Then CollapsePeekAnimated()
+    End Sub
+
+    Private Sub panelContenido_Enter(sender As Object, e As EventArgs)
         If _hoverExpanded Then CollapsePeekAnimated()
     End Sub
 

@@ -52,10 +52,14 @@ Public Class frmRenovacionesArt120
             Dim diasConfigurados = Await ConfiguracionSistemaService.ObtenerDiasAlertaRenovacionesAsync()
             Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), diasConfigurados))
             nudDiasAlerta.Value = dias
+
+            Dim mostrarSoloActivas = Await ConfiguracionSistemaService.ObtenerMostrarSoloActivasPorDefectoRenovacionesAsync()
+            chkSoloActivas.Checked = mostrarSoloActivas
         Catch ex As Exception
             Dim dias = Math.Max(CInt(nudDiasAlerta.Minimum), Math.Min(CInt(nudDiasAlerta.Maximum), ConfiguracionSistemaService.DiasAlertaRenovacionesPorDefecto))
             nudDiasAlerta.Value = dias
-            Toast.Show(Me, "No se pudo cargar la configuración de alertas. Se usará 30 días por defecto.", ToastType.Warning)
+            chkSoloActivas.Checked = ConfiguracionSistemaService.MostrarSoloActivasPorDefectoRenovacionesPorDefecto
+            Toast.Show(Me, "No se pudo cargar la configuración de alertas. Se usarán valores por defecto.", ToastType.Warning)
         End Try
     End Function
 
@@ -914,6 +918,15 @@ Public Class frmRenovacionesArt120
         Catch ex As Exception
             Toast.Show(Me, "No se pudo abrir la documentación: " & ex.Message, ToastType.Error)
         End Try
+    End Sub
+
+    Private Async Sub btnConfigurarRenovaciones_Click(sender As Object, e As EventArgs) Handles btnConfigurarRenovaciones.Click
+        Using f As New frmConfiguracionSistema()
+            If f.ShowDialog(Me) = DialogResult.OK Then
+                Await CargarConfiguracionDiasAlertaAsync()
+                Await CargarSalidasAsync()
+            End If
+        End Using
     End Sub
 
 End Class

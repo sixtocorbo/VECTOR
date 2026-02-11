@@ -23,6 +23,7 @@ Partial Class frmRenovacionesArt120
         Me.btnEditar = New System.Windows.Forms.Button()
         Me.btnNueva = New System.Windows.Forms.Button()
         Me.btnAbrirDocumento = New System.Windows.Forms.Button()
+        Me.btnConfigurarRenovaciones = New System.Windows.Forms.Button()
         Me.chkSoloActivas = New System.Windows.Forms.CheckBox()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
@@ -67,6 +68,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelFiltros.Controls.Add(Me.btnEditar)
         Me.PanelFiltros.Controls.Add(Me.btnNueva)
         Me.PanelFiltros.Controls.Add(Me.btnAbrirDocumento)
+        Me.PanelFiltros.Controls.Add(Me.btnConfigurarRenovaciones)
         Me.PanelFiltros.Controls.Add(Me.chkSoloActivas)
         Me.PanelFiltros.Controls.Add(Me.nudDiasAlerta)
         Me.PanelFiltros.Controls.Add(Me.lblDiasAlerta)
@@ -143,6 +145,18 @@ Partial Class frmRenovacionesArt120
         Me.btnAbrirDocumento.TabIndex = 4
         Me.btnAbrirDocumento.Text = "Documentación"
         Me.btnAbrirDocumento.UseVisualStyleBackColor = False
+        '
+        'btnConfigurarRenovaciones
+        '
+        Me.btnConfigurarRenovaciones.BackColor = System.Drawing.Color.MediumSlateBlue
+        Me.btnConfigurarRenovaciones.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnConfigurarRenovaciones.ForeColor = System.Drawing.Color.White
+        Me.btnConfigurarRenovaciones.Location = New System.Drawing.Point(620, 48)
+        Me.btnConfigurarRenovaciones.Name = "btnConfigurarRenovaciones"
+        Me.btnConfigurarRenovaciones.Size = New System.Drawing.Size(205, 32)
+        Me.btnConfigurarRenovaciones.TabIndex = 10
+        Me.btnConfigurarRenovaciones.Text = "Configurar..."
+        Me.btnConfigurarRenovaciones.UseVisualStyleBackColor = False
         '
         'chkSoloActivas
         '
@@ -487,6 +501,7 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents nudDiasAlerta As NumericUpDown
     Friend WithEvents lblDiasAlerta As Label
     Friend WithEvents btnAbrirDocumento As Button
+    Friend WithEvents btnConfigurarRenovaciones As Button
     Friend WithEvents btnNueva As Button
     Friend WithEvents btnEditar As Button
     Friend WithEvents btnDesactivar As Button

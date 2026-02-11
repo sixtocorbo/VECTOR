@@ -20,6 +20,11 @@ Public Class frmBandeja
     Private _cantAlertasArt120 As Integer = 0
     Private _cantVencidasArt120 As Integer = 0
     Private _ultimoResumenArt120 As String = ""
+    Private _cerrando As Boolean = False
+
+    Private Function FormularioDisponible() As Boolean
+        Return Not _cerrando AndAlso Not Me.IsDisposed AndAlso Not Me.Disposing AndAlso dgvPendientes IsNot Nothing AndAlso Not dgvPendientes.IsDisposed
+    End Function
 
     ' =======================================================
     ' CARGA INICIAL
@@ -104,6 +109,8 @@ Public Class frmBandeja
     End Sub
 
     Private Sub frmBandeja_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        _cerrando = True
+        _timerBusqueda.Stop()
         Me.ShowIcon = False
     End Sub
 
@@ -176,10 +183,15 @@ Public Class frmBandeja
             Await CargarAlertasSalidasArt120Async()
 
             ' E. MOSTRAMOS
+            If Not FormularioDisponible() Then Return
             AplicarFiltroRapido()
 
+        Catch ex As ObjectDisposedException
+            Return
         Catch ex As Exception
-            Notifier.[Error](Me, "Error al cargar datos: " & ex.Message)
+            If FormularioDisponible() Then
+                Notifier.[Error](Me, "Error al cargar datos: " & ex.Message)
+            End If
         End Try
     End Function
 
@@ -194,6 +206,7 @@ Public Class frmBandeja
     End Sub
 
     Private Sub AplicarFiltroRapido()
+        If Not FormularioDisponible() Then Return
         If _listaOriginal Is Nothing Then Return
 
         Dim textoBusqueda As String = txtBuscar.Text.ToUpper().Trim()
@@ -285,6 +298,7 @@ Public Class frmBandeja
     End Function
 
     Private Sub DiseñarColumnas()
+        If Not FormularioDisponible() Then Return
         If dgvPendientes.Columns.Count = 0 Then Return
 
         ' 1. DEFINIR COLUMNAS QUE QUEREMOS VER

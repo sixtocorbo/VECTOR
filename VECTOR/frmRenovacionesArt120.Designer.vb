@@ -82,7 +82,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelFiltros.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelFiltros.Location = New System.Drawing.Point(0, 0)
         Me.PanelFiltros.Name = "PanelFiltros"
-        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 215)
+        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 235)
         Me.PanelFiltros.TabIndex = 0
         '
         'btnReactivar
@@ -192,13 +192,13 @@ Partial Class frmRenovacionesArt120
         '
         'lblResumen
         '
-        Me.lblResumen.AutoSize = True
+        Me.lblResumen.AutoSize = False
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
-        Me.lblResumen.Location = New System.Drawing.Point(349, 12)
+        Me.lblResumen.Location = New System.Drawing.Point(71, 88)
         Me.lblResumen.Name = "lblResumen"
-        Me.lblResumen.Size = New System.Drawing.Size(155, 28)
-        Me.lblResumen.TabIndex = 0
+        Me.lblResumen.Size = New System.Drawing.Size(1050, 78)
+        Me.lblResumen.TabIndex = 11
         Me.lblResumen.Text = "Sin datos aún..."
         '
         'dgvSalidas
@@ -210,7 +210,7 @@ Partial Class frmRenovacionesArt120
         Me.dgvSalidas.BackgroundColor = System.Drawing.Color.White
         Me.dgvSalidas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvSalidas.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvSalidas.Location = New System.Drawing.Point(0, 215)
+        Me.dgvSalidas.Location = New System.Drawing.Point(0, 235)
         Me.dgvSalidas.MultiSelect = False
         Me.dgvSalidas.Name = "dgvSalidas"
         Me.dgvSalidas.ReadOnly = True

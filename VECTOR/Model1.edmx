@@ -202,6 +202,9 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="IdDocumentoRespaldo" Type="bigint" />
           <Property Name="Activo" Type="bit" />
           <Property Name="Observaciones" Type="varchar" MaxLength="500" />
+          <Property Name="Horario" Type="varchar" MaxLength="200" />
+          <Property Name="DetalleCustodia" Type="varchar" MaxLength="200" />
+          <Property Name="FechaNotificacionJuez" Type="datetime" />
         </EntityType>
         <EntityType Name="Tra_SalidasLaboralesDocumentoRespaldo">
           <Key>
@@ -1186,6 +1189,9 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <NavigationProperty Name="Mae_Documento" Relationship="SecretariaDBModel.FK_Salidas_Documento" FromRole="Tra_SalidasLaborales" ToRole="Mae_Documento" />
           <NavigationProperty Name="Mae_Reclusos" Relationship="SecretariaDBModel.FK_Salidas_Reclusos" FromRole="Tra_SalidasLaborales" ToRole="Mae_Reclusos" />
           <NavigationProperty Name="Tra_SalidasLaboralesDocumentoRespaldo" Relationship="SecretariaDBModel.FK_Tra_SalidasLaboralesDocumentoRespaldo_Tra_SalidasLaborales" FromRole="Tra_SalidasLaborales" ToRole="Tra_SalidasLaboralesDocumentoRespaldo" />
+          <Property Name="Horario" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="DetalleCustodia" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="FechaNotificacionJuez" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_Salidas_Documento">
           <End Type="SecretariaDBModel.Mae_Documento" Role="Mae_Documento" Multiplicity="0..1" />
@@ -1471,6 +1477,9 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySetMapping Name="Tra_SalidasLaborales">
             <EntityTypeMapping TypeName="SecretariaDBModel.Tra_SalidasLaborales">
               <MappingFragment StoreEntitySet="Tra_SalidasLaborales">
+                <ScalarProperty Name="FechaNotificacionJuez" ColumnName="FechaNotificacionJuez" />
+                <ScalarProperty Name="DetalleCustodia" ColumnName="DetalleCustodia" />
+                <ScalarProperty Name="Horario" ColumnName="Horario" />
                 <ScalarProperty Name="Observaciones" ColumnName="Observaciones" />
                 <ScalarProperty Name="Activo" ColumnName="Activo" />
                 <ScalarProperty Name="IdDocumentoRespaldo" ColumnName="IdDocumentoRespaldo" />

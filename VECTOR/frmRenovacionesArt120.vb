@@ -28,6 +28,7 @@ Public Class frmRenovacionesArt120
     Private Class DocumentoRespaldoDto
         Public Property IdDocumento As Long
         Public Property Texto As String
+        Public Property Asunto As String
         ' Esto obliga al ListBox a mostrar el texto limpio en lugar del nombre de la clase
         Public Overrides Function ToString() As String
             Return Texto
@@ -598,6 +599,7 @@ Public Class frmRenovacionesArt120
         dtpFechaNotificacion.Value = Date.Today
         CargarDocumentosRespaldoVacio()
         LimpiarDocumentosSeleccionados()
+        txtDocumentoDescripcion.Clear()
         txtObservaciones.Clear()
     End Sub
 
@@ -651,6 +653,18 @@ Public Class frmRenovacionesArt120
         lstDocumentosRespaldo.DataSource = lista
 
         btnQuitarDocumento.Enabled = (lista.Count > 0)
+        ActualizarAsuntoDocumentoSeleccionado()
+    End Sub
+
+    Private Sub ActualizarAsuntoDocumentoSeleccionado()
+        Dim docSeleccionado = TryCast(lstDocumentosRespaldo.SelectedItem, DocumentoRespaldoDto)
+
+        If docSeleccionado Is Nothing OrElse String.IsNullOrWhiteSpace(docSeleccionado.Asunto) Then
+            txtDocumentoDescripcion.Clear()
+            Return
+        End If
+
+        txtDocumentoDescripcion.Text = docSeleccionado.Asunto.Trim()
     End Sub
 
     Private Function ObtenerDocumentoPrincipalSeleccionado() As Nullable(Of Long)
@@ -723,7 +737,8 @@ Public Class frmRenovacionesArt120
 
                     _documentosDisponibles.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = doc.IdDocumento,
-                        .Texto = etiqueta
+                        .Texto = etiqueta,
+                        .Asunto = doc.Asunto
                     })
 
                     listaCombo.Add(New With {
@@ -759,7 +774,8 @@ Public Class frmRenovacionesArt120
                 Else
                     _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                         .IdDocumento = idSeleccionado.Value,
-                        .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
+                        .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing),
+                        .Asunto = Nothing
                     })
                 End If
             End If
@@ -782,7 +798,8 @@ Public Class frmRenovacionesArt120
                                     If encontrado IsNot Nothing Then Return encontrado
                                     Return New DocumentoRespaldoDto With {
                                         .IdDocumento = id,
-                                        .Texto = ConstruirTextoSugeridoDocumento(id, Nothing)
+                                        .Texto = ConstruirTextoSugeridoDocumento(id, Nothing),
+                                        .Asunto = Nothing
                                     }
                                 End Function) _
                         .ToList()
@@ -794,7 +811,8 @@ Public Class frmRenovacionesArt120
                         Else
                             _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                                 .IdDocumento = idSeleccionado.Value,
-                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
+                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing),
+                                .Asunto = Nothing
                             })
                         End If
                     End If
@@ -807,7 +825,8 @@ Public Class frmRenovacionesArt120
                         Else
                             _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                                 .IdDocumento = idSeleccionado.Value,
-                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
+                                .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing),
+                                .Asunto = Nothing
                             })
                         End If
                     End If
@@ -818,7 +837,8 @@ Public Class frmRenovacionesArt120
             If idSeleccionado.HasValue Then
                 _documentosSeleccionados.Add(New DocumentoRespaldoDto With {
                     .IdDocumento = idSeleccionado.Value,
-                    .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing)
+                    .Texto = ConstruirTextoSugeridoDocumento(idSeleccionado.Value, Nothing),
+                    .Asunto = Nothing
                 })
             End If
             Notifier.Warn(Me, "No se pudo cargar la lista de documentos respaldo: " & ex.Message)
@@ -920,7 +940,8 @@ Public Class frmRenovacionesArt120
                                   If doc Is Nothing Then
                                       Return New DocumentoRespaldoDto With {
                                           .IdDocumento = id,
-                                          .Texto = $"Documento {id}"
+                                          .Texto = $"Documento {id}",
+                                          .Asunto = Nothing
                                       }
                                   End If
 
@@ -931,7 +952,8 @@ Public Class frmRenovacionesArt120
 
                                   Return New DocumentoRespaldoDto With {
                                       .IdDocumento = id,
-                                      .Texto = $"{tipo} {numero} | {fechaTxt} | {asunto}"
+                                      .Texto = $"{tipo} {numero} | {fechaTxt} | {asunto}",
+                                      .Asunto = doc.Asunto
                                   }
                               End Function).ToList()
         End Using
@@ -1027,7 +1049,8 @@ Public Class frmRenovacionesArt120
         If doc Is Nothing Then
             doc = New DocumentoRespaldoDto With {
                 .IdDocumento = idDoc.Value,
-                .Texto = ConstruirTextoSugeridoDocumento(idDoc.Value, Nothing)
+                .Texto = ConstruirTextoSugeridoDocumento(idDoc.Value, Nothing),
+                .Asunto = Nothing
             }
         End If
 
@@ -1041,6 +1064,10 @@ Public Class frmRenovacionesArt120
 
         _documentosSeleccionados = _documentosSeleccionados.Where(Function(d) d.IdDocumento <> idDoc.Value).ToList()
         RefrescarListaDocumentosSeleccionados()
+    End Sub
+
+    Private Sub lstDocumentosRespaldo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lstDocumentosRespaldo.SelectedIndexChanged
+        ActualizarAsuntoDocumentoSeleccionado()
     End Sub
 
     Private Async Sub btnAbrirDocumento_Click(sender As Object, e As EventArgs) Handles btnAbrirDocumento.Click

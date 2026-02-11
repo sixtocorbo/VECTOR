@@ -7,7 +7,9 @@ Public NotInheritable Class ConfiguracionSistemaService
     End Sub
 
     Public Const ClaveDiasAlertaRenovacionesArt120 As String = "RenovacionesArt120.DiasAlerta"
+    Public Const ClaveMostrarSoloActivasPorDefectoRenovacionesArt120 As String = "RenovacionesArt120.MostrarSoloActivasPorDefecto"
     Public Const DiasAlertaRenovacionesPorDefecto As Integer = 30
+    Public Const MostrarSoloActivasPorDefectoRenovacionesPorDefecto As Boolean = True
 
     Public Shared Async Function ObtenerDiasAlertaRenovacionesAsync() As Task(Of Integer)
         Dim valorGuardado = Await ObtenerValorAsync(ClaveDiasAlertaRenovacionesArt120).ConfigureAwait(False)
@@ -29,6 +31,33 @@ Public NotInheritable Class ConfiguracionSistemaService
             ClaveDiasAlertaRenovacionesArt120,
             dias.ToString(),
             "Cantidad de días previos al vencimiento para marcar ALERTA en frmRenovacionesArt120.",
+            usuario).ConfigureAwait(False)
+    End Function
+
+    Public Shared Async Function ObtenerMostrarSoloActivasPorDefectoRenovacionesAsync() As Task(Of Boolean)
+        Dim valorGuardado = Await ObtenerValorAsync(ClaveMostrarSoloActivasPorDefectoRenovacionesArt120).ConfigureAwait(False)
+
+        If String.IsNullOrWhiteSpace(valorGuardado) Then
+            Return MostrarSoloActivasPorDefectoRenovacionesPorDefecto
+        End If
+
+        Dim valorNormalizado = valorGuardado.Trim().ToLowerInvariant()
+        If valorNormalizado = "1" OrElse valorNormalizado = "true" OrElse valorNormalizado = "si" OrElse valorNormalizado = "sí" Then
+            Return True
+        End If
+
+        If valorNormalizado = "0" OrElse valorNormalizado = "false" OrElse valorNormalizado = "no" Then
+            Return False
+        End If
+
+        Return MostrarSoloActivasPorDefectoRenovacionesPorDefecto
+    End Function
+
+    Public Shared Async Function GuardarMostrarSoloActivasPorDefectoRenovacionesAsync(mostrarSoloActivas As Boolean, usuario As String) As Task
+        Await GuardarValorAsync(
+            ClaveMostrarSoloActivasPorDefectoRenovacionesArt120,
+            If(mostrarSoloActivas, "1", "0"),
+            "Define si la pantalla frmRenovacionesArt120 inicia filtrando solo salidas activas.",
             usuario).ConfigureAwait(False)
     End Function
 

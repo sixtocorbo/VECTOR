@@ -36,6 +36,24 @@ BEGIN
 END;
 GO
 
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.Cfg_SistemaParametros
+    WHERE Clave = 'RenovacionesArt120.MostrarSoloActivasPorDefecto'
+)
+BEGIN
+    INSERT INTO dbo.Cfg_SistemaParametros (Clave, Valor, Descripcion, UsuarioActualizacion)
+    VALUES
+    (
+        'RenovacionesArt120.MostrarSoloActivasPorDefecto',
+        '1',
+        'Define si frmRenovacionesArt120 abre mostrando solo salidas activas (1) o inactivas (0).',
+        SUSER_SNAME()
+    );
+END;
+GO
+
 /*
 -- Ejemplo para cambiar el valor manualmente por SQL:
 UPDATE dbo.Cfg_SistemaParametros

@@ -152,11 +152,11 @@ Partial Class frmRenovacionesArt120
         Me.btnConfigurarRenovaciones.BackColor = System.Drawing.Color.MediumSlateBlue
         Me.btnConfigurarRenovaciones.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnConfigurarRenovaciones.ForeColor = System.Drawing.Color.White
-        Me.btnConfigurarRenovaciones.Location = New System.Drawing.Point(620, 48)
+        Me.btnConfigurarRenovaciones.Location = New System.Drawing.Point(138, 8)
         Me.btnConfigurarRenovaciones.Name = "btnConfigurarRenovaciones"
         Me.btnConfigurarRenovaciones.Size = New System.Drawing.Size(205, 32)
         Me.btnConfigurarRenovaciones.TabIndex = 10
-        Me.btnConfigurarRenovaciones.Text = "Configurar..."
+        Me.btnConfigurarRenovaciones.Text = "Configurar días..."
         Me.btnConfigurarRenovaciones.UseVisualStyleBackColor = False
         '
         'chkSoloActivas
@@ -192,7 +192,7 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen.AutoSize = True
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
-        Me.lblResumen.Location = New System.Drawing.Point(195, 14)
+        Me.lblResumen.Location = New System.Drawing.Point(349, 12)
         Me.lblResumen.Name = "lblResumen"
         Me.lblResumen.Size = New System.Drawing.Size(155, 28)
         Me.lblResumen.TabIndex = 0

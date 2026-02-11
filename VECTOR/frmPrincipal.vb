@@ -8,7 +8,6 @@
         ' 2. Mostrar datos de Sesión en la barra inferior
         Try
             ' NOTA: Asegúrate de que SesionGlobal existe en tu proyecto.
-            ' Si da error, comenta estas líneas temporalmente.
             lblEstadoUsuario.Text = "👤 Usuario: " & SesionGlobal.NombreUsuario
             lblEstadoOficina.Text = "🏢 Oficina: " & SesionGlobal.NombreOficina
         Catch ex As Exception
@@ -19,7 +18,6 @@
         ConfigurarPermisosMenu()
 
         ' 3. Opcional: Abrir la bandeja automáticamente al iniciar
-        ' Si aún no tienes frmBandeja, comenta esta línea
         AbrirFormularioHijo(Of frmBandeja)()
     End Sub
 
@@ -36,7 +34,7 @@
     End Sub
 
     ' =================================================================
-    ' MÉTODO GENÉRICO MAESTRO PARA ABRIR VENTANAS HIJAS
+    ' MÉTODO GENÉRICO MAESTRO PARA ABRIR VENTANAS HIJAS (MEJORADO)
     ' =================================================================
     Private Sub AbrirFormularioHijo(Of T As {Form, New})()
 
@@ -49,6 +47,12 @@
             formulario.MdiParent = Me
             formulario.ShowIcon = False
             formulario.WindowState = FormWindowState.Maximized
+
+            ' --- [SOLUCIÓN MAESTRA] ---
+            ' Le decimos al formulario: "Cuando te cierres, avisa al método reparador"
+            AddHandler formulario.FormClosed, AddressOf AlCerrarCualquierHijo
+            ' --------------------------
+
             formulario.Show()
         Else
             ' B. YA EXISTE -> LO TRAEMOS AL FRENTE
@@ -63,6 +67,23 @@
     End Sub
 
     ' =================================================================
+    ' REPARADOR AUTOMÁTICO DE BANDEJA (SOLUCIÓN GENERAL)
+    ' =================================================================
+    Private Sub AlCerrarCualquierHijo(sender As Object, e As FormClosedEventArgs)
+        ' Este método se dispara cada vez que CUALQUIER ventana hija se cierra.
+
+        ' Buscamos si la bandeja está viva en el sistema
+        Dim fBandeja = Me.MdiChildren.OfType(Of frmBandeja)().FirstOrDefault()
+
+        If fBandeja IsNot Nothing Then
+            ' Si la bandeja existe, forzamos su redibujado al tamaño máximo
+            ' Esto corrige el bug visual de Windows Forms MDI
+            fBandeja.WindowState = FormWindowState.Normal
+            fBandeja.WindowState = FormWindowState.Maximized
+        End If
+    End Sub
+
+    ' =================================================================
     ' EVENTOS DEL MENÚ
     ' =================================================================
 
@@ -71,7 +92,6 @@
     End Sub
 
     Private Sub GestionRangosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GestionRangosToolStripMenuItem.Click
-        ' Asegúrate de tener frmGestionRangos creado, o comenta esta línea si aún no existe
         AbrirFormularioHijo(Of frmGestionRangos)()
     End Sub
 
@@ -100,14 +120,12 @@
         AbrirFormularioHijo(Of frmEstadisticas)()
     End Sub
 
-    ' --- NUEVO: EVENTO PARA LA HERRAMIENTA DE UNIFICAR ---
     Private Sub UnificarOficinasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnificarOficinasToolStripMenuItem.Click
         AbrirFormularioHijo(Of frmUnificarOficinas)()
     End Sub
-    ' -----------------------------------------------------
-
 
     Private Sub ConfiguracionSistemaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfiguracionSistemaToolStripMenuItem.Click
+        ' Ahora este evento queda limpio, la magia la hace AbrirFormularioHijo
         AbrirFormularioHijo(Of frmConfiguracionSistema)()
     End Sub
 

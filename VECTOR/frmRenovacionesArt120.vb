@@ -283,16 +283,27 @@ Public Class frmRenovacionesArt120
     End Sub
 
     Private Sub Resumir(lista As List(Of SalidaGridDto))
-        ' 1. Para el total usamos la propiedad nativa de la lista (es más rápido)
         Dim total = lista.Count
+        Dim diasAlerta = ObtenerDiasAnticipacionAlerta()
 
-        ' 2. Para contar con condiciones, usamos .Where(...).Count() 
-        ' Esto evita la ambigüedad que causa el error en VB.NET
-        Dim vencidas = lista.Where(Function(s) s.Estado = "VENCIDA").Count()
-        Dim alertas = lista.Where(Function(s) s.Estado = "ALERTA").Count()
+        Dim activas = lista.Where(Function(s) s.Activo).ToList()
+        Dim desactivadas = lista.Where(Function(s) Not s.Activo).ToList()
 
-        ' 3. Asignación al Label con interpolación de cadenas
-        lblResumen.Text = $"Total: {total} | Vencidas: {vencidas} | En alerta ({ObtenerDiasAnticipacionAlerta()} días): {alertas}"
+        Dim activasNormales = activas.Count(Function(s) s.DiasRestantes > diasAlerta)
+        Dim activasEnAlerta = activas.Count(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta)
+        Dim activasVencidas = activas.Count(Function(s) s.DiasRestantes < 0)
+
+        Dim desactivadasNormales = desactivadas.Count(Function(s) s.DiasRestantes > diasAlerta)
+        Dim desactivadasEnAlerta = desactivadas.Count(Function(s) s.DiasRestantes >= 0 AndAlso s.DiasRestantes <= diasAlerta)
+        Dim desactivadasVencidas = desactivadas.Count(Function(s) s.DiasRestantes < 0)
+
+        Dim conDocumentacion = lista.Count(Function(s) s.CantidadDocumentos > 0)
+        Dim sinDocumentacion = total - conDocumentacion
+
+        lblResumen.Text =
+            $"Activas ({activas.Count}/{total}) → Normal: {activasNormales} | Alerta ≤{diasAlerta} días: {activasEnAlerta} | Vencidas: {activasVencidas}{Environment.NewLine}" &
+            $"Desactivadas ({desactivadas.Count}) → Normal: {desactivadasNormales} | Alerta: {desactivadasEnAlerta} | Vencidas: {desactivadasVencidas}{Environment.NewLine}" &
+            $"Documentación → Con respaldo: {conDocumentacion} | Sin respaldo: {sinDocumentacion}"
     End Sub
 
     Private Function ObtenerSeleccionActual() As SalidaGridDto

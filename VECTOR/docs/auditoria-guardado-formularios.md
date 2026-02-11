@@ -4,17 +4,17 @@
 ¿Existe la posibilidad de que, mientras una operación de guardado/actualización/delete está en curso, el usuario cierre el formulario o dispare otra acción y deje el proceso en un estado inconsistente?
 
 ## Resultado
-Sí: **el riesgo no está eliminado en todos los formularios**. Actualmente la protección robusta (flag de reentrada + bloqueo de cierre + restauración de UI en `Finally`) está implementada en `frmMesaEntrada`, pero no de forma homogénea en otros formularios.
+Sí, pero **acotado**: hoy hay varios formularios con protección robusta, y el riesgo principal quedó concentrado en `frmGestionTiempos` y `frmRenovacionesArt120`.
 
 ## Matriz de revisión (formularios con `btnGuardar_Click`)
 
-| Formulario | ¿Reentrada bloqueada? | ¿Cierre bloqueado durante guardado? | ¿Restauración de UI en Finally? | Estado |
+| Formulario | ¿Reentrada bloqueada? | ¿Cierre bloqueado durante guardado? | ¿Restauración de UI en `Finally`? | Estado |
 |---|---|---|---|---|
 | `frmMesaEntrada` | Sí (`_guardando`) | Sí (`FormClosing` cancela) | Sí | ✅ Robusto |
-| `frmConfiguracionSistema` | Parcial (`btnGuardar.Enabled=False`) | No | Sí (`btnGuardar.Enabled=True`) | ⚠️ Mejorable |
+| `frmConfiguracionSistema` | Parcial (`btnGuardar.Enabled = False`) | No | Sí (`btnGuardar.Enabled = True`) | ⚠️ Mejorable |
 | `frmUsuarios` | Sí (`_operacionEnCurso`) | Sí (`FormClosing` cancela) | Sí (`Try/Catch/Finally`) | ✅ Robusto |
-| `frmGestionRangos` | Parcial (`SetBusy`) | No | Sí (libera `SetBusy`) | ⚠️ Mejorable |
-| `frmGestionTiposDocumento` | No | No | No | ⚠️ Riesgo |
+| `frmGestionRangos` | Sí (`_operacionEnCurso` + `CambiarEstadoOperacion`) | Sí (`FormClosing` cancela) | Sí (`CambiarEstadoOperacion(False)` en `Finally`) | ✅ Robusto |
+| `frmGestionTiposDocumento` | Sí (`_guardando`) | Sí (`FormClosing` cancela) | Sí (`SetGuardadoUIState(False)` en `Finally`) | ✅ Robusto |
 | `frmGestionTiempos` | No | No | No | ⚠️ Riesgo |
 | `frmRenovacionesArt120` | No | No | No | ⚠️ Riesgo |
 
@@ -36,8 +36,9 @@ Aplicar el mismo patrón base en formularios con operaciones de persistencia:
    - si `_guardando`, `e.Cancel = True` y notificar "guardado en progreso"
 
 ## Priorización sugerida
-1. `frmGestionTiposDocumento`
-2. `frmGestionTiempos`
-3. `frmRenovacionesArt120`
-4. `frmConfiguracionSistema` y `frmGestionRangos` (para cerrar brechas de cierre durante guardado)
+1. `frmGestionTiempos`
+2. `frmRenovacionesArt120`
+3. `frmConfiguracionSistema` (cierre durante guardado)
 
+## Próximo paso propuesto
+Empezar por `frmGestionTiempos`, porque tiene un `btnGuardar_Click` asíncrono sin flag de operación ni bloqueo de cierre, y su flujo es corto para estandarizar rápido el patrón.

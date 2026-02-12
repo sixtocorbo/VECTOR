@@ -30,6 +30,8 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen = New System.Windows.Forms.Label()
         Me.dgvSalidas = New System.Windows.Forms.DataGridView()
         Me.PanelEditor = New System.Windows.Forms.Panel()
+        Me.txtDescripcionAutorizacion = New System.Windows.Forms.TextBox()
+        Me.Label13 = New System.Windows.Forms.Label()
         Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
@@ -223,6 +225,8 @@ Partial Class frmRenovacionesArt120
         '
         Me.PanelEditor.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelEditor.Controls.Add(Me.txtDocumentoDescripcion)
+        Me.PanelEditor.Controls.Add(Me.txtDescripcionAutorizacion)
+        Me.PanelEditor.Controls.Add(Me.Label13)
         Me.PanelEditor.Controls.Add(Me.btnCancelar)
         Me.PanelEditor.Controls.Add(Me.btnGuardar)
         Me.PanelEditor.Controls.Add(Me.txtObservaciones)
@@ -259,6 +263,23 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Size = New System.Drawing.Size(1650, 326)
         Me.PanelEditor.TabIndex = 2
         Me.PanelEditor.Visible = False
+        '
+        'txtDescripcionAutorizacion
+        '
+        Me.txtDescripcionAutorizacion.Location = New System.Drawing.Point(454, 244)
+        Me.txtDescripcionAutorizacion.MaxLength = 500
+        Me.txtDescripcionAutorizacion.Name = "txtDescripcionAutorizacion"
+        Me.txtDescripcionAutorizacion.Size = New System.Drawing.Size(383, 26)
+        Me.txtDescripcionAutorizacion.TabIndex = 12
+        '
+        'Label13
+        '
+        Me.Label13.AutoSize = True
+        Me.Label13.Location = New System.Drawing.Point(450, 214)
+        Me.Label13.Name = "Label13"
+        Me.Label13.Size = New System.Drawing.Size(299, 20)
+        Me.Label13.TabIndex = 24
+        Me.Label13.Text = "Descripción de autorización de salida (oblig.)"
         '
         'txtDocumentoDescripcion
         '
@@ -347,7 +368,7 @@ Partial Class frmRenovacionesArt120
         Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(853, 33)
         Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
         Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
-        Me.cboDocumentoRespaldo.TabIndex = 12
+        Me.cboDocumentoRespaldo.TabIndex = 13
         '
         'btnRefrescarDocumentos
         '
@@ -390,10 +411,10 @@ Partial Class frmRenovacionesArt120
         Me.chkActivoRegistro.AutoSize = True
         Me.chkActivoRegistro.Checked = True
         Me.chkActivoRegistro.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkActivoRegistro.Location = New System.Drawing.Point(454, 200)
+        Me.chkActivoRegistro.Location = New System.Drawing.Point(454, 277)
         Me.chkActivoRegistro.Name = "chkActivoRegistro"
         Me.chkActivoRegistro.Size = New System.Drawing.Size(140, 24)
-        Me.chkActivoRegistro.TabIndex = 17
+        Me.chkActivoRegistro.TabIndex = 18
         Me.chkActivoRegistro.Text = "Registro activo"
         Me.chkActivoRegistro.UseVisualStyleBackColor = True
         '
@@ -610,4 +631,6 @@ Partial Class frmRenovacionesArt120
     Friend WithEvents txtDocumentoDescripcion As TextBox
     Friend WithEvents cboAutorizacion As ComboBox
     Friend WithEvents Label12 As Label
+    Friend WithEvents txtDescripcionAutorizacion As TextBox
+    Friend WithEvents Label13 As Label
 End Class

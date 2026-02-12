@@ -117,7 +117,7 @@ Public Class frmBandeja
     ' =======================================================
     ' 1. CARGA DESDE BASE DE DATOS (Unit of Work)
     ' =======================================================
-    Private Async Function CargarGrillaAsync() As Task
+    Private Async Function CargarGrillaAsync(Optional forzarNotificacionAlertasArt120 As Boolean = False) As Task
         Try
             Using uow As New UnitOfWork()
                 uow.Context.Configuration.LazyLoadingEnabled = False
@@ -180,7 +180,7 @@ Public Class frmBandeja
 
             End Using
 
-            Await CargarAlertasSalidasArt120Async()
+            Await CargarAlertasSalidasArt120Async(forzarNotificacionAlertasArt120)
 
             ' E. MOSTRAMOS
             If Not FormularioDisponible() Then Return
@@ -262,7 +262,7 @@ Public Class frmBandeja
         dgvPendientes.Refresh()
     End Sub
 
-    Private Async Function CargarAlertasSalidasArt120Async() As Task
+    Private Async Function CargarAlertasSalidasArt120Async(Optional forzarNotificacion As Boolean = False) As Task
         Try
             Using uow As New UnitOfWork()
                 Dim hoy = DateTime.Today
@@ -287,7 +287,7 @@ Public Class frmBandeja
             End If
 
             Dim resumenTexto = $"Vencidas: {_cantVencidasArt120} | Por vencer ({DiasAnticipacionAlertaSalidas} días): {_cantAlertasArt120 - _cantVencidasArt120}"
-            If _ultimoResumenArt120 <> resumenTexto Then
+            If forzarNotificacion OrElse _ultimoResumenArt120 <> resumenTexto Then
                 Notifier.Warn(Me, "⚠ Alertas de salidas laborales Art. 120" & vbCrLf & resumenTexto)
                 _ultimoResumenArt120 = resumenTexto
             End If
@@ -296,6 +296,42 @@ Public Class frmBandeja
             _cantVencidasArt120 = 0
         End Try
     End Function
+
+    Private Sub MostrarAlertasInteresantes()
+        If _listaOriginal Is Nothing OrElse _listaOriginal.Count = 0 Then Return
+
+        Dim hoy As Date = Date.Today
+        Dim proximosDias As Integer = 7
+
+        Dim totalVencidos As Integer = _listaOriginal.Count(Function(item)
+                                                                If item.Vencimiento Is Nothing Then Return False
+                                                                Dim fechaVenc As Date = CDate(item.Vencimiento)
+                                                                Return fechaVenc < hoy
+                                                            End Function)
+
+        Dim totalProximos As Integer = _listaOriginal.Count(Function(item)
+                                                                If item.Vencimiento Is Nothing Then Return False
+                                                                Dim fechaVenc As Date = CDate(item.Vencimiento)
+                                                                Return fechaVenc >= hoy AndAlso fechaVenc <= hoy.AddDays(proximosDias)
+                                                            End Function)
+
+        Dim totalExternos As Integer = _listaOriginal.Count(Function(item)
+                                                                If item.IdOficinaActual Is Nothing Then Return False
+                                                                Return CInt(item.IdOficinaActual) <> SesionGlobal.OficinaID
+                                                            End Function)
+
+        If totalVencidos > 0 Then
+            Notifier.Warn(Me, $"⚠ Bandeja: {totalVencidos} documento(s) vencido(s).")
+        End If
+
+        If totalProximos > 0 Then
+            Notifier.Info(Me, $"ℹ Bandeja: {totalProximos} documento(s) vencen en los próximos {proximosDias} días.")
+        End If
+
+        If totalExternos > 0 Then
+            Notifier.Info(Me, $"ℹ Bandeja: {totalExternos} documento(s) están en otra oficina.")
+        End If
+    End Sub
 
     Private Sub DiseñarColumnas()
         If Not FormularioDisponible() Then Return
@@ -782,7 +818,8 @@ Public Class frmBandeja
 
     Private Async Sub btnRefrescar_Click(sender As Object, e As EventArgs) Handles btnRefrescar.Click
         txtBuscar.Clear()
-        Await CargarGrillaAsync()
+        Await CargarGrillaAsync(forzarNotificacionAlertasArt120:=True)
+        MostrarAlertasInteresantes()
     End Sub
 
     Private Sub btnRenovacionesArt120_Click(sender As Object, e As EventArgs) Handles btnRenovacionesArt120.Click

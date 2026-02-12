@@ -63,6 +63,7 @@ Public Class frmRenovacionesArt120
     Private Async Sub frmRenovacionesArt120_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
         UIUtils.SetPlaceholder(txtBuscar, "Buscar por recluso, lugar, estado o documento...")
+        CargarOpcionesAutorizacion()
 
         Await CargarConfiguracionDiasAlertaAsync()
 
@@ -351,12 +352,10 @@ Public Class frmRenovacionesArt120
         End If
     End Sub
 
-    Private Async Sub btnNueva_Click(sender As Object, e As EventArgs) Handles btnNueva.Click
-        Using wizard As New frmNuevaSalidaArt120Wizard()
-            If wizard.ShowDialog(Me) = DialogResult.OK Then
-                Await CargarSalidasAsync()
-            End If
-        End Using
+    Private Sub btnNueva_Click(sender As Object, e As EventArgs) Handles btnNueva.Click
+        LimpiarEditor()
+        PanelEditor.Visible = True
+        txtRecluso.Focus()
     End Sub
 
     Private Async Sub btnEditar_Click(sender As Object, e As EventArgs) Handles btnEditar.Click
@@ -366,12 +365,59 @@ Public Class frmRenovacionesArt120
             Return
         End If
 
-        Using wizard As New frmNuevaSalidaArt120Wizard(sel.IdSalida)
-            If wizard.ShowDialog(Me) = DialogResult.OK Then
-                Await CargarSalidasAsync()
-            End If
-        End Using
+        Await CargarSalidaEnEditorAsync(sel.IdSalida)
     End Sub
+
+    Private Async Function CargarSalidaEnEditorAsync(idSalida As Integer) As Task
+        Try
+            Using uow As New UnitOfWork()
+                Dim repo = uow.Repository(Of Tra_SalidasLaborales)()
+                Dim salida = Await repo.GetQueryable() _
+                    .Include("Mae_Reclusos") _
+                    .FirstOrDefaultAsync(Function(s) s.IdSalida = idSalida)
+
+                If salida Is Nothing Then
+                    Notifier.Warn(Me, "La salida seleccionada ya no existe.")
+                    Return
+                End If
+
+                LimpiarEditor()
+
+                _idSalidaEditando = salida.IdSalida
+                _idReclusoSeleccionado = salida.IdRecluso
+
+                txtRecluso.Text = If(salida.Mae_Reclusos IsNot Nothing, salida.Mae_Reclusos.NombreCompleto, "")
+                lblIdRecluso.Text = "ID: " & salida.IdRecluso
+                txtLugarTrabajo.Text = If(salida.LugarTrabajo, "")
+                txtHorario.Text = If(salida.Horario, "")
+                txtCustodia.Text = If(salida.DetalleCustodia, "")
+                dtpInicio.Value = salida.FechaInicio.Date
+                dtpVencimiento.Value = salida.FechaVencimiento.Date
+                chkActivoRegistro.Checked = salida.Activo.GetValueOrDefault(True)
+
+                If salida.FechaNotificacionJuez.HasValue Then
+                    dtpFechaNotificacion.Checked = True
+                    dtpFechaNotificacion.Value = salida.FechaNotificacionJuez.Value.Date
+                Else
+                    dtpFechaNotificacion.Checked = False
+                    dtpFechaNotificacion.Value = Date.Today
+                End If
+
+                Dim datosObservaciones = ParsearObservacionesConAutorizacion(salida.Observaciones)
+                SeleccionarAutorizacionEnCombo(datosObservaciones.CodigoAutorizacion)
+                txtObservaciones.Text = datosObservaciones.ObservacionesUsuario
+
+                Await CargarDocumentosRespaldoAsync(salida.IdRecluso,
+                                                    txtRecluso.Text.Trim(),
+                                                    salida.IdDocumentoRespaldo)
+            End Using
+
+            PanelEditor.Visible = True
+            txtLugarTrabajo.Focus()
+        Catch ex As Exception
+            Notifier.Error(Me, "No se pudo cargar la salida seleccionada para edición: " & ex.Message)
+        End Try
+    End Function
 
     Private Async Sub btnBuscarRecluso_Click(sender As Object, e As EventArgs) Handles btnBuscarRecluso.Click
         Dim f As New frmBuscadorReclusos()
@@ -625,6 +671,7 @@ Public Class frmRenovacionesArt120
         LimpiarDocumentosSeleccionados()
         txtDocumentoDescripcion.Clear()
         txtObservaciones.Clear()
+        PanelEditor.Visible = False
     End Sub
 
 

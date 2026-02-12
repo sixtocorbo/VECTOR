@@ -1235,6 +1235,8 @@ Public Class frmRenovacionesArt120
             selector.Width = 1040
             selector.Height = 560
             selector.MinimumSize = New Size(920, 500)
+            selector.FormBorderStyle = FormBorderStyle.Sizable
+            selector.ShowInTaskbar = False
 
             Dim txtBuscar As New TextBox With {
                 .Dock = DockStyle.Top,
@@ -1339,7 +1341,10 @@ Public Class frmRenovacionesArt120
 
             aplicarFiltro()
 
-            If selector.ShowDialog(Me) <> DialogResult.OK Then Return Nothing
+            Dim owner As IWin32Window = TryCast(Me.MdiParent, IWin32Window)
+            If owner Is Nothing Then owner = Me
+
+            If selector.ShowDialog(owner) <> DialogResult.OK Then Return Nothing
             If dgv.SelectedRows.Count = 0 Then Return Nothing
 
             Return TryCast(dgv.SelectedRows(0).DataBoundItem, DocumentoRespaldoDto)
@@ -1420,17 +1425,21 @@ Public Class frmRenovacionesArt120
     Private Sub btnAgregarDocumento_Click(sender As Object, e As EventArgs) Handles btnAgregarDocumento.Click
         If _cargandoDocumentos Then Return
 
-        Dim doc = SeleccionarDocumentoParaAgregar()
-        If doc Is Nothing Then Return
+        Try
+            Dim doc = SeleccionarDocumentoParaAgregar()
+            If doc Is Nothing Then Return
 
-        If _documentosSeleccionados.Any(Function(d) d.IdDocumento = doc.IdDocumento) Then
-            Notifier.Info(Me, "Ese documento ya está agregado.")
-            Return
-        End If
+            If _documentosSeleccionados.Any(Function(d) d.IdDocumento = doc.IdDocumento) Then
+                Notifier.Info(Me, "Ese documento ya está agregado.")
+                Return
+            End If
 
-        _documentosSeleccionados.Add(doc)
-        RefrescarListaDocumentosSeleccionados()
-        SugerirDocumentosRelacionados(doc)
+            _documentosSeleccionados.Add(doc)
+            RefrescarListaDocumentosSeleccionados()
+            SugerirDocumentosRelacionados(doc)
+        Catch ex As Exception
+            Notifier.[Error](Me, "No se pudo abrir el selector de documentos: " & ex.Message)
+        End Try
     End Sub
 
     Private Sub btnQuitarDocumento_Click(sender As Object, e As EventArgs) Handles btnQuitarDocumento.Click

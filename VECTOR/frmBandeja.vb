@@ -120,10 +120,190 @@ Public Class frmBandeja
     End Sub
 
     Private Sub btnImprimirRango_Click(sender As Object, e As EventArgs) Handles btnImprimirRango.Click
-        Using selector As New frmSelectorRangoFechas()
-            If selector.ShowDialog(Me) <> DialogResult.OK Then Return
-            ImprimirFamiliasPorRango(selector.FechaDesde, selector.FechaHasta)
+        Dim haySeleccion As Boolean = (dgvPendientes.SelectedRows.Count > 0)
+
+        Using formOpciones As New frmOpcionesReporte(haySeleccion)
+            If formOpciones.ShowDialog(Me) = DialogResult.OK Then
+
+                If formOpciones.ModoSeleccionUnica Then
+                    ' MODO 1: Histórico completo del expediente seleccionado
+                    Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
+                    ' Pasamos el ID del documento seleccionado. El método buscará su Hilo.
+                    GenerarReporteTrazabilidad(Nothing, Nothing, idDoc)
+                Else
+                    ' MODO 2: Reporte de actividad por fechas
+                    GenerarReporteTrazabilidad(formOpciones.FechaDesde, formOpciones.FechaHasta, Nothing)
+                End If
+
+            End If
         End Using
+    End Sub
+    ''' <summary>
+    ''' Genera el reporte de trazabilidad unificado.
+    ''' </summary>
+    ''' <param name="fechaDesde">Opcional si se busca por ID.</param>
+    ''' <param name="fechaHasta">Opcional si se busca por ID.</param>
+    ''' <param name="idDocumentoSeleccionado">Si tiene valor, trae TODO el historial de ese expediente (ignora fechas).</param>
+    Private Sub GenerarReporteTrazabilidad(fechaDesde As Date?, fechaHasta As Date?, idDocumentoSeleccionado As Long?)
+        Try
+            Using uow As New UnitOfWork()
+                Dim repo = uow.Repository(Of Mae_Documento)()
+                Dim hilosAImprimir As New List(Of Guid)()
+                Dim tituloReporte As String = ""
+
+                ' =========================================================
+                ' ESTRATEGIA DE BÚSQUEDA (Dual)
+                ' =========================================================
+                If idDocumentoSeleccionado.HasValue Then
+                    ' MODO A: Un solo expediente (Histórico Completo)
+                    Dim doc = repo.GetQueryable(tracking:=False).FirstOrDefault(Function(d) d.IdDocumento = idDocumentoSeleccionado.Value)
+                    If doc Is Nothing Then Return
+
+                    hilosAImprimir.Add(doc.IdHiloConversacion)
+                    tituloReporte = $"HISTORIAL COMPLETO DE EXPEDIENTE - {DateTime.Now:dd/MM/yyyy}"
+                Else
+                    ' MODO B: Rango de Fechas (Actividad en la oficina)
+                    Dim fDesde = fechaDesde.Value.Date
+                    Dim fHasta = fechaHasta.Value.Date.AddDays(1)
+
+                    Dim queryFiltro = repo.GetQueryable(tracking:=False).Where(Function(d) d.IdEstadoActual <> 5)
+
+                    ' --- CORRECCIÓN: ELIMINAMOS ESTE FILTRO ---
+                    ' Al comentar esto, el reporte buscará documentos que coincidan con la fecha
+                    ' SIN IMPORTAR si están en tu bandeja o si ya los derivaste (Derivados).
+                    ' Esto "activa" automáticamente la visión completa para el reporte.
+
+                    ' If Not chkVerDerivados.Checked Then
+                    '     queryFiltro = queryFiltro.Where(Function(d) d.IdOficinaActual = SesionGlobal.OficinaID)
+                    ' End If
+
+                    ' ------------------------------------------
+
+                    ' Filtramos solo por fecha de recepción/creación
+                    queryFiltro = queryFiltro.Where(Function(d) d.FechaRecepcion >= fDesde AndAlso d.FechaRecepcion < fHasta)
+
+                    hilosAImprimir = queryFiltro.Select(Function(d) d.IdHiloConversacion).Distinct().ToList()
+                    tituloReporte = $"REPORTE DE ACTIVIDAD - {fDesde:dd/MM/yyyy} a {fechaHasta.Value:dd/MM/yyyy}"
+                End If
+
+                If hilosAImprimir.Count = 0 Then
+                    Notifier.Info(Me, "No se encontraron datos para los criterios seleccionados.")
+                    Return
+                End If
+
+                ' =========================================================
+                ' RECUPERACIÓN DE DATOS (Común para ambos modos)
+                ' =========================================================
+                ' Nota: Traemos TODO lo relacionado a los hilos encontrados, sin filtrar por fecha aqui.
+                ' Queremos ver la historia completa.
+                Dim consultaCompleta = repo.GetQueryable(tracking:=False).
+                                   Where(Function(d) hilosAImprimir.Contains(d.IdHiloConversacion) And d.IdEstadoActual <> 5)
+
+                Dim documentos = consultaCompleta.Select(Function(d) New With {
+                .ID = d.IdDocumento,
+                .IdPadre = d.IdDocumentoPadre,
+                .FechaCreacion = d.FechaCreacion,
+                .Fecha = d.FechaRecepcion,
+                .TipoNombre = d.Cat_TipoDocumento.Nombre,
+                .Numero = d.NumeroOficial,
+                .Asunto = d.Asunto,
+                .Oficina = d.Cat_Oficina.Nombre,
+                .Movimientos = d.Tra_Movimiento.Select(Function(m) New With {
+                    .IdMov = m.IdMovimiento,
+                    .Fecha = m.FechaMovimiento,
+                    .Origen = m.Cat_Oficina.Nombre,
+                    .Destino = m.Cat_Oficina1.Nombre,
+                    .Observacion = m.ObservacionPase
+                }).ToList()
+            }).ToList()
+
+                ' =========================================================
+                ' PROCESAMIENTO Y CRONOLOGÍA UNIFICADA
+                ' =========================================================
+                Dim mapa = documentos.ToDictionary(Function(x) CLng(x.ID))
+                Dim lineas As New List(Of String) From {
+                tituloReporte,
+                "=".PadRight(110, "="c),
+                ""
+            }
+
+                Dim grupos = documentos.GroupBy(Function(d)
+                                                    Dim actual = d
+                                                    Dim visitados As New HashSet(Of Long)()
+                                                    While actual.IdPadre.HasValue AndAlso mapa.ContainsKey(actual.IdPadre.Value) AndAlso Not visitados.Contains(actual.IdPadre.Value)
+                                                        visitados.Add(actual.IdPadre.Value)
+                                                        actual = mapa(actual.IdPadre.Value)
+                                                    End While
+                                                    Return actual.ID
+                                                End Function)
+
+                Dim gruposOrdenados = grupos.
+                Select(Function(g)
+                           Dim padre = g.FirstOrDefault(Function(x) x.ID = g.Key)
+                           Dim fechaOrden = If(padre IsNot Nothing,
+                                               If(padre.Fecha.HasValue, padre.Fecha.Value, padre.FechaCreacion),
+                                               g.Min(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)))
+                           Return New With {
+                               .IdFamilia = g.Key,
+                               .FechaOrden = fechaOrden,
+                               .Documentos = g.ToList(),
+                               .Padre = padre
+                           }
+                       End Function).
+                OrderBy(Function(g) g.FechaOrden).
+                ToList()
+
+                For Each grupo In gruposOrdenados
+                    Dim etiquetaPadre = If(grupo.Padre IsNot Nothing,
+                                       $"{grupo.Padre.TipoNombre} {grupo.Padre.Numero}",
+                                       "Documento individual")
+
+                    lineas.Add($"EXPEDIENTE #{grupo.IdFamilia} - {etiquetaPadre}")
+                    lineas.Add($"Asunto: {If(grupo.Padre IsNot Nothing, grupo.Padre.Asunto, "---")}")
+                    lineas.Add("-".PadRight(110, "-"c))
+
+                    ' CRONOLOGÍA UNIFICADA (Flattening)
+                    Dim cronologia = grupo.Documentos.
+                                 SelectMany(Function(doc) doc.Movimientos.Select(Function(mov) New With {
+                                     .DocInfo = $"{doc.TipoNombre} {doc.Numero}",
+                                     .Movimiento = mov
+                                 })).
+                                 OrderBy(Function(x) x.Movimiento.Fecha).
+                                 ThenBy(Function(x) x.Movimiento.IdMov).
+                                 ToList()
+
+                    If cronologia.Count > 0 Then
+                        For Each evento In cronologia
+                            Dim m = evento.Movimiento
+                            Dim linea = $" {m.Fecha:dd/MM HH:mm} | [{evento.DocInfo}] | {m.Origen} -> {m.Destino}"
+                            lineas.Add(linea)
+
+                            ' Observación opcional
+                            ' If Not String.IsNullOrWhiteSpace(m.Observacion) Then lineas.Add($"       (Obs: {m.Observacion})")
+                        Next
+                    Else
+                        lineas.Add(" (Sin movimientos registrados)")
+                    End If
+
+                    lineas.Add("")
+                    lineas.Add("=".PadRight(110, "="c))
+                Next
+
+                _lineasImpresionFamilias = lineas
+                _indiceLineaImpresion = 0
+
+                Using preview As New PrintPreviewDialog()
+                    _printDocumentoFamilias.DocumentName = "Reporte_Trazabilidad"
+                    preview.Document = _printDocumentoFamilias
+                    preview.Width = 1200
+                    preview.Height = 800
+                    preview.ShowDialog(Me)
+                End Using
+
+            End Using
+        Catch ex As Exception
+            Notifier.Error(Me, "Error generando reporte: " & ex.Message)
+        End Try
     End Sub
 
     Private Sub ImprimirFamiliasPorRango(fechaDesde As Date, fechaHasta As Date)
@@ -131,86 +311,141 @@ Public Class frmBandeja
             Using uow As New UnitOfWork()
                 Dim fechaFinExclusiva = fechaHasta.Date.AddDays(1)
                 Dim repo = uow.Repository(Of Mae_Documento)()
-                Dim consulta = repo.GetQueryable(tracking:=False).Where(Function(d) d.IdEstadoActual <> 5)
+
+                ' ==========================================================================================
+                ' PASO 1: IDENTIFICAR FAMILIAS ACTIVAS
+                ' (Misma lógica robusta para no perder documentos como el 'COM 211')
+                ' ==========================================================================================
+                Dim queryFiltro = repo.GetQueryable(tracking:=False).Where(Function(d) d.IdEstadoActual <> 5)
 
                 If Not chkVerDerivados.Checked Then
-                    consulta = consulta.Where(Function(d) d.IdOficinaActual = SesionGlobal.OficinaID)
+                    queryFiltro = queryFiltro.Where(Function(d) d.IdOficinaActual = SesionGlobal.OficinaID)
                 End If
 
-                consulta = consulta.Where(Function(d) d.FechaRecepcion >= fechaDesde.Date AndAlso d.FechaRecepcion < fechaFinExclusiva)
+                queryFiltro = queryFiltro.Where(Function(d) d.FechaRecepcion >= fechaDesde.Date AndAlso d.FechaRecepcion < fechaFinExclusiva)
 
-                Dim documentos = consulta.Select(Function(d) New With {
-                    .ID = d.IdDocumento,
-                    .IdPadre = d.IdDocumentoPadre,
-                    .Fecha = d.FechaRecepcion,
-                    .FechaCreacion = d.FechaCreacion,
-                    .TipoNombre = d.Cat_TipoDocumento.Nombre,
-                    .Numero = d.NumeroOficial,
-                    .Asunto = d.Asunto,
-                    .Oficina = d.Cat_Oficina.Nombre
-                }).ToList()
+                Dim hilosEnRango = queryFiltro.Select(Function(d) d.IdHiloConversacion).Distinct().ToList()
 
-                If documentos.Count = 0 Then
-                    Notifier.Info(Me, "No hay registros para imprimir en el rango seleccionado.")
+                If hilosEnRango.Count = 0 Then
+                    Notifier.Info(Me, "No hay expedientes activos en el rango seleccionado.")
                     Return
                 End If
 
+                ' ==========================================================================================
+                ' PASO 2: TRAER DATOS COMPLETOS DE LA FAMILIA
+                ' ==========================================================================================
+                Dim consultaCompleta = repo.GetQueryable(tracking:=False).
+                                   Where(Function(d) hilosEnRango.Contains(d.IdHiloConversacion) And d.IdEstadoActual <> 5)
+
+                ' Proyección de datos
+                Dim documentos = consultaCompleta.Select(Function(d) New With {
+                .ID = d.IdDocumento,
+                .IdPadre = d.IdDocumentoPadre,
+                .FechaCreacion = d.FechaCreacion, ' Usamos creación para ordenar el padre
+                .Fecha = d.FechaRecepcion,
+                .TipoNombre = d.Cat_TipoDocumento.Nombre,
+                .Numero = d.NumeroOficial,
+                .Asunto = d.Asunto,
+                .Oficina = d.Cat_Oficina.Nombre,                ' Traemos los movimientos crudos, el ordenamiento final lo haremos en memoria
+                .Movimientos = d.Tra_Movimiento.Select(Function(m) New With {
+                    .IdMov = m.IdMovimiento,
+                    .Fecha = m.FechaMovimiento,
+                    .Origen = m.Cat_Oficina.Nombre,
+                    .Destino = m.Cat_Oficina1.Nombre,
+                    .Observacion = m.ObservacionPase
+                }).ToList()
+            }).ToList()
+
+                ' ==========================================================================================
+                ' PASO 3: AGRUPAR POR FAMILIA
+                ' ==========================================================================================
                 Dim mapa = documentos.ToDictionary(Function(x) CLng(x.ID))
                 Dim lineas As New List(Of String) From {
-                    $"IMPRESIÓN DE FAMILIAS - RANGO {fechaDesde:dd/MM/yyyy} a {fechaHasta:dd/MM/yyyy}",
-                    "=".PadRight(110, "="c),
-                    ""
-                }
+                $"REPORTE DE TRAZABILIDAD - {fechaDesde:dd/MM/yyyy} a {fechaHasta:dd/MM/yyyy}",
+                "=".PadRight(110, "="c),
+                ""
+            }
 
                 Dim grupos = documentos.GroupBy(Function(d)
                                                     Dim actual = d
                                                     Dim visitados As New HashSet(Of Long)()
-
                                                     While actual.IdPadre.HasValue AndAlso mapa.ContainsKey(actual.IdPadre.Value) AndAlso Not visitados.Contains(actual.IdPadre.Value)
                                                         visitados.Add(actual.IdPadre.Value)
                                                         actual = mapa(actual.IdPadre.Value)
                                                     End While
-
                                                     Return actual.ID
                                                 End Function)
 
+                ' Ordenamos las familias para que aparezcan primero las más antiguas
                 Dim gruposOrdenados = grupos.
-                    Select(Function(g)
-                               Dim padre = g.FirstOrDefault(Function(x) x.ID = g.Key)
-                               Dim fechaOrden = If(padre IsNot Nothing,
-                                                   If(padre.Fecha.HasValue, padre.Fecha.Value, padre.FechaCreacion),
-                                                   g.Min(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)))
-                               Return New With {
-                                   .IdFamilia = g.Key,
-                                   .FechaOrden = fechaOrden,
-                                   .Documentos = g.OrderBy(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)).ThenBy(Function(x) x.ID).ToList(),
-                                   .Padre = padre
-                               }
-                           End Function).
-                    OrderBy(Function(g) g.FechaOrden).
-                    ThenBy(Function(g) g.IdFamilia).
-                    ToList()
+                Select(Function(g)
+                           Dim padre = g.FirstOrDefault(Function(x) x.ID = g.Key)
+                           Dim fechaOrden = If(padre IsNot Nothing,
+                                               If(padre.Fecha.HasValue, padre.Fecha.Value, padre.FechaCreacion),
+                                               g.Min(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)))
+                           Return New With {
+                               .IdFamilia = g.Key,
+                               .FechaOrden = fechaOrden,
+                               .Documentos = g.ToList(),
+                               .Padre = padre
+                           }
+                       End Function).
+                OrderBy(Function(g) g.FechaOrden).
+                ToList()
 
+                ' ==========================================================================================
+                ' PASO 4: GENERACIÓN DEL REPORTE (CRONOLOGÍA UNIFICADA)
+                ' Aquí ocurre la "magia" para mejorar la lectura
+                ' ==========================================================================================
                 For Each grupo In gruposOrdenados
                     Dim etiquetaPadre = If(grupo.Padre IsNot Nothing,
-                                           $"{grupo.Padre.TipoNombre} {grupo.Padre.Numero}",
-                                           "Documento individual")
-                    lineas.Add($"FAMILIA #{grupo.IdFamilia} - {etiquetaPadre} - Fecha {grupo.FechaOrden:dd/MM/yyyy HH:mm}")
+                                       $"{grupo.Padre.TipoNombre} {grupo.Padre.Numero}",
+                                       "Documento individual")
 
-                    For Each doc In grupo.Documentos
-                        Dim prefijo = If(doc.ID = grupo.IdFamilia, "PADRE", "HIJO ")
-                        Dim fechaDoc = If(doc.Fecha.HasValue, doc.Fecha.Value, doc.FechaCreacion)
-                        lineas.Add($"  [{prefijo}] {fechaDoc:dd/MM/yyyy HH:mm} | ID {doc.ID} | {doc.TipoNombre} {doc.Numero} | {doc.Oficina} | {doc.Asunto}")
-                    Next
+                    ' ENCABEZADO DE LA FAMILIA
+                    lineas.Add($"EXPEDIENTE #{grupo.IdFamilia} - {etiquetaPadre}")
+                    lineas.Add($"Asunto Principal: {If(grupo.Padre IsNot Nothing, grupo.Padre.Asunto, "Sin asunto")}")
+                    lineas.Add("-".PadRight(110, "-"c))
 
-                    lineas.Add("".PadRight(110, "-"c))
+                    ' --- APLANAMIENTO DE LA LISTA (FLATTENING) ---
+                    ' Juntamos TODOS los movimientos de TODOS los documentos de esta familia en una sola lista.
+                    Dim cronologia = grupo.Documentos.
+                                 SelectMany(Function(doc) doc.Movimientos.Select(Function(mov) New With {
+                                     .DocInfo = $"{doc.TipoNombre} {doc.Numero}",
+                                     .Movimiento = mov
+                                 })).
+                                 OrderBy(Function(x) x.Movimiento.Fecha).
+                                 ThenBy(Function(x) x.Movimiento.IdMov). ' Desempate lógico
+                                 ToList()
+
+                    If cronologia.Count > 0 Then
+                        For Each evento In cronologia
+                            Dim m = evento.Movimiento
+
+                            ' FORMATO: FECHA | [DOCUMENTO] | ORIGEN -> DESTINO
+                            ' Ejemplo: 12/02 15:42 | [OFICIO 13795] | BANDEJA -> ARCHIVO
+                            Dim linea = $" {m.Fecha:dd/MM HH:mm} | [{evento.DocInfo}] | {m.Origen} -> {m.Destino}"
+                            lineas.Add(linea)
+
+                            ' Opcional: Mostrar observación si existe (en una línea indentada para no ensuciar la principal)
+                            ' Si prefieres quitarlo del todo, borra este bloque If.
+                            If Not String.IsNullOrWhiteSpace(m.Observacion) Then
+                                lineas.Add($"       (Obs: {m.Observacion})")
+                            End If
+                        Next
+                    Else
+                        lineas.Add(" (Sin movimientos registrados)")
+                    End If
+
+                    lineas.Add("") ' Espacio
+                    lineas.Add("=".PadRight(110, "="c)) ' Separador final de familia
                 Next
 
                 _lineasImpresionFamilias = lineas
                 _indiceLineaImpresion = 0
 
                 Using preview As New PrintPreviewDialog()
-                    _printDocumentoFamilias.DocumentName = $"Familias {fechaDesde:yyyyMMdd}-{fechaHasta:yyyyMMdd}"
+                    _printDocumentoFamilias.DocumentName = $"Trazabilidad {fechaDesde:yyyyMMdd}-{fechaHasta:yyyyMMdd}"
                     preview.Document = _printDocumentoFamilias
                     preview.Width = 1200
                     preview.Height = 800
@@ -218,7 +453,7 @@ Public Class frmBandeja
                 End Using
             End Using
         Catch ex As Exception
-            Notifier.[Error](Me, "No se pudo generar la impresión por rango: " & ex.Message)
+            Notifier.[Error](Me, "Error al generar reporte unificado: " & ex.Message)
         End Try
     End Sub
 

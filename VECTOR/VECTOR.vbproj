@@ -165,6 +165,12 @@
     <Compile Include="frmDetalleDocumento.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmOpcionesReporte.Designer.vb">
+      <DependentUpon>frmOpcionesReporte.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmOpcionesReporte.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmVincular.Designer.vb">
       <DependentUpon>frmVincular.vb</DependentUpon>
     </Compile>

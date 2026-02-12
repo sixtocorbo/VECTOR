@@ -64,10 +64,10 @@ Public Class frmHistorial
             End If
 
             Dim historialDatos = (From m In movimientosQuery
-                                  Order By m.FechaMovimiento Ascending
+                                  Order By m.FechaMovimiento Ascending, m.IdMovimiento Ascending  ' <--- AGREGAR ESTO
                                   Select New With {
-                                      .Fecha = m.FechaMovimiento,
-                                      .ID_Doc = m.IdDocumento,
+                          .Fecha = m.FechaMovimiento,
+                          .ID_Doc = m.IdDocumento,
                                       .Tipo = m.Mae_Documento.Cat_TipoDocumento.Codigo,
                                       .Numero = m.Mae_Documento.NumeroOficial,
                                       .Origen = m.Cat_Oficina.Nombre,

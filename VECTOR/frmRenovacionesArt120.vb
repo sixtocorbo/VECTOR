@@ -1259,6 +1259,8 @@ Public Class frmRenovacionesArt120
                 .ReadOnly = True,
                 .AllowUserToAddRows = False,
                 .AllowUserToDeleteRows = False,
+                .AllowUserToResizeColumns = False,
+                .AllowUserToResizeRows = False,
                 .SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 .MultiSelect = False,
                 .AutoGenerateColumns = False,

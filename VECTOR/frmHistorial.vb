@@ -1,15 +1,24 @@
 ﻿Imports System.Data.Entity
 Imports System.Drawing.Printing
-Imports System.Linq ' Aseguramos que LINQ esté disponible para las listas
+Imports System.Linq
 
 Public Class frmHistorial
+
+    Private Enum AlcanceHistorial
+        DocumentoSeleccionado = 0
+        FamiliaPadreAdjuntos = 1
+        DocumentoYFamiliaHistorico = 2
+    End Enum
 
     Private db As New SecretariaDBEntities()
     Private _idDocumento As Long
     Private _printBitmap As Bitmap
     Private WithEvents _printDocument As New PrintDocument()
+    Private WithEvents cboAlcance As ComboBox
+    Private WithEvents chkHistorico As CheckBox
+    Private WithEvents dtpDesde As DateTimePicker
+    Private WithEvents dtpHasta As DateTimePicker
 
-    ' Constructor que obliga a pasar el ID
     Public Sub New(idDoc As Long)
         InitializeComponent()
         _idDocumento = idDoc
@@ -17,12 +26,53 @@ Public Class frmHistorial
 
     Private Sub frmHistorial_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AppTheme.Aplicar(Me)
+        InicializarControlesFiltro()
         CargarHistorial()
+    End Sub
+
+    Private Sub InicializarControlesFiltro()
+        cboAlcance = New ComboBox With {
+            .DropDownStyle = ComboBoxStyle.DropDownList,
+            .Width = 260,
+            .Location = New Point(540, 20)
+        }
+        cboAlcance.Items.AddRange(New Object() {
+            "Solo documento seleccionado",
+            "Familia (padre + adjuntos)",
+            "Documento + familia (histórico)"
+        })
+        cboAlcance.SelectedIndex = CInt(AlcanceHistorial.DocumentoYFamiliaHistorico)
+
+        chkHistorico = New CheckBox With {
+            .Text = "Todo el histórico",
+            .ForeColor = Color.WhiteSmoke,
+            .AutoSize = True,
+            .Location = New Point(540, 65),
+            .Checked = True
+        }
+
+        dtpDesde = New DateTimePicker With {
+            .Format = DateTimePickerFormat.Short,
+            .Location = New Point(700, 63),
+            .Enabled = False,
+            .Width = 110
+        }
+
+        dtpHasta = New DateTimePicker With {
+            .Format = DateTimePickerFormat.Short,
+            .Location = New Point(820, 63),
+            .Enabled = False,
+            .Width = 110
+        }
+
+        PanelHeader.Controls.Add(cboAlcance)
+        PanelHeader.Controls.Add(chkHistorico)
+        PanelHeader.Controls.Add(dtpDesde)
+        PanelHeader.Controls.Add(dtpHasta)
     End Sub
 
     Private Sub CargarHistorial()
         Try
-            ' PASO 1: Identificar familia
             Dim docActual = db.Mae_Documento.Find(_idDocumento)
 
             If docActual Is Nothing Then
@@ -32,16 +82,31 @@ Public Class frmHistorial
 
             lblNumero.Text = docActual.Cat_TipoDocumento.Codigo & " " & docActual.NumeroOficial
             lblAsunto.Text = docActual.Asunto
-            Dim guidFamilia = docActual.IdHiloConversacion
 
-            ' =============================================================================
-            ' NUEVA LÓGICA: DIVIDIMOS EN DOS PASOS PARA PODER CONTAR Y FORMATEAR
-            ' =============================================================================
+            Dim movimientosQuery = db.Tra_Movimiento.AsQueryable()
+            Dim alcanceSeleccionado = CType(cboAlcance.SelectedIndex, AlcanceHistorial)
 
-            ' PASO 2: Consulta LINQ - DATOS PUROS (Traemos el conteo desde la BD)
-            Dim historialDatos = (From m In db.Tra_Movimiento
-                                  Where m.Mae_Documento.IdHiloConversacion = guidFamilia
-                                  Order By m.FechaMovimiento Descending
+            Select Case alcanceSeleccionado
+                Case AlcanceHistorial.DocumentoSeleccionado
+                    movimientosQuery = movimientosQuery.Where(Function(m) m.IdDocumento = _idDocumento)
+
+                Case AlcanceHistorial.FamiliaPadreAdjuntos
+                    Dim idsFamiliaPadreAdjuntos = ObtenerIdsFamiliaPadreAdjuntos(docActual.IdDocumento)
+                    movimientosQuery = movimientosQuery.Where(Function(m) idsFamiliaPadreAdjuntos.Contains(m.IdDocumento))
+
+                Case Else
+                    Dim guidFamilia = docActual.IdHiloConversacion
+                    movimientosQuery = movimientosQuery.Where(Function(m) m.Mae_Documento.IdHiloConversacion = guidFamilia)
+            End Select
+
+            If Not chkHistorico.Checked Then
+                Dim fechaDesde = dtpDesde.Value.Date
+                Dim fechaHasta = dtpHasta.Value.Date.AddDays(1)
+                movimientosQuery = movimientosQuery.Where(Function(m) m.FechaMovimiento >= fechaDesde AndAlso m.FechaMovimiento < fechaHasta)
+            End If
+
+            Dim historialDatos = (From m In movimientosQuery
+                                  Order By m.FechaMovimiento Ascending
                                   Select New With {
                                       .Fecha = m.FechaMovimiento,
                                       .ID_Doc = m.IdDocumento,
@@ -53,13 +118,12 @@ Public Class frmHistorial
                                       .Observacion = m.ObservacionPase,
                                       .Responsable = m.Cat_Usuario.UsuarioLogin,
                                       .Cant_Hijos = db.Mae_Documento.Where(Function(h) h.IdDocumentoPadre = m.IdDocumento And h.IdEstadoActual <> 5).Count()
-                                  }).ToList() ' <--- Ejecutamos la consulta SQL aquí
+                                  }).ToList()
 
-            ' PASO 3: Proyección en Memoria - ARMADO VISUAL (Concatenamos el número)
             Dim historialVisual = historialDatos.Select(Function(x) New With {
                 .Fecha = x.Fecha,
                 .ID_Doc = x.ID_Doc,
-                .Documento = x.Tipo & " " & x.Numero & If(x.Cant_Hijos > 0, " (" & x.Cant_Hijos & ")", ""), ' <--- AQUÍ ESTÁ EL CAMBIO
+                .Documento = x.Tipo & " " & x.Numero & If(x.Cant_Hijos > 0, " (" & x.Cant_Hijos & ")", ""),
                 .Origen = x.Origen,
                 .Destino = x.Destino,
                 .Estado = x.Estado,
@@ -67,17 +131,15 @@ Public Class frmHistorial
                 .Responsable = x.Responsable
             }).ToList()
 
-            ' PASO 4: Llenar Grilla
             dgvHistoria.DataSource = historialVisual
 
-            ' PASO 5: Estética
             If dgvHistoria.Columns.Count > 0 Then
                 With dgvHistoria
                     .Columns("Fecha").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm"
                     .Columns("Fecha").Width = 110
                     .Columns("ID_Doc").Visible = False
 
-                    .Columns("Documento").Width = 160 ' Un poco más ancho para que quepa el número
+                    .Columns("Documento").Width = 160
                     .Columns("Documento").HeaderText = "Pieza / Doc"
 
                     .Columns("Origen").Width = 140
@@ -86,16 +148,12 @@ Public Class frmHistorial
                     .Columns("Responsable").Width = 70
                     .Columns("Observacion").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
 
-                    ' MEJORA VISUAL EXTRA
                     .CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
                     .GridColor = Color.WhiteSmoke
                 End With
             End If
 
-            ' PASO 6: COLOREADO INTELIGENTE
             ResaltarDocumentoActual()
-
-            ' PASO 7: QUITAR EL FOCO INICIAL
             dgvHistoria.ClearSelection()
             dgvHistoria.CurrentCell = Nothing
 
@@ -103,6 +161,41 @@ Public Class frmHistorial
             Notifier.[Error](Me, "Error al leer la trazabilidad: " & ex.Message)
         End Try
     End Sub
+
+    Private Function ObtenerIdsFamiliaPadreAdjuntos(idDocumento As Long) As List(Of Long)
+        Dim ids As New HashSet(Of Long)()
+        Dim pendientes As New Queue(Of Long)()
+
+        Dim docBase = db.Mae_Documento.Find(idDocumento)
+        If docBase Is Nothing Then
+            Return New List(Of Long) From {idDocumento}
+        End If
+
+        Dim idRaiz = docBase.IdDocumento
+        While docBase.IdDocumentoPadre.HasValue
+            idRaiz = docBase.IdDocumentoPadre.Value
+            docBase = db.Mae_Documento.Find(idRaiz)
+            If docBase Is Nothing Then
+                Exit While
+            End If
+        End While
+
+        pendientes.Enqueue(idRaiz)
+        ids.Add(idRaiz)
+
+        While pendientes.Count > 0
+            Dim idActual = pendientes.Dequeue()
+            Dim hijos = db.Mae_Documento.Where(Function(d) d.IdDocumentoPadre = idActual).Select(Function(d) d.IdDocumento).ToList()
+
+            For Each idHijo In hijos
+                If ids.Add(idHijo) Then
+                    pendientes.Enqueue(idHijo)
+                End If
+            Next
+        End While
+
+        Return ids.ToList()
+    End Function
 
     Private Sub dgvHistoria_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvHistoria.DataBindingComplete
         ResaltarDocumentoActual()
@@ -137,11 +230,39 @@ Public Class frmHistorial
             If dialog.ShowDialog(Me) = DialogResult.OK Then
                 _printBitmap = New Bitmap(Me.ClientSize.Width, Me.ClientSize.Height)
                 Me.DrawToBitmap(_printBitmap, New Rectangle(Point.Empty, Me.ClientSize))
-                _printDocument.DocumentName = $"Historial - {lblNumero.Text}"
+                _printDocument.DocumentName = $"Historial ({cboAlcance.Text}) - {lblNumero.Text}"
                 _printDocument.DefaultPageSettings.Landscape = Me.ClientSize.Width > Me.ClientSize.Height
                 _printDocument.Print()
             End If
         End Using
+    End Sub
+
+    Private Sub cboAlcance_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboAlcance.SelectedIndexChanged
+        If IsHandleCreated Then
+            CargarHistorial()
+        End If
+    End Sub
+
+    Private Sub chkHistorico_CheckedChanged(sender As Object, e As EventArgs) Handles chkHistorico.CheckedChanged
+        Dim habilitarRango = Not chkHistorico.Checked
+        dtpDesde.Enabled = habilitarRango
+        dtpHasta.Enabled = habilitarRango
+
+        If IsHandleCreated Then
+            CargarHistorial()
+        End If
+    End Sub
+
+    Private Sub dtpDesde_ValueChanged(sender As Object, e As EventArgs) Handles dtpDesde.ValueChanged
+        If Not chkHistorico.Checked AndAlso IsHandleCreated Then
+            CargarHistorial()
+        End If
+    End Sub
+
+    Private Sub dtpHasta_ValueChanged(sender As Object, e As EventArgs) Handles dtpHasta.ValueChanged
+        If Not chkHistorico.Checked AndAlso IsHandleCreated Then
+            CargarHistorial()
+        End If
     End Sub
 
     Private Sub PrintDocument_PrintPage(sender As Object, e As PrintPageEventArgs) Handles _printDocument.PrintPage

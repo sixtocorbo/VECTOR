@@ -2,6 +2,7 @@
 Imports System.Data.SqlClient
 Imports System.Drawing
 Imports System.Drawing.Printing
+Imports System.IO
 Imports System.Text
 Imports System.Reflection
 Imports System.Threading.Tasks
@@ -129,10 +130,10 @@ Public Class frmBandeja
                     ' MODO 1: Histórico completo del expediente seleccionado
                     Dim idDoc As Long = CLng(dgvPendientes.SelectedRows(0).Cells("ID").Value)
                     ' Pasamos el ID del documento seleccionado. El método buscará su Hilo.
-                    GenerarReporteTrazabilidad(Nothing, Nothing, idDoc)
+                    GenerarReporteTrazabilidad(Nothing, Nothing, idDoc, formOpciones.EsExportacionPDF)
                 Else
                     ' MODO 2: Reporte de actividad por fechas
-                    GenerarReporteTrazabilidad(formOpciones.FechaDesde, formOpciones.FechaHasta, Nothing)
+                    GenerarReporteTrazabilidad(formOpciones.FechaDesde, formOpciones.FechaHasta, Nothing, formOpciones.EsExportacionPDF)
                 End If
 
             End If
@@ -144,7 +145,7 @@ Public Class frmBandeja
     ''' <param name="fechaDesde">Opcional si se busca por ID.</param>
     ''' <param name="fechaHasta">Opcional si se busca por ID.</param>
     ''' <param name="idDocumentoSeleccionado">Si tiene valor, trae TODO el historial de ese expediente (ignora fechas).</param>
-    Private Sub GenerarReporteTrazabilidad(fechaDesde As Date?, fechaHasta As Date?, idDocumentoSeleccionado As Long?)
+    Private Sub GenerarReporteTrazabilidad(fechaDesde As Date?, fechaHasta As Date?, idDocumentoSeleccionado As Long?, exportarPdf As Boolean)
         Try
             Using uow As New UnitOfWork()
                 Dim repo = uow.Repository(Of Mae_Documento)()
@@ -292,18 +293,167 @@ Public Class frmBandeja
                 _lineasImpresionFamilias = lineas
                 _indiceLineaImpresion = 0
 
-                Using preview As New PrintPreviewDialog()
-                    _printDocumentoFamilias.DocumentName = "Reporte_Trazabilidad"
-                    preview.Document = _printDocumentoFamilias
-                    preview.Width = 1200
-                    preview.Height = 800
-                    preview.ShowDialog(Me)
-                End Using
+                If exportarPdf Then
+                    ExportarReporteTrazabilidadPdf(tituloReporte, lineas)
+                Else
+                    MostrarVistaPreviaReporte("Reporte_Trazabilidad")
+                End If
 
             End Using
         Catch ex As Exception
             Notifier.Error(Me, "Error generando reporte: " & ex.Message)
         End Try
+    End Sub
+
+    Private Sub MostrarVistaPreviaReporte(nombreDocumento As String)
+        Using preview As New PrintPreviewDialog()
+            _printDocumentoFamilias.DocumentName = nombreDocumento
+            preview.Document = _printDocumentoFamilias
+            preview.Width = 1200
+            preview.Height = 800
+            preview.ShowDialog(Me)
+        End Using
+    End Sub
+
+    Private Sub ExportarReporteTrazabilidadPdf(tituloReporte As String, lineas As List(Of String))
+        Using dialog As New SaveFileDialog()
+            dialog.Filter = "Archivo PDF (*.pdf)|*.pdf"
+            dialog.Title = "Guardar reporte de trazabilidad en PDF"
+            dialog.FileName = ObtenerNombreBaseReportePdf(tituloReporte)
+
+            If dialog.ShowDialog(Me) <> DialogResult.OK Then
+                Return
+            End If
+
+            GenerarPdfTextoDesdeLineas(dialog.FileName, lineas)
+            Notifier.Success(Me, "Archivo generado: " & Path.GetFileName(dialog.FileName))
+        End Using
+    End Sub
+
+    Private Function ObtenerNombreBaseReportePdf(tituloReporte As String) As String
+        Dim nombre = "reporte_trazabilidad"
+
+        If Not String.IsNullOrWhiteSpace(tituloReporte) Then
+            nombre = tituloReporte.Trim().ToLowerInvariant().Replace(" ", "_")
+        End If
+
+        For Each invalido In Path.GetInvalidFileNameChars()
+            nombre = nombre.Replace(invalido, "_"c)
+        Next
+
+        Return $"{nombre}_{DateTime.Now:yyyyMMdd_HHmm}.pdf"
+    End Function
+
+    Private Sub GenerarPdfTextoDesdeLineas(filePath As String, lineas As List(Of String))
+        Dim enc = Encoding.ASCII
+        Dim lineasPorPagina As Integer = 54
+        Dim totalPaginas = CInt(Math.Ceiling(lineas.Count / CDbl(lineasPorPagina)))
+        If totalPaginas = 0 Then totalPaginas = 1
+
+        Dim fontObjNumber As Integer = 1
+        Dim siguienteObjeto As Integer = 2
+        Dim objetosContenido As New List(Of Integer)()
+        Dim objetosPagina As New List(Of Integer)()
+
+        For i = 1 To totalPaginas
+            objetosContenido.Add(siguienteObjeto)
+            siguienteObjeto += 1
+            objetosPagina.Add(siguienteObjeto)
+            siguienteObjeto += 1
+        Next
+
+        Dim pagesObjNumber As Integer = siguienteObjeto
+        siguienteObjeto += 1
+        Dim catalogObjNumber As Integer = siguienteObjeto
+
+        Using fs As New FileStream(filePath, FileMode.Create, FileAccess.Write)
+            Dim offsets As New Dictionary(Of Integer, Integer)()
+
+            Dim header = "%PDF-1.4" & Environment.NewLine
+            fs.Write(enc.GetBytes(header), 0, header.Length)
+
+            offsets(fontObjNumber) = CInt(fs.Position)
+            EscribirObjetoPdf(fs, fontObjNumber, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+
+            For pagina As Integer = 0 To totalPaginas - 1
+                Dim inicio = pagina * lineasPorPagina
+                Dim tramo = lineas.Skip(inicio).Take(lineasPorPagina).ToList()
+                Dim contenido = CrearContenidoPdfPagina(tramo)
+                Dim contenidoBytes = enc.GetBytes(contenido)
+
+                offsets(objetosContenido(pagina)) = CInt(fs.Position)
+                EscribirObjetoPdf(fs, objetosContenido(pagina), $"<< /Length {contenidoBytes.Length} >>", contenidoBytes)
+
+                Dim paginaObj As String = $"<< /Type /Page /Parent {pagesObjNumber} 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 {fontObjNumber} 0 R >> >> /Contents {objetosContenido(pagina)} 0 R >>"
+                offsets(objetosPagina(pagina)) = CInt(fs.Position)
+                EscribirObjetoPdf(fs, objetosPagina(pagina), paginaObj)
+            Next
+
+            Dim kids = String.Join(" ", objetosPagina.Select(Function(p) $"{p} 0 R"))
+            offsets(pagesObjNumber) = CInt(fs.Position)
+            EscribirObjetoPdf(fs, pagesObjNumber, $"<< /Type /Pages /Count {totalPaginas} /Kids [{kids}] >>")
+
+            offsets(catalogObjNumber) = CInt(fs.Position)
+            EscribirObjetoPdf(fs, catalogObjNumber, $"<< /Type /Catalog /Pages {pagesObjNumber} 0 R >>")
+
+            Dim xrefPos = fs.Position
+            Dim size = catalogObjNumber + 1
+            Dim xrefHeader = $"xref{Environment.NewLine}0 {size}{Environment.NewLine}"
+            fs.Write(enc.GetBytes(xrefHeader), 0, xrefHeader.Length)
+
+            Dim freeEntry = "0000000000 65535 f " & Environment.NewLine
+            fs.Write(enc.GetBytes(freeEntry), 0, freeEntry.Length)
+
+            For i As Integer = 1 To catalogObjNumber
+                Dim offset As Integer = 0
+                If offsets.ContainsKey(i) Then offset = offsets(i)
+                Dim entry = offset.ToString("D10") & " 00000 n " & Environment.NewLine
+                fs.Write(enc.GetBytes(entry), 0, entry.Length)
+            Next
+
+            Dim trailer = $"trailer{Environment.NewLine}<< /Size {size} /Root {catalogObjNumber} 0 R >>{Environment.NewLine}startxref{Environment.NewLine}{xrefPos}{Environment.NewLine}%%EOF"
+            fs.Write(enc.GetBytes(trailer), 0, trailer.Length)
+        End Using
+    End Sub
+
+    Private Function CrearContenidoPdfPagina(lineas As List(Of String)) As String
+        Dim sb As New StringBuilder()
+        Dim posY As Integer = 760
+        Dim interlineado As Integer = 13
+
+        sb.AppendLine("BT")
+        sb.AppendLine("/F1 10 Tf")
+
+        For Each linea In lineas
+            Dim texto = EscapePdfText(linea)
+            sb.AppendLine($"1 0 0 1 36 {posY} Tm ({texto}) Tj")
+            posY -= interlineado
+        Next
+
+        sb.AppendLine("ET")
+        Return sb.ToString()
+    End Function
+
+    Private Function EscapePdfText(value As String) As String
+        Dim limpio = If(value, String.Empty)
+        Return limpio.Replace("\", "\\").Replace("(", "\(").Replace(")", "\)")
+    End Function
+
+    Private Sub EscribirObjetoPdf(fs As FileStream, numero As Integer, cuerpo As String, Optional streamBytes As Byte() = Nothing)
+        Dim enc = Encoding.ASCII
+        Dim inicio = $"{numero} 0 obj{Environment.NewLine}{cuerpo}"
+        fs.Write(enc.GetBytes(inicio), 0, inicio.Length)
+
+        If streamBytes IsNot Nothing Then
+            Dim streamInicio = Environment.NewLine & "stream" & Environment.NewLine
+            fs.Write(enc.GetBytes(streamInicio), 0, streamInicio.Length)
+            fs.Write(streamBytes, 0, streamBytes.Length)
+            Dim streamFin = Environment.NewLine & "endstream"
+            fs.Write(enc.GetBytes(streamFin), 0, streamFin.Length)
+        End If
+
+        Dim fin = Environment.NewLine & "endobj" & Environment.NewLine
+        fs.Write(enc.GetBytes(fin), 0, fin.Length)
     End Sub
 
     Private Sub ImprimirFamiliasPorRango(fechaDesde As Date, fechaHasta As Date)

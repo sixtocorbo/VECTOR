@@ -19,6 +19,7 @@ Public Class frmRenovacionesArt120
         Public Property Estado As String
         Public Property NotificacionJudicial As String
         Public Property Autorizacion As String
+        Public Property DescripcionAutorizacion As String
         Public Property IdDocumentoRespaldo As Nullable(Of Long)
         Public Property ReferenciaDocumentacion As String
         Public Property CantidadDocumentos As Integer
@@ -28,6 +29,7 @@ Public Class frmRenovacionesArt120
 
     Private Class ObservacionesSalidaDto
         Public Property CodigoAutorizacion As String
+        Public Property DescripcionAutorizacion As String
         Public Property ObservacionesUsuario As String
     End Class
 
@@ -56,6 +58,7 @@ Public Class frmRenovacionesArt120
     Private Const CodigoAutorizacionResolucionJuez As String = "RESOLUCION_JUEZ"
     Private Const CodigoAutorizacionActa As String = "ACTA"
     Private Const PrefijoAutorizacionObservaciones As String = "#AUTORIZACION#:"
+    Private Const PrefijoDescripcionAutorizacionObservaciones As String = "#AUTORIZACION_DESC#:"
 
     Private Const DiasAlertaMinimo As Integer = 1
     Private Const DiasAlertaMaximo As Integer = 365
@@ -158,6 +161,7 @@ Public Class frmRenovacionesArt120
                                                     .Estado = estado,
                                                     .NotificacionJudicial = ObtenerEstadoNotificacionJuez(x.FechaNotificacionJuez, x.FechaInicio),
                                                     .Autorizacion = ObtenerDescripcionAutorizacion(parse.CodigoAutorizacion),
+                                                    .DescripcionAutorizacion = parse.DescripcionAutorizacion,
                                                     .IdDocumentoRespaldo = x.IdDocumentoRespaldo,
                                                     .ReferenciaDocumentacion = referencia,
                                                     .CantidadDocumentos = cantidadDocs,
@@ -182,7 +186,7 @@ Public Class frmRenovacionesArt120
         If Not String.IsNullOrWhiteSpace(texto) Then
             Dim palabras = texto.Split(" "c)
             lista = lista.Where(Function(s)
-                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Horario} {s.DetalleCustodia} {s.Estado} {s.NotificacionJudicial} {s.Autorizacion} {s.Observaciones} {s.ReferenciaDocumentacion} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
+                                    Dim baseTexto = $"{s.Recluso} {s.LugarTrabajo} {s.Horario} {s.DetalleCustodia} {s.Estado} {s.NotificacionJudicial} {s.Autorizacion} {s.DescripcionAutorizacion} {s.Observaciones} {s.ReferenciaDocumentacion} {If(s.IdDocumentoRespaldo.HasValue, s.IdDocumentoRespaldo.Value.ToString(), "")}".ToUpper()
                                     Return palabras.All(Function(p) String.IsNullOrWhiteSpace(p) OrElse baseTexto.Contains(p))
                                 End Function)
         End If
@@ -239,6 +243,7 @@ Public Class frmRenovacionesArt120
 
         dgvSalidas.Columns("IdRecluso").Visible = False
         dgvSalidas.Columns("Observaciones").Visible = False
+        dgvSalidas.Columns("DescripcionAutorizacion").Visible = False
         dgvSalidas.Columns("Activo").Visible = False
         dgvSalidas.Columns("IdDocumentoRespaldo").Visible = False
         dgvSalidas.Columns("CantidadDocumentos").Visible = False
@@ -405,6 +410,7 @@ Public Class frmRenovacionesArt120
 
                 Dim datosObservaciones = ParsearObservacionesConAutorizacion(salida.Observaciones)
                 SeleccionarAutorizacionEnCombo(datosObservaciones.CodigoAutorizacion)
+                txtDescripcionAutorizacion.Text = datosObservaciones.DescripcionAutorizacion
                 txtObservaciones.Text = datosObservaciones.ObservacionesUsuario
 
                 Await CargarDocumentosRespaldoAsync(salida.IdRecluso,
@@ -481,7 +487,7 @@ Public Class frmRenovacionesArt120
                 entidad.IdDocumentoRespaldo = ObtenerDocumentoPrincipalSeleccionado()
                 entidad.FechaNotificacionJuez = If(dtpFechaNotificacion.Checked, CType(dtpFechaNotificacion.Value.Date, Nullable(Of Date)), Nothing)
                 entidad.Activo = chkActivoRegistro.Checked
-                entidad.Observaciones = ConstruirObservacionesConAutorizacion(ObtenerCodigoAutorizacionSeleccionado(), txtObservaciones.Text)
+                entidad.Observaciones = ConstruirObservacionesConAutorizacion(ObtenerCodigoAutorizacionSeleccionado(), txtDescripcionAutorizacion.Text, txtObservaciones.Text)
 
                 Await uow.CommitAsync()
                 Await GuardarDocumentosRespaldoSalidaAsync(uow, entidad.IdSalida, ObtenerIdsDocumentosSeleccionados())
@@ -545,6 +551,12 @@ Public Class frmRenovacionesArt120
         If String.IsNullOrWhiteSpace(codigoAutorizacion) Then
             Notifier.Warn(Me, "Indique la autorización de salida (Resolución de un Juez o Acta).")
             cboAutorizacion.Focus()
+            Return False
+        End If
+
+        If String.IsNullOrWhiteSpace(txtDescripcionAutorizacion.Text) Then
+            Notifier.Warn(Me, "Describa la autorización de salida (dato obligatorio).")
+            txtDescripcionAutorizacion.Focus()
             Return False
         End If
 
@@ -662,6 +674,7 @@ Public Class frmRenovacionesArt120
         txtHorario.Clear()
         txtCustodia.Clear()
         cboAutorizacion.SelectedIndex = 0
+        txtDescripcionAutorizacion.Clear()
         dtpInicio.Value = Date.Today
         dtpVencimiento.Value = Date.Today.AddMonths(1)
         chkActivoRegistro.Checked = True
@@ -706,13 +719,20 @@ Public Class frmRenovacionesArt120
         End If
     End Sub
 
-    Private Function ConstruirObservacionesConAutorizacion(codigoAutorizacion As String, observacionesUsuario As String) As String
+    Private Function ConstruirObservacionesConAutorizacion(codigoAutorizacion As String,
+                                                           descripcionAutorizacion As String,
+                                                           observacionesUsuario As String) As String
         Dim lineas As New List(Of String)()
         Dim codigo = If(codigoAutorizacion, "").Trim().ToUpperInvariant()
+        Dim descripcion = If(descripcionAutorizacion, "").Trim()
         Dim texto = If(observacionesUsuario, "").Trim()
 
         If Not String.IsNullOrWhiteSpace(codigo) Then
             lineas.Add(PrefijoAutorizacionObservaciones & codigo)
+        End If
+
+        If Not String.IsNullOrWhiteSpace(descripcion) Then
+            lineas.Add(PrefijoDescripcionAutorizacionObservaciones & descripcion)
         End If
 
         If Not String.IsNullOrWhiteSpace(texto) Then
@@ -726,6 +746,7 @@ Public Class frmRenovacionesArt120
     Private Function ParsearObservacionesConAutorizacion(observaciones As String) As ObservacionesSalidaDto
         Dim resultado As New ObservacionesSalidaDto With {
             .CodigoAutorizacion = "",
+            .DescripcionAutorizacion = "",
             .ObservacionesUsuario = ""
         }
 
@@ -734,11 +755,22 @@ Public Class frmRenovacionesArt120
         End If
 
         Dim lineas = observaciones.Split({Environment.NewLine}, StringSplitOptions.None).ToList()
-        If lineas.Count > 0 AndAlso lineas(0).Trim().StartsWith(PrefijoAutorizacionObservaciones, StringComparison.OrdinalIgnoreCase) Then
-            Dim codigo = lineas(0).Trim().Substring(PrefijoAutorizacionObservaciones.Length).Trim().ToUpperInvariant()
+        Dim indice = 0
+
+        If lineas.Count > indice AndAlso lineas(indice).Trim().StartsWith(PrefijoAutorizacionObservaciones, StringComparison.OrdinalIgnoreCase) Then
+            Dim codigo = lineas(indice).Trim().Substring(PrefijoAutorizacionObservaciones.Length).Trim().ToUpperInvariant()
             resultado.CodigoAutorizacion = codigo
-            lineas.RemoveAt(0)
-            resultado.ObservacionesUsuario = String.Join(Environment.NewLine, lineas).Trim()
+            indice += 1
+        End If
+
+        If lineas.Count > indice AndAlso lineas(indice).Trim().StartsWith(PrefijoDescripcionAutorizacionObservaciones, StringComparison.OrdinalIgnoreCase) Then
+            Dim descripcion = lineas(indice).Trim().Substring(PrefijoDescripcionAutorizacionObservaciones.Length).Trim()
+            resultado.DescripcionAutorizacion = descripcion
+            indice += 1
+        End If
+
+        If indice > 0 Then
+            resultado.ObservacionesUsuario = String.Join(Environment.NewLine, lineas.Skip(indice)).Trim()
             Return resultado
         End If
 

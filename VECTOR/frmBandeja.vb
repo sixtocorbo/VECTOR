@@ -1,6 +1,7 @@
 ﻿Imports System.Data.Entity
 Imports System.Data.SqlClient
 Imports System.Drawing
+Imports System.Drawing.Printing
 Imports System.Text
 Imports System.Reflection
 Imports System.Threading.Tasks
@@ -22,6 +23,9 @@ Public Class frmBandeja
     Private _cantVencidasArt120 As Integer = 0
     Private _ultimoResumenArt120 As String = ""
     Private _cerrando As Boolean = False
+    Private WithEvents _printDocumentoFamilias As New PrintDocument()
+    Private _lineasImpresionFamilias As List(Of String) = New List(Of String)()
+    Private _indiceLineaImpresion As Integer = 0
 
     Private Function FormularioDisponible() As Boolean
         Return Not _cerrando AndAlso Not Me.IsDisposed AndAlso Not Me.Disposing AndAlso dgvPendientes IsNot Nothing AndAlso Not dgvPendientes.IsDisposed
@@ -113,6 +117,129 @@ Public Class frmBandeja
         _cerrando = True
         _timerBusqueda.Stop()
         Me.ShowIcon = False
+    End Sub
+
+    Private Sub btnImprimirRango_Click(sender As Object, e As EventArgs) Handles btnImprimirRango.Click
+        Using selector As New frmSelectorRangoFechas()
+            If selector.ShowDialog(Me) <> DialogResult.OK Then Return
+            ImprimirFamiliasPorRango(selector.FechaDesde, selector.FechaHasta)
+        End Using
+    End Sub
+
+    Private Sub ImprimirFamiliasPorRango(fechaDesde As Date, fechaHasta As Date)
+        Try
+            Using uow As New UnitOfWork()
+                Dim fechaFinExclusiva = fechaHasta.Date.AddDays(1)
+                Dim repo = uow.Repository(Of Mae_Documento)()
+                Dim consulta = repo.GetQueryable(tracking:=False).Where(Function(d) d.IdEstadoActual <> 5)
+
+                If Not chkVerDerivados.Checked Then
+                    consulta = consulta.Where(Function(d) d.IdOficinaActual = SesionGlobal.OficinaID)
+                End If
+
+                consulta = consulta.Where(Function(d) d.FechaRecepcion >= fechaDesde.Date AndAlso d.FechaRecepcion < fechaFinExclusiva)
+
+                Dim documentos = consulta.Select(Function(d) New With {
+                    .ID = d.IdDocumento,
+                    .IdPadre = d.IdDocumentoPadre,
+                    .Fecha = d.FechaRecepcion,
+                    .FechaCreacion = d.FechaCreacion,
+                    .Tipo = d.Cat_TipoDocumento.Codigo,
+                    .Numero = d.NumeroOficial,
+                    .Asunto = d.Asunto,
+                    .Oficina = d.Cat_Oficina.Nombre
+                }).ToList()
+
+                If documentos.Count = 0 Then
+                    Notifier.Info(Me, "No hay registros para imprimir en el rango seleccionado.")
+                    Return
+                End If
+
+                Dim mapa = documentos.ToDictionary(Function(x) CLng(x.ID))
+                Dim lineas As New List(Of String) From {
+                    $"IMPRESIÓN DE FAMILIAS - RANGO {fechaDesde:dd/MM/yyyy} a {fechaHasta:dd/MM/yyyy}",
+                    "=".PadRight(110, "="c),
+                    ""
+                }
+
+                Dim grupos = documentos.GroupBy(Function(d)
+                                                    Dim actual = d
+                                                    Dim visitados As New HashSet(Of Long)()
+
+                                                    While actual.IdPadre.HasValue AndAlso mapa.ContainsKey(actual.IdPadre.Value) AndAlso Not visitados.Contains(actual.IdPadre.Value)
+                                                        visitados.Add(actual.IdPadre.Value)
+                                                        actual = mapa(actual.IdPadre.Value)
+                                                    End While
+
+                                                    Return actual.ID
+                                                End Function)
+
+                Dim gruposOrdenados = grupos.
+                    Select(Function(g)
+                               Dim padre = g.FirstOrDefault(Function(x) x.ID = g.Key)
+                               Dim fechaOrden = If(padre IsNot Nothing,
+                                                   If(padre.Fecha.HasValue, padre.Fecha.Value, padre.FechaCreacion),
+                                                   g.Min(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)))
+                               Return New With {
+                                   .IdFamilia = g.Key,
+                                   .FechaOrden = fechaOrden,
+                                   .Documentos = g.OrderBy(Function(x) If(x.Fecha.HasValue, x.Fecha.Value, x.FechaCreacion)).ThenBy(Function(x) x.ID).ToList(),
+                                   .Padre = padre
+                               }
+                           End Function).
+                    OrderBy(Function(g) g.FechaOrden).
+                    ThenBy(Function(g) g.IdFamilia).
+                    ToList()
+
+                For Each grupo In gruposOrdenados
+                    Dim etiquetaPadre = If(grupo.Padre IsNot Nothing,
+                                           $"{grupo.Padre.Tipo} {grupo.Padre.Numero}",
+                                           "Documento individual")
+                    lineas.Add($"FAMILIA #{grupo.IdFamilia} - {etiquetaPadre} - Fecha {grupo.FechaOrden:dd/MM/yyyy HH:mm}")
+
+                    For Each doc In grupo.Documentos
+                        Dim prefijo = If(doc.ID = grupo.IdFamilia, "PADRE", "HIJO ")
+                        Dim fechaDoc = If(doc.Fecha.HasValue, doc.Fecha.Value, doc.FechaCreacion)
+                        lineas.Add($"  [{prefijo}] {fechaDoc:dd/MM/yyyy HH:mm} | ID {doc.ID} | {doc.Tipo} {doc.Numero} | {doc.Oficina} | {doc.Asunto}")
+                    Next
+
+                    lineas.Add("".PadRight(110, "-"c))
+                Next
+
+                _lineasImpresionFamilias = lineas
+                _indiceLineaImpresion = 0
+
+                Using preview As New PrintPreviewDialog()
+                    _printDocumentoFamilias.DocumentName = $"Familias {fechaDesde:yyyyMMdd}-{fechaHasta:yyyyMMdd}"
+                    preview.Document = _printDocumentoFamilias
+                    preview.Width = 1200
+                    preview.Height = 800
+                    preview.ShowDialog(Me)
+                End Using
+            End Using
+        Catch ex As Exception
+            Notifier.[Error](Me, "No se pudo generar la impresión por rango: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub _printDocumentoFamilias_PrintPage(sender As Object, e As PrintPageEventArgs) Handles _printDocumentoFamilias.PrintPage
+        Dim fuente As New Font("Consolas", 9.5F)
+        Dim y = e.MarginBounds.Top
+        Dim altoLinea = fuente.GetHeight(e.Graphics) + 2
+
+        While _indiceLineaImpresion < _lineasImpresionFamilias.Count
+            If y + altoLinea > e.MarginBounds.Bottom Then
+                e.HasMorePages = True
+                Return
+            End If
+
+            e.Graphics.DrawString(_lineasImpresionFamilias(_indiceLineaImpresion), fuente, Brushes.Black, e.MarginBounds.Left, y)
+            y += CInt(altoLinea)
+            _indiceLineaImpresion += 1
+        End While
+
+        e.HasMorePages = False
+        _indiceLineaImpresion = 0
     End Sub
 
     ' =======================================================

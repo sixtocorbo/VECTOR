@@ -1,6 +1,9 @@
 ﻿Imports System.Data.Entity
+Imports System.Drawing
 Imports System.Drawing.Printing
+Imports System.IO
 Imports System.Linq
+Imports System.Text
 
 Public Class frmHistorial
 
@@ -178,6 +181,206 @@ Public Class frmHistorial
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
+
+    Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
+        If dgvHistoria.Rows.Count = 0 Then
+            Notifier.Info(Me, "No hay datos para exportar.")
+            Return
+        End If
+
+        Using dialog As New SaveFileDialog()
+            dialog.Filter = "Archivo CSV (*.csv)|*.csv"
+            dialog.FileName = ObtenerNombreBaseArchivo() & ".csv"
+            dialog.Title = "Guardar historial en Excel (CSV)"
+
+            If dialog.ShowDialog(Me) <> DialogResult.OK Then
+                Return
+            End If
+
+            Try
+                ExportarCsv(dialog.FileName)
+                Notifier.Success(Me, "Archivo generado: " & Path.GetFileName(dialog.FileName))
+            Catch ex As Exception
+                Notifier.Error(Me, "No se pudo exportar el archivo CSV: " & ex.Message)
+            End Try
+        End Using
+    End Sub
+
+    Private Sub btnExportPdf_Click(sender As Object, e As EventArgs) Handles btnExportPdf.Click
+        If dgvHistoria.Rows.Count = 0 Then
+            Notifier.Info(Me, "No hay datos para exportar.")
+            Return
+        End If
+
+        Using dialog As New SaveFileDialog()
+            dialog.Filter = "Archivo PDF (*.pdf)|*.pdf"
+            dialog.FileName = ObtenerNombreBaseArchivo() & ".pdf"
+            dialog.Title = "Guardar historial en PDF"
+
+            If dialog.ShowDialog(Me) <> DialogResult.OK Then
+                Return
+            End If
+
+            Try
+                ExportarPdf(dialog.FileName)
+                Notifier.Success(Me, "Archivo generado: " & Path.GetFileName(dialog.FileName))
+            Catch ex As Exception
+                Notifier.Error(Me, "No se pudo exportar el archivo PDF: " & ex.Message)
+            End Try
+        End Using
+    End Sub
+
+    Private Sub ExportarCsv(filePath As String)
+        Dim sb As New StringBuilder()
+        Dim columnas = dgvHistoria.Columns.Cast(Of DataGridViewColumn)().Where(Function(c) c.Visible).OrderBy(Function(c) c.DisplayIndex).ToList()
+
+        sb.AppendLine(String.Join(";", columnas.Select(Function(c) EscaparCsv(c.HeaderText))))
+
+        For Each row As DataGridViewRow In dgvHistoria.Rows
+            If row.IsNewRow Then Continue For
+
+            Dim valores = columnas.Select(Function(col)
+                                              Dim value = row.Cells(col.Name).Value
+                                              If value Is Nothing OrElse value Is DBNull.Value Then
+                                                  Return ""
+                                              End If
+
+                                              If TypeOf value Is DateTime Then
+                                                  Return EscaparCsv(CType(value, DateTime).ToString("dd/MM/yyyy HH:mm"))
+                                              End If
+
+                                              Return EscaparCsv(value.ToString())
+                                          End Function)
+
+            sb.AppendLine(String.Join(";", valores))
+        Next
+
+        File.WriteAllText(filePath, sb.ToString(), New UTF8Encoding(True))
+    End Sub
+
+    Private Function EscaparCsv(value As String) As String
+        Dim result = If(value, String.Empty).Replace("""", """""")
+        Return """" & result & """"
+    End Function
+
+    Private Sub ExportarPdf(filePath As String)
+        Dim anchoOriginal = dgvHistoria.Width
+        Dim altoOriginal = dgvHistoria.Height
+
+        Try
+            dgvHistoria.ClearSelection()
+            dgvHistoria.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+            Dim totalWidth = dgvHistoria.Columns.Cast(Of DataGridViewColumn)().Where(Function(c) c.Visible).Sum(Function(c) c.Width)
+            dgvHistoria.Width = Math.Max(totalWidth + 30, dgvHistoria.Width)
+            dgvHistoria.Height = dgvHistoria.ColumnHeadersHeight + (dgvHistoria.RowTemplate.Height * Math.Max(dgvHistoria.Rows.Count, 1)) + 20
+
+            Using bmp As New Bitmap(dgvHistoria.Width, dgvHistoria.Height)
+                dgvHistoria.DrawToBitmap(bmp, New Rectangle(0, 0, bmp.Width, bmp.Height))
+                GuardarBitmapComoPdf(bmp, filePath)
+            End Using
+        Finally
+            dgvHistoria.Width = anchoOriginal
+            dgvHistoria.Height = altoOriginal
+            dgvHistoria.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        End Try
+    End Sub
+
+    Private Sub GuardarBitmapComoPdf(bmp As Bitmap, filePath As String)
+        Dim imageBytes As Byte()
+        Using imageStream As New MemoryStream()
+            bmp.Save(imageStream, Imaging.ImageFormat.Jpeg)
+            imageBytes = imageStream.ToArray()
+        End Using
+
+        Dim pageWidth As Integer = 842
+        Dim pageHeight As Integer = 595
+        Dim margin As Integer = 20
+        Dim maxWidth As Integer = pageWidth - (margin * 2)
+        Dim maxHeight As Integer = pageHeight - (margin * 2)
+
+        Dim scale = Math.Min(maxWidth / CDbl(bmp.Width), maxHeight / CDbl(bmp.Height))
+        Dim drawWidth = CInt(bmp.Width * scale)
+        Dim drawHeight = CInt(bmp.Height * scale)
+        Dim drawX = margin + CInt((maxWidth - drawWidth) / 2)
+        Dim drawY = margin + CInt((maxHeight - drawHeight) / 2)
+
+        Dim imageObjNumber As Integer = 1
+        Dim contentObjNumber As Integer = 2
+        Dim pageObjNumber As Integer = 3
+        Dim pagesObjNumber As Integer = 4
+        Dim catalogObjNumber As Integer = 5
+
+        Dim imageObj As String = $"<< /Type /XObject /Subtype /Image /Width {bmp.Width} /Height {bmp.Height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length {imageBytes.Length} >>"
+        Dim contentText As String = $"q{Environment.NewLine}{drawWidth} 0 0 {drawHeight} {drawX} {drawY} cm{Environment.NewLine}/Im0 Do{Environment.NewLine}Q"
+        Dim contentBytes = Encoding.ASCII.GetBytes(contentText)
+        Dim contentObj As String = $"<< /Length {contentBytes.Length} >>"
+        Dim pageObj As String = $"<< /Type /Page /Parent {pagesObjNumber} 0 R /MediaBox [0 0 {pageWidth} {pageHeight}] /Resources << /XObject << /Im0 {imageObjNumber} 0 R >> >> /Contents {contentObjNumber} 0 R >>"
+        Dim pagesObj As String = $"<< /Type /Pages /Count 1 /Kids [{pageObjNumber} 0 R] >>"
+        Dim catalogObj As String = $"<< /Type /Catalog /Pages {pagesObjNumber} 0 R >>"
+
+        Using fs As New FileStream(filePath, FileMode.Create, FileAccess.Write)
+            Dim offsets As New List(Of Integer)()
+            Dim enc = Encoding.ASCII
+
+            Dim header = "%PDF-1.4" & Environment.NewLine
+            fs.Write(enc.GetBytes(header), 0, header.Length)
+
+            offsets.Add(CInt(fs.Position))
+            EscribirObjetoPdf(fs, imageObjNumber, imageObj, imageBytes)
+
+            offsets.Add(CInt(fs.Position))
+            EscribirObjetoPdf(fs, contentObjNumber, contentObj, contentBytes)
+
+            offsets.Add(CInt(fs.Position))
+            EscribirObjetoPdf(fs, pageObjNumber, pageObj)
+
+            offsets.Add(CInt(fs.Position))
+            EscribirObjetoPdf(fs, pagesObjNumber, pagesObj)
+
+            offsets.Add(CInt(fs.Position))
+            EscribirObjetoPdf(fs, catalogObjNumber, catalogObj)
+
+            Dim xrefPos = fs.Position
+            Dim xrefHeader = $"xref{Environment.NewLine}0 {offsets.Count + 1}{Environment.NewLine}"
+            fs.Write(enc.GetBytes(xrefHeader), 0, xrefHeader.Length)
+            Dim freeEntry = "0000000000 65535 f " & Environment.NewLine
+            fs.Write(enc.GetBytes(freeEntry), 0, freeEntry.Length)
+
+            For Each offset In offsets
+                Dim entry = offset.ToString("D10") & " 00000 n " & Environment.NewLine
+                fs.Write(enc.GetBytes(entry), 0, entry.Length)
+            Next
+
+            Dim trailer = $"trailer{Environment.NewLine}<< /Size {offsets.Count + 1} /Root {catalogObjNumber} 0 R >>{Environment.NewLine}startxref{Environment.NewLine}{xrefPos}{Environment.NewLine}%%EOF"
+            fs.Write(enc.GetBytes(trailer), 0, trailer.Length)
+        End Using
+    End Sub
+
+    Private Sub EscribirObjetoPdf(fs As FileStream, numero As Integer, cuerpo As String, Optional streamBytes As Byte() = Nothing)
+        Dim enc = Encoding.ASCII
+        Dim inicio = $"{numero} 0 obj{Environment.NewLine}{cuerpo}"
+        fs.Write(enc.GetBytes(inicio), 0, inicio.Length)
+
+        If streamBytes IsNot Nothing Then
+            Dim streamInicio = Environment.NewLine & "stream" & Environment.NewLine
+            fs.Write(enc.GetBytes(streamInicio), 0, streamInicio.Length)
+            fs.Write(streamBytes, 0, streamBytes.Length)
+            Dim streamFin = Environment.NewLine & "endstream"
+            fs.Write(enc.GetBytes(streamFin), 0, streamFin.Length)
+        End If
+
+        Dim fin = Environment.NewLine & "endobj" & Environment.NewLine
+        fs.Write(enc.GetBytes(fin), 0, fin.Length)
+    End Sub
+
+    Private Function ObtenerNombreBaseArchivo() As String
+        Dim nombre = $"historial_{lblNumero.Text}_{DateTime.Now:yyyyMMdd_HHmm}"
+        For Each invalid In Path.GetInvalidFileNameChars()
+            nombre = nombre.Replace(invalid, "_"c)
+        Next
+
+        Return nombre
+    End Function
 
     Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
         Using dialog As New PrintDialog()

@@ -254,6 +254,12 @@
     <Compile Include="frmRenovacionesArt120.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmSelectorRangoFechas.Designer.vb">
+      <DependentUpon>frmSelectorRangoFechas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmSelectorRangoFechas.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmUnificarOficinas.Designer.vb">
       <DependentUpon>frmUnificarOficinas.vb</DependentUpon>
     </Compile>
@@ -381,6 +387,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmRenovacionesArt120.resx">
       <DependentUpon>frmRenovacionesArt120.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSelectorRangoFechas.resx">
+      <DependentUpon>frmSelectorRangoFechas.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmUnificarOficinas.resx">
       <DependentUpon>frmUnificarOficinas.vb</DependentUpon>

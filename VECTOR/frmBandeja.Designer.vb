@@ -23,6 +23,7 @@ Partial Class frmBandeja
         Me.lblContador = New System.Windows.Forms.Label()
         Me.txtBuscar = New System.Windows.Forms.TextBox()
         Me.btnDarPase = New System.Windows.Forms.Button()
+        Me.btnImprimirRango = New System.Windows.Forms.Button()
         Me.btnRenovacionesArt120 = New System.Windows.Forms.Button()
         Me.PanelInferior = New System.Windows.Forms.Panel()
         Me.btnDesvincular = New System.Windows.Forms.Button()
@@ -45,6 +46,7 @@ Partial Class frmBandeja
         Me.PanelSuperior.Controls.Add(Me.lblContador)
         Me.PanelSuperior.Controls.Add(Me.txtBuscar)
         Me.PanelSuperior.Controls.Add(Me.btnDarPase)
+        Me.PanelSuperior.Controls.Add(Me.btnImprimirRango)
         Me.PanelSuperior.Controls.Add(Me.btnRenovacionesArt120)
         Me.PanelSuperior.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelSuperior.Location = New System.Drawing.Point(0, 0)
@@ -111,16 +113,30 @@ Partial Class frmBandeja
         Me.btnDarPase.Text = "DAR PASE"
         Me.btnDarPase.UseVisualStyleBackColor = False
         '
+        'btnImprimirRango
+        '
+        Me.btnImprimirRango.BackColor = System.Drawing.Color.Teal
+        Me.btnImprimirRango.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnImprimirRango.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnImprimirRango.ForeColor = System.Drawing.Color.White
+        Me.btnImprimirRango.Location = New System.Drawing.Point(919, 14)
+        Me.btnImprimirRango.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnImprimirRango.Name = "btnImprimirRango"
+        Me.btnImprimirRango.Size = New System.Drawing.Size(270, 71)
+        Me.btnImprimirRango.TabIndex = 8
+        Me.btnImprimirRango.Text = "IMPRIMIR POR RANGO"
+        Me.btnImprimirRango.UseVisualStyleBackColor = False
+        '
         'btnRenovacionesArt120
         '
         Me.btnRenovacionesArt120.BackColor = System.Drawing.Color.MediumPurple
         Me.btnRenovacionesArt120.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnRenovacionesArt120.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnRenovacionesArt120.ForeColor = System.Drawing.Color.White
-        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(919, 14)
+        Me.btnRenovacionesArt120.Location = New System.Drawing.Point(1204, 14)
         Me.btnRenovacionesArt120.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnRenovacionesArt120.Name = "btnRenovacionesArt120"
-        Me.btnRenovacionesArt120.Size = New System.Drawing.Size(330, 71)
+        Me.btnRenovacionesArt120.Size = New System.Drawing.Size(220, 71)
         Me.btnRenovacionesArt120.TabIndex = 7
         Me.btnRenovacionesArt120.Text = "RENOVACIONES ART.120"
         Me.btnRenovacionesArt120.UseVisualStyleBackColor = False
@@ -269,4 +285,5 @@ Partial Class frmBandeja
     Friend WithEvents lblContador As System.Windows.Forms.Label
     Friend WithEvents btnDesvincular As System.Windows.Forms.Button
     Friend WithEvents btnRenovacionesArt120 As System.Windows.Forms.Button
+    Friend WithEvents btnImprimirRango As System.Windows.Forms.Button
 End Class

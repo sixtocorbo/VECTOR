@@ -26,6 +26,8 @@ Partial Class frmHistorial
         Me.chkHistorico = New System.Windows.Forms.CheckBox()
         Me.cboAlcance = New System.Windows.Forms.ComboBox()
         Me.lblAlcance = New System.Windows.Forms.Label()
+        Me.btnExportPdf = New System.Windows.Forms.Button()
+        Me.btnExportExcel = New System.Windows.Forms.Button()
         Me.btnPrint = New System.Windows.Forms.Button()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.lblAsunto = New System.Windows.Forms.Label()
@@ -45,6 +47,8 @@ Partial Class frmHistorial
         Me.PanelHeader.Controls.Add(Me.chkHistorico)
         Me.PanelHeader.Controls.Add(Me.cboAlcance)
         Me.PanelHeader.Controls.Add(Me.lblAlcance)
+        Me.PanelHeader.Controls.Add(Me.btnExportPdf)
+        Me.PanelHeader.Controls.Add(Me.btnExportExcel)
         Me.PanelHeader.Controls.Add(Me.btnPrint)
         Me.PanelHeader.Controls.Add(Me.btnClose)
         Me.PanelHeader.Controls.Add(Me.lblAsunto)
@@ -131,13 +135,41 @@ Partial Class frmHistorial
         Me.lblAlcance.TabIndex = 4
         Me.lblAlcance.Text = "Alcance:"
         '
+        'btnExportPdf
+        '
+        Me.btnExportPdf.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnExportPdf.BackColor = System.Drawing.Color.DimGray
+        Me.btnExportPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnExportPdf.ForeColor = System.Drawing.Color.White
+        Me.btnExportPdf.Location = New System.Drawing.Point(790, 18)
+        Me.btnExportPdf.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnExportPdf.Name = "btnExportPdf"
+        Me.btnExportPdf.Size = New System.Drawing.Size(109, 35)
+        Me.btnExportPdf.TabIndex = 12
+        Me.btnExportPdf.Text = "Exportar PDF"
+        Me.btnExportPdf.UseVisualStyleBackColor = False
+        '
+        'btnExportExcel
+        '
+        Me.btnExportExcel.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnExportExcel.BackColor = System.Drawing.Color.SeaGreen
+        Me.btnExportExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnExportExcel.ForeColor = System.Drawing.Color.White
+        Me.btnExportExcel.Location = New System.Drawing.Point(678, 18)
+        Me.btnExportExcel.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.btnExportExcel.Name = "btnExportExcel"
+        Me.btnExportExcel.Size = New System.Drawing.Size(105, 35)
+        Me.btnExportExcel.TabIndex = 11
+        Me.btnExportExcel.Text = "Excel (CSV)"
+        Me.btnExportExcel.UseVisualStyleBackColor = False
+        '
         'btnPrint
         '
         Me.btnPrint.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnPrint.BackColor = System.Drawing.Color.SteelBlue
         Me.btnPrint.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnPrint.ForeColor = System.Drawing.Color.White
-        Me.btnPrint.Location = New System.Drawing.Point(1027, 18)
+        Me.btnPrint.Location = New System.Drawing.Point(907, 18)
         Me.btnPrint.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnPrint.Name = "btnPrint"
         Me.btnPrint.Size = New System.Drawing.Size(95, 35)
@@ -151,7 +183,7 @@ Partial Class frmHistorial
         Me.btnClose.BackColor = System.Drawing.Color.IndianRed
         Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnClose.ForeColor = System.Drawing.Color.White
-        Me.btnClose.Location = New System.Drawing.Point(1130, 18)
+        Me.btnClose.Location = New System.Drawing.Point(1138, 18)
         Me.btnClose.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(52, 35)
@@ -237,6 +269,8 @@ Partial Class frmHistorial
     Friend WithEvents btnClose As Button
     Friend WithEvents btnPrint As Button
     Friend WithEvents lblAlcance As Label
+    Friend WithEvents btnExportPdf As Button
+    Friend WithEvents btnExportExcel As Button
     Friend WithEvents cboAlcance As ComboBox
     Friend WithEvents chkHistorico As CheckBox
     Friend WithEvents dtpDesde As DateTimePicker

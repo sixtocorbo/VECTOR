@@ -37,6 +37,7 @@ Public Class frmRenovacionesArt120
         Public Property IdDocumento As Long
         Public Property Texto As String
         Public Property Asunto As String
+        Public Property Descripcion As String
         Public Property TipoDocumento As String
         Public Property NumeroOficial As String
         ' Esto obliga al ListBox a mostrar el texto limpio en lugar del nombre de la clase
@@ -956,6 +957,7 @@ Public Class frmRenovacionesArt120
                         .IdDocumento = d.IdDocumento,
                         .NumeroOficial = d.NumeroOficial,
                         .Asunto = d.Asunto,
+                        .Descripcion = d.Descripcion,
                         .Fecha = d.FechaCreacion
                     }) _
                     .Take(50) _
@@ -971,6 +973,7 @@ Public Class frmRenovacionesArt120
                         .IdDocumento = d.IdDocumento,
                         .NumeroOficial = d.NumeroOficial,
                         .Asunto = d.Asunto,
+                        .Descripcion = d.Descripcion,
                         .Fecha = d.FechaCreacion,
                         .Tipo = d.Cat_TipoDocumento.Nombre
                     }) _
@@ -989,6 +992,7 @@ Public Class frmRenovacionesArt120
                         .IdDocumento = doc.IdDocumento,
                         .Texto = etiqueta,
                         .Asunto = doc.Asunto,
+                        .Descripcion = doc.Descripcion,
                         .TipoDocumento = doc.Tipo,
                         .NumeroOficial = doc.NumeroOficial
                     })
@@ -1182,6 +1186,7 @@ Public Class frmRenovacionesArt120
                     .IdDocumento = d.IdDocumento,
                     .NumeroOficial = d.NumeroOficial,
                     .Asunto = d.Asunto,
+                    .Descripcion = d.Descripcion,
                     .Fecha = d.FechaCreacion,
                     .Tipo = d.Cat_TipoDocumento.Nombre
                 }) _
@@ -1193,7 +1198,8 @@ Public Class frmRenovacionesArt120
                                       Return New DocumentoRespaldoDto With {
                                           .IdDocumento = id,
                                           .Texto = $"Documento {id}",
-                                          .Asunto = Nothing
+                                          .Asunto = Nothing,
+                                          .Descripcion = Nothing
                                       }
                                   End If
 
@@ -1205,9 +1211,138 @@ Public Class frmRenovacionesArt120
                                   Return New DocumentoRespaldoDto With {
                                       .IdDocumento = id,
                                       .Texto = $"{tipo} {numero} | {fechaTxt} | {asunto}",
-                                      .Asunto = doc.Asunto
+                                      .Asunto = doc.Asunto,
+                                      .Descripcion = doc.Descripcion
                                   }
                               End Function).ToList()
+        End Using
+    End Function
+
+    Private Function SeleccionarDocumentoParaAgregar() As DocumentoRespaldoDto
+        Dim pendientes = _documentosDisponibles _
+            .Where(Function(d) Not _documentosSeleccionados.Any(Function(s) s.IdDocumento = d.IdDocumento)) _
+            .OrderByDescending(Function(d) d.IdDocumento) _
+            .ToList()
+
+        If pendientes.Count = 0 Then
+            Notifier.Info(Me, "No hay más documentos disponibles para agregar.")
+            Return Nothing
+        End If
+
+        Using selector As New Form()
+            selector.Text = "Buscar documento de respaldo"
+            selector.StartPosition = FormStartPosition.CenterParent
+            selector.Width = 1040
+            selector.Height = 560
+            selector.MinimumSize = New Size(920, 500)
+
+            Dim txtBuscar As New TextBox With {
+                .Dock = DockStyle.Top,
+                .Margin = New Padding(8)
+            }
+            UIUtils.SetPlaceholder(txtBuscar, "Buscar por ID, tipo, referencia, asunto o descripción...")
+
+            Dim lblDetalle As New Label With {
+                .Dock = DockStyle.Top,
+                .Height = 68,
+                .Padding = New Padding(10, 8, 10, 8),
+                .ForeColor = Color.FromArgb(28, 126, 52),
+                .BackColor = Color.FromArgb(232, 245, 233),
+                .Font = New Font(Me.Font, FontStyle.Bold),
+                .Text = "Seleccione un documento para ver su detalle aquí."
+            }
+
+            Dim dgv As New DataGridView With {
+                .Dock = DockStyle.Fill,
+                .ReadOnly = True,
+                .AllowUserToAddRows = False,
+                .AllowUserToDeleteRows = False,
+                .SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                .MultiSelect = False,
+                .AutoGenerateColumns = False,
+                .RowHeadersVisible = False
+            }
+
+            dgv.Columns.Add(New DataGridViewTextBoxColumn With {.DataPropertyName = "IdDocumento", .HeaderText = "ID", .Width = 70})
+            dgv.Columns.Add(New DataGridViewTextBoxColumn With {.DataPropertyName = "TipoDocumento", .HeaderText = "Tipo", .Width = 120})
+            dgv.Columns.Add(New DataGridViewTextBoxColumn With {.DataPropertyName = "NumeroOficial", .HeaderText = "Referencia", .Width = 130})
+            dgv.Columns.Add(New DataGridViewTextBoxColumn With {.DataPropertyName = "Asunto", .HeaderText = "Asunto", .AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, .MinimumWidth = 200})
+            dgv.Columns.Add(New DataGridViewTextBoxColumn With {.DataPropertyName = "Descripcion", .HeaderText = "Descripción", .AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, .MinimumWidth = 200})
+
+            Dim panelBotones As New FlowLayoutPanel With {
+                .Dock = DockStyle.Bottom,
+                .FlowDirection = FlowDirection.RightToLeft,
+                .Height = 44,
+                .Padding = New Padding(8, 6, 8, 6)
+            }
+            Dim btnAgregar As New Button With {.Text = "Agregar", .Width = 100, .DialogResult = DialogResult.OK}
+            Dim btnCancelar As New Button With {.Text = "Cancelar", .Width = 100, .DialogResult = DialogResult.Cancel}
+            panelBotones.Controls.Add(btnAgregar)
+            panelBotones.Controls.Add(btnCancelar)
+
+            Dim fuenteActual As New BindingSource()
+
+            Dim actualizarDetalle As Action = Sub()
+                                                  If dgv.SelectedRows.Count = 0 Then
+                                                      lblDetalle.Text = "Seleccione un documento para ver su detalle aquí."
+                                                      Return
+                                                  End If
+
+                                                  Dim doc = TryCast(dgv.SelectedRows(0).DataBoundItem, DocumentoRespaldoDto)
+                                                  If doc Is Nothing Then
+                                                      lblDetalle.Text = "Seleccione un documento para ver su detalle aquí."
+                                                      Return
+                                                  End If
+
+                                                  Dim asunto = If(String.IsNullOrWhiteSpace(doc.Asunto), "(sin asunto)", doc.Asunto.Trim())
+                                                  Dim descripcion = If(String.IsNullOrWhiteSpace(doc.Descripcion), "(sin descripción)", doc.Descripcion.Trim())
+                                                  lblDetalle.Text = $"ID {doc.IdDocumento} - {If(String.IsNullOrWhiteSpace(doc.TipoDocumento), "DOC", doc.TipoDocumento)} {If(String.IsNullOrWhiteSpace(doc.NumeroOficial), "S/N", doc.NumeroOficial)}{Environment.NewLine}Asunto: {asunto}{Environment.NewLine}Descripción: {descripcion}"
+                                              End Sub
+
+            Dim aplicarFiltro As Action = Sub()
+                                              Dim txt = txtBuscar.Text.Trim().ToUpperInvariant()
+                                              Dim lista = pendientes
+
+                                              If Not String.IsNullOrWhiteSpace(txt) Then
+                                                  Dim palabras = txt.Split(" "c).Where(Function(p) Not String.IsNullOrWhiteSpace(p)).ToArray()
+                                                  lista = pendientes.Where(Function(d)
+                                                                               Dim superTexto = $"{d.IdDocumento} {d.TipoDocumento} {d.NumeroOficial} {d.Asunto} {d.Descripcion}".ToUpperInvariant()
+                                                                               Return palabras.All(Function(p) superTexto.Contains(p))
+                                                                           End Function).ToList()
+                                              End If
+
+                                              fuenteActual.DataSource = lista
+                                              dgv.DataSource = fuenteActual
+
+                                              If dgv.Rows.Count > 0 Then
+                                                  dgv.Rows(0).Selected = True
+                                              End If
+
+                                              actualizarDetalle()
+                                          End Sub
+
+            AddHandler txtBuscar.TextChanged, Sub() aplicarFiltro()
+            AddHandler dgv.SelectionChanged, Sub() actualizarDetalle()
+            AddHandler dgv.CellDoubleClick,
+                Sub(sender As Object, e As DataGridViewCellEventArgs)
+                    If e.RowIndex < 0 Then Return
+                    selector.DialogResult = DialogResult.OK
+                    selector.Close()
+                End Sub
+
+            selector.Controls.Add(dgv)
+            selector.Controls.Add(lblDetalle)
+            selector.Controls.Add(txtBuscar)
+            selector.Controls.Add(panelBotones)
+            selector.AcceptButton = btnAgregar
+            selector.CancelButton = btnCancelar
+
+            aplicarFiltro()
+
+            If selector.ShowDialog(Me) <> DialogResult.OK Then Return Nothing
+            If dgv.SelectedRows.Count = 0 Then Return Nothing
+
+            Return TryCast(dgv.SelectedRows(0).DataBoundItem, DocumentoRespaldoDto)
         End Using
     End Function
 
@@ -1279,31 +1414,18 @@ Public Class frmRenovacionesArt120
 
     Private Sub cboDocumentoRespaldo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboDocumentoRespaldo.SelectedIndexChanged
         If _cargandoDocumentos Then Return
-        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
-        btnAgregarDocumento.Enabled = idDoc.HasValue
+        btnAgregarDocumento.Enabled = (_documentosDisponibles IsNot Nothing AndAlso _documentosDisponibles.Count > 0)
     End Sub
 
     Private Sub btnAgregarDocumento_Click(sender As Object, e As EventArgs) Handles btnAgregarDocumento.Click
         If _cargandoDocumentos Then Return
 
-        Dim idDoc = ParseNullableLong(cboDocumentoRespaldo.SelectedValue)
-        If Not idDoc.HasValue Then
-            Notifier.Warn(Me, "Seleccione un documento para agregarlo a la lista.")
-            Return
-        End If
+        Dim doc = SeleccionarDocumentoParaAgregar()
+        If doc Is Nothing Then Return
 
-        If _documentosSeleccionados.Any(Function(d) d.IdDocumento = idDoc.Value) Then
+        If _documentosSeleccionados.Any(Function(d) d.IdDocumento = doc.IdDocumento) Then
             Notifier.Info(Me, "Ese documento ya está agregado.")
             Return
-        End If
-
-        Dim doc = _documentosDisponibles.FirstOrDefault(Function(d) d.IdDocumento = idDoc.Value)
-        If doc Is Nothing Then
-            doc = New DocumentoRespaldoDto With {
-                .IdDocumento = idDoc.Value,
-                .Texto = ConstruirTextoSugeridoDocumento(idDoc.Value, Nothing, Nothing, Nothing),
-                .Asunto = Nothing
-            }
         End If
 
         _documentosSeleccionados.Add(doc)

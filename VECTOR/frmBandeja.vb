@@ -680,21 +680,21 @@ Public Class frmBandeja
             End If
 
             If doc.Tra_Movimiento.Count <= 1 Then
+                Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
+                Dim usadoComoRespaldoPrincipal = Await repoSalidas.AnyAsync(Function(s) s.IdDocumentoRespaldo.HasValue AndAlso s.IdDocumentoRespaldo.Value = idDoc)
+                If usadoComoRespaldoPrincipal Then
+                    Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo principal.")
+                    Return
+                End If
+
+                Dim repoRespaldosSalida = uow.Repository(Of Tra_SalidasLaboralesDocumentoRespaldo)()
+                Dim usadoComoRespaldoAdicional = Await repoRespaldosSalida.AnyAsync(Function(s) s.IdDocumento = idDoc)
+                If usadoComoRespaldoAdicional Then
+                    Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo adicional.")
+                    Return
+                End If
+
                 If MessageBox.Show("¿Borrar definitivamente?", "Eliminar", MessageBoxButtons.YesNo) = DialogResult.Yes Then
-                    Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
-                    Dim usadoComoRespaldoPrincipal = Await repoSalidas.AnyAsync(Function(s) s.IdDocumentoRespaldo.HasValue AndAlso s.IdDocumentoRespaldo.Value = idDoc)
-                    If usadoComoRespaldoPrincipal Then
-                        Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo principal.")
-                        Return
-                    End If
-
-                    Dim repoRespaldosSalida = uow.Repository(Of Tra_SalidasLaboralesDocumentoRespaldo)()
-                    Dim usadoComoRespaldoAdicional = Await repoRespaldosSalida.AnyAsync(Function(s) s.IdDocumento = idDoc)
-                    If usadoComoRespaldoAdicional Then
-                        Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo adicional.")
-                        Return
-                    End If
-
                     uow.Context.Set(Of Tra_Movimiento)().RemoveRange(doc.Tra_Movimiento)
                     uow.Context.Set(Of Mae_Documento)().Remove(doc)
 

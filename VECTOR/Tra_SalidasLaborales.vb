@@ -14,14 +14,15 @@ Partial Public Class Tra_SalidasLaborales
     Public Property IdSalida As Integer
     Public Property IdRecluso As Integer
     Public Property LugarTrabajo As String
-    Public Property Horario As String
-    Public Property DetalleCustodia As String
     Public Property FechaInicio As Date
     Public Property FechaVencimiento As Date
-    Public Property FechaNotificacionJuez As Nullable(Of Date)
     Public Property IdDocumentoRespaldo As Nullable(Of Long)
     Public Property Activo As Nullable(Of Boolean)
     Public Property Observaciones As String
+    Public Property Horario As String
+    Public Property DetalleCustodia As String
+    Public Property FechaNotificacionJuez As Nullable(Of Date)
+    Public Property DescripcionAutorizacion As String
 
     Public Overridable Property Mae_Documento As Mae_Documento
     Public Overridable Property Mae_Reclusos As Mae_Reclusos

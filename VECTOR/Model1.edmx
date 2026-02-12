@@ -205,6 +205,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Horario" Type="varchar" MaxLength="200" />
           <Property Name="DetalleCustodia" Type="varchar" MaxLength="200" />
           <Property Name="FechaNotificacionJuez" Type="datetime" />
+          <Property Name="DescripcionAutorizacion" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="Tra_SalidasLaboralesDocumentoRespaldo">
           <Key>
@@ -1192,6 +1193,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <Property Name="Horario" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="DetalleCustodia" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="FechaNotificacionJuez" Type="DateTime" Precision="3" />
+          <Property Name="DescripcionAutorizacion" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Salidas_Documento">
           <End Type="SecretariaDBModel.Mae_Documento" Role="Mae_Documento" Multiplicity="0..1" />
@@ -1477,6 +1479,7 @@ advertencia 6002: La tabla o vista 'SecretariaDB.dbo.Cat_Oficina_Backup_20260203
           <EntitySetMapping Name="Tra_SalidasLaborales">
             <EntityTypeMapping TypeName="SecretariaDBModel.Tra_SalidasLaborales">
               <MappingFragment StoreEntitySet="Tra_SalidasLaborales">
+                <ScalarProperty Name="DescripcionAutorizacion" ColumnName="DescripcionAutorizacion" />
                 <ScalarProperty Name="FechaNotificacionJuez" ColumnName="FechaNotificacionJuez" />
                 <ScalarProperty Name="DetalleCustodia" ColumnName="DetalleCustodia" />
                 <ScalarProperty Name="Horario" ColumnName="Horario" />

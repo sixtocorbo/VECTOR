@@ -30,9 +30,9 @@ Partial Class frmRenovacionesArt120
         Me.lblResumen = New System.Windows.Forms.Label()
         Me.dgvSalidas = New System.Windows.Forms.DataGridView()
         Me.PanelEditor = New System.Windows.Forms.Panel()
+        Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
         Me.txtDescripcionAutorizacion = New System.Windows.Forms.TextBox()
         Me.Label13 = New System.Windows.Forms.Label()
-        Me.txtDocumentoDescripcion = New System.Windows.Forms.TextBox()
         Me.btnCancelar = New System.Windows.Forms.Button()
         Me.btnGuardar = New System.Windows.Forms.Button()
         Me.txtObservaciones = New System.Windows.Forms.TextBox()
@@ -84,7 +84,7 @@ Partial Class frmRenovacionesArt120
         Me.PanelFiltros.Dock = System.Windows.Forms.DockStyle.Top
         Me.PanelFiltros.Location = New System.Drawing.Point(0, 0)
         Me.PanelFiltros.Name = "PanelFiltros"
-        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 235)
+        Me.PanelFiltros.Size = New System.Drawing.Size(1650, 119)
         Me.PanelFiltros.TabIndex = 0
         '
         'btnReactivar
@@ -180,7 +180,7 @@ Partial Class frmRenovacionesArt120
         '
         Me.txtBuscar.Location = New System.Drawing.Point(71, 52)
         Me.txtBuscar.Name = "txtBuscar"
-        Me.txtBuscar.Size = New System.Drawing.Size(543, 26)
+        Me.txtBuscar.Size = New System.Drawing.Size(272, 26)
         Me.txtBuscar.TabIndex = 2
         '
         'Label1
@@ -196,9 +196,9 @@ Partial Class frmRenovacionesArt120
         '
         Me.lblResumen.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblResumen.ForeColor = System.Drawing.Color.Firebrick
-        Me.lblResumen.Location = New System.Drawing.Point(71, 88)
+        Me.lblResumen.Location = New System.Drawing.Point(349, 7)
         Me.lblResumen.Name = "lblResumen"
-        Me.lblResumen.Size = New System.Drawing.Size(1050, 78)
+        Me.lblResumen.Size = New System.Drawing.Size(689, 78)
         Me.lblResumen.TabIndex = 11
         Me.lblResumen.Text = "Sin datos aún..."
         '
@@ -211,7 +211,7 @@ Partial Class frmRenovacionesArt120
         Me.dgvSalidas.BackgroundColor = System.Drawing.Color.White
         Me.dgvSalidas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvSalidas.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvSalidas.Location = New System.Drawing.Point(0, 235)
+        Me.dgvSalidas.Location = New System.Drawing.Point(0, 119)
         Me.dgvSalidas.MultiSelect = False
         Me.dgvSalidas.Name = "dgvSalidas"
         Me.dgvSalidas.ReadOnly = True
@@ -258,11 +258,20 @@ Partial Class frmRenovacionesArt120
         Me.PanelEditor.Controls.Add(Me.Label3)
         Me.PanelEditor.Controls.Add(Me.Label2)
         Me.PanelEditor.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.PanelEditor.Location = New System.Drawing.Point(0, 221)
+        Me.PanelEditor.Location = New System.Drawing.Point(0, 112)
         Me.PanelEditor.Name = "PanelEditor"
-        Me.PanelEditor.Size = New System.Drawing.Size(1650, 326)
+        Me.PanelEditor.Size = New System.Drawing.Size(1650, 435)
         Me.PanelEditor.TabIndex = 2
         Me.PanelEditor.Visible = False
+        '
+        'txtDocumentoDescripcion
+        '
+        Me.txtDocumentoDescripcion.Location = New System.Drawing.Point(853, 153)
+        Me.txtDocumentoDescripcion.Multiline = True
+        Me.txtDocumentoDescripcion.Name = "txtDocumentoDescripcion"
+        Me.txtDocumentoDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtDocumentoDescripcion.Size = New System.Drawing.Size(381, 205)
+        Me.txtDocumentoDescripcion.TabIndex = 21
         '
         'txtDescripcionAutorizacion
         '
@@ -277,25 +286,16 @@ Partial Class frmRenovacionesArt120
         Me.Label13.AutoSize = True
         Me.Label13.Location = New System.Drawing.Point(450, 214)
         Me.Label13.Name = "Label13"
-        Me.Label13.Size = New System.Drawing.Size(299, 20)
+        Me.Label13.Size = New System.Drawing.Size(322, 20)
         Me.Label13.TabIndex = 24
         Me.Label13.Text = "Descripción de autorización de salida (oblig.)"
-        '
-        'txtDocumentoDescripcion
-        '
-        Me.txtDocumentoDescripcion.Location = New System.Drawing.Point(853, 153)
-        Me.txtDocumentoDescripcion.Multiline = True
-        Me.txtDocumentoDescripcion.Name = "txtDocumentoDescripcion"
-        Me.txtDocumentoDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtDocumentoDescripcion.Size = New System.Drawing.Size(381, 77)
-        Me.txtDocumentoDescripcion.TabIndex = 21
         '
         'btnCancelar
         '
         Me.btnCancelar.BackColor = System.Drawing.Color.DimGray
         Me.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnCancelar.ForeColor = System.Drawing.Color.White
-        Me.btnCancelar.Location = New System.Drawing.Point(1453, 224)
+        Me.btnCancelar.Location = New System.Drawing.Point(1449, 353)
         Me.btnCancelar.Name = "btnCancelar"
         Me.btnCancelar.Size = New System.Drawing.Size(185, 36)
         Me.btnCancelar.TabIndex = 16
@@ -307,7 +307,7 @@ Partial Class frmRenovacionesArt120
         Me.btnGuardar.BackColor = System.Drawing.Color.SeaGreen
         Me.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnGuardar.ForeColor = System.Drawing.Color.White
-        Me.btnGuardar.Location = New System.Drawing.Point(1254, 221)
+        Me.btnGuardar.Location = New System.Drawing.Point(1258, 353)
         Me.btnGuardar.Name = "btnGuardar"
         Me.btnGuardar.Size = New System.Drawing.Size(185, 36)
         Me.btnGuardar.TabIndex = 15
@@ -316,17 +316,17 @@ Partial Class frmRenovacionesArt120
         '
         'txtObservaciones
         '
-        Me.txtObservaciones.Location = New System.Drawing.Point(1254, 33)
+        Me.txtObservaciones.Location = New System.Drawing.Point(1329, 33)
         Me.txtObservaciones.Multiline = True
         Me.txtObservaciones.Name = "txtObservaciones"
         Me.txtObservaciones.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtObservaciones.Size = New System.Drawing.Size(376, 182)
+        Me.txtObservaciones.Size = New System.Drawing.Size(301, 256)
         Me.txtObservaciones.TabIndex = 14
         '
         'Label8
         '
         Me.Label8.AutoSize = True
-        Me.Label8.Location = New System.Drawing.Point(1254, 10)
+        Me.Label8.Location = New System.Drawing.Point(1325, 10)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(114, 20)
         Me.Label8.TabIndex = 13
@@ -335,7 +335,7 @@ Partial Class frmRenovacionesArt120
         'btnQuitarDocumento
         '
         Me.btnQuitarDocumento.Enabled = False
-        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1180, 66)
+        Me.btnQuitarDocumento.Location = New System.Drawing.Point(1240, 65)
         Me.btnQuitarDocumento.Name = "btnQuitarDocumento"
         Me.btnQuitarDocumento.Size = New System.Drawing.Size(54, 31)
         Me.btnQuitarDocumento.TabIndex = 15
@@ -348,13 +348,13 @@ Partial Class frmRenovacionesArt120
         Me.lstDocumentosRespaldo.ItemHeight = 20
         Me.lstDocumentosRespaldo.Location = New System.Drawing.Point(853, 67)
         Me.lstDocumentosRespaldo.Name = "lstDocumentosRespaldo"
-        Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(321, 84)
+        Me.lstDocumentosRespaldo.Size = New System.Drawing.Size(381, 84)
         Me.lstDocumentosRespaldo.TabIndex = 14
         '
         'btnAgregarDocumento
         '
         Me.btnAgregarDocumento.Enabled = False
-        Me.btnAgregarDocumento.Location = New System.Drawing.Point(1180, 32)
+        Me.btnAgregarDocumento.Location = New System.Drawing.Point(1240, 31)
         Me.btnAgregarDocumento.Name = "btnAgregarDocumento"
         Me.btnAgregarDocumento.Size = New System.Drawing.Size(54, 31)
         Me.btnAgregarDocumento.TabIndex = 13
@@ -367,12 +367,12 @@ Partial Class frmRenovacionesArt120
         Me.cboDocumentoRespaldo.FormattingEnabled = True
         Me.cboDocumentoRespaldo.Location = New System.Drawing.Point(853, 33)
         Me.cboDocumentoRespaldo.Name = "cboDocumentoRespaldo"
-        Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(321, 28)
+        Me.cboDocumentoRespaldo.Size = New System.Drawing.Size(381, 28)
         Me.cboDocumentoRespaldo.TabIndex = 13
         '
         'btnRefrescarDocumentos
         '
-        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1180, 120)
+        Me.btnRefrescarDocumentos.Location = New System.Drawing.Point(1240, 119)
         Me.btnRefrescarDocumentos.Name = "btnRefrescarDocumentos"
         Me.btnRefrescarDocumentos.Size = New System.Drawing.Size(54, 31)
         Me.btnRefrescarDocumentos.TabIndex = 16
@@ -411,7 +411,7 @@ Partial Class frmRenovacionesArt120
         Me.chkActivoRegistro.AutoSize = True
         Me.chkActivoRegistro.Checked = True
         Me.chkActivoRegistro.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkActivoRegistro.Location = New System.Drawing.Point(454, 277)
+        Me.chkActivoRegistro.Location = New System.Drawing.Point(1381, 312)
         Me.chkActivoRegistro.Name = "chkActivoRegistro"
         Me.chkActivoRegistro.Size = New System.Drawing.Size(140, 24)
         Me.chkActivoRegistro.TabIndex = 18
@@ -560,7 +560,7 @@ Partial Class frmRenovacionesArt120
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.Label2.ForeColor = System.Drawing.Color.MidnightBlue
-        Me.Label2.Location = New System.Drawing.Point(7, 283)
+        Me.Label2.Location = New System.Drawing.Point(6, 361)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(1111, 28)
         Me.Label2.TabIndex = 0

@@ -1,4 +1,5 @@
 ﻿Imports System.Data.Entity
+Imports System.Data.SqlClient
 Imports System.Drawing
 Imports System.Text
 Imports System.Reflection
@@ -680,10 +681,30 @@ Public Class frmBandeja
 
             If doc.Tra_Movimiento.Count <= 1 Then
                 If MessageBox.Show("¿Borrar definitivamente?", "Eliminar", MessageBoxButtons.YesNo) = DialogResult.Yes Then
+                    Dim repoSalidas = uow.Repository(Of Tra_SalidasLaborales)()
+                    Dim usadoComoRespaldoPrincipal = Await repoSalidas.AnyAsync(Function(s) s.IdDocumentoRespaldo.HasValue AndAlso s.IdDocumentoRespaldo.Value = idDoc)
+                    If usadoComoRespaldoPrincipal Then
+                        Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo principal.")
+                        Return
+                    End If
+
+                    Dim repoRespaldosSalida = uow.Repository(Of Tra_SalidasLaboralesDocumentoRespaldo)()
+                    Dim usadoComoRespaldoAdicional = Await repoRespaldosSalida.AnyAsync(Function(s) s.IdDocumento = idDoc)
+                    If usadoComoRespaldoAdicional Then
+                        Notifier.[Error](Me, "No se puede eliminar porque el documento está asociado a una salida laboral (Art. 120) como respaldo adicional.")
+                        Return
+                    End If
+
                     uow.Context.Set(Of Tra_Movimiento)().RemoveRange(doc.Tra_Movimiento)
                     uow.Context.Set(Of Mae_Documento)().Remove(doc)
-                    Await uow.CommitAsync()
-                    AuditoriaSistema.RegistrarEvento($"Eliminación definitiva de documento {doc.NumeroOficial}.", "DOCUMENTOS")
+
+                    Try
+                        Await uow.CommitAsync()
+                        AuditoriaSistema.RegistrarEvento($"Eliminación definitiva de documento {doc.NumeroOficial}.", "DOCUMENTOS")
+                    Catch exSql As SqlException When exSql.Number = 547
+                        Notifier.[Error](Me, "No se puede eliminar porque el documento tiene registros relacionados en otras tablas.")
+                        Return
+                    End Try
                 End If
             Else
                 If MessageBox.Show("¿ANULAR expediente?", "Anular", MessageBoxButtons.YesNo) = DialogResult.Yes Then

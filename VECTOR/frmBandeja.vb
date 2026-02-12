@@ -144,7 +144,7 @@ Public Class frmBandeja
                     .IdPadre = d.IdDocumentoPadre,
                     .Fecha = d.FechaRecepcion,
                     .FechaCreacion = d.FechaCreacion,
-                    .Tipo = d.Cat_TipoDocumento.Codigo,
+                    .TipoNombre = d.Cat_TipoDocumento.Nombre,
                     .Numero = d.NumeroOficial,
                     .Asunto = d.Asunto,
                     .Oficina = d.Cat_Oficina.Nombre
@@ -193,14 +193,14 @@ Public Class frmBandeja
 
                 For Each grupo In gruposOrdenados
                     Dim etiquetaPadre = If(grupo.Padre IsNot Nothing,
-                                           $"{grupo.Padre.Tipo} {grupo.Padre.Numero}",
+                                           $"{grupo.Padre.TipoNombre} {grupo.Padre.Numero}",
                                            "Documento individual")
                     lineas.Add($"FAMILIA #{grupo.IdFamilia} - {etiquetaPadre} - Fecha {grupo.FechaOrden:dd/MM/yyyy HH:mm}")
 
                     For Each doc In grupo.Documentos
                         Dim prefijo = If(doc.ID = grupo.IdFamilia, "PADRE", "HIJO ")
                         Dim fechaDoc = If(doc.Fecha.HasValue, doc.Fecha.Value, doc.FechaCreacion)
-                        lineas.Add($"  [{prefijo}] {fechaDoc:dd/MM/yyyy HH:mm} | ID {doc.ID} | {doc.Tipo} {doc.Numero} | {doc.Oficina} | {doc.Asunto}")
+                        lineas.Add($"  [{prefijo}] {fechaDoc:dd/MM/yyyy HH:mm} | ID {doc.ID} | {doc.TipoNombre} {doc.Numero} | {doc.Oficina} | {doc.Asunto}")
                     Next
 
                     lineas.Add("".PadRight(110, "-"c))
@@ -225,15 +225,20 @@ Public Class frmBandeja
     Private Sub _printDocumentoFamilias_PrintPage(sender As Object, e As PrintPageEventArgs) Handles _printDocumentoFamilias.PrintPage
         Dim fuente As New Font("Consolas", 9.5F)
         Dim y = e.MarginBounds.Top
-        Dim altoLinea = fuente.GetHeight(e.Graphics) + 2
+        Dim anchoUtil = e.MarginBounds.Width
+        Dim formato As New StringFormat(StringFormatFlags.LineLimit)
 
         While _indiceLineaImpresion < _lineasImpresionFamilias.Count
+            Dim linea = _lineasImpresionFamilias(_indiceLineaImpresion)
+            Dim altoLinea = e.Graphics.MeasureString(linea, fuente, anchoUtil, formato).Height + 2
+
             If y + altoLinea > e.MarginBounds.Bottom Then
                 e.HasMorePages = True
                 Return
             End If
 
-            e.Graphics.DrawString(_lineasImpresionFamilias(_indiceLineaImpresion), fuente, Brushes.Black, e.MarginBounds.Left, y)
+            Dim area As New RectangleF(e.MarginBounds.Left, y, anchoUtil, altoLinea)
+            e.Graphics.DrawString(linea, fuente, Brushes.Black, area, formato)
             y += CInt(altoLinea)
             _indiceLineaImpresion += 1
         End While

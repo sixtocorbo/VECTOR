@@ -19,6 +19,13 @@ Partial Class frmHistorial
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.PanelHeader = New System.Windows.Forms.Panel()
+        Me.lblHasta = New System.Windows.Forms.Label()
+        Me.lblDesde = New System.Windows.Forms.Label()
+        Me.dtpHasta = New System.Windows.Forms.DateTimePicker()
+        Me.dtpDesde = New System.Windows.Forms.DateTimePicker()
+        Me.chkHistorico = New System.Windows.Forms.CheckBox()
+        Me.cboAlcance = New System.Windows.Forms.ComboBox()
+        Me.lblAlcance = New System.Windows.Forms.Label()
         Me.btnPrint = New System.Windows.Forms.Button()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.lblAsunto = New System.Windows.Forms.Label()
@@ -31,6 +38,13 @@ Partial Class frmHistorial
         'PanelHeader
         '
         Me.PanelHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.PanelHeader.Controls.Add(Me.lblHasta)
+        Me.PanelHeader.Controls.Add(Me.lblDesde)
+        Me.PanelHeader.Controls.Add(Me.dtpHasta)
+        Me.PanelHeader.Controls.Add(Me.dtpDesde)
+        Me.PanelHeader.Controls.Add(Me.chkHistorico)
+        Me.PanelHeader.Controls.Add(Me.cboAlcance)
+        Me.PanelHeader.Controls.Add(Me.lblAlcance)
         Me.PanelHeader.Controls.Add(Me.btnPrint)
         Me.PanelHeader.Controls.Add(Me.btnClose)
         Me.PanelHeader.Controls.Add(Me.lblAsunto)
@@ -41,6 +55,81 @@ Partial Class frmHistorial
         Me.PanelHeader.Name = "PanelHeader"
         Me.PanelHeader.Size = New System.Drawing.Size(1200, 123)
         Me.PanelHeader.TabIndex = 0
+        '
+        'lblHasta
+        '
+        Me.lblHasta.AutoSize = True
+        Me.lblHasta.ForeColor = System.Drawing.Color.WhiteSmoke
+        Me.lblHasta.Location = New System.Drawing.Point(960, 79)
+        Me.lblHasta.Name = "lblHasta"
+        Me.lblHasta.Size = New System.Drawing.Size(48, 20)
+        Me.lblHasta.TabIndex = 10
+        Me.lblHasta.Text = "Hasta"
+        Me.lblHasta.Visible = False
+        '
+        'lblDesde
+        '
+        Me.lblDesde.AutoSize = True
+        Me.lblDesde.ForeColor = System.Drawing.Color.WhiteSmoke
+        Me.lblDesde.Location = New System.Drawing.Point(726, 79)
+        Me.lblDesde.Name = "lblDesde"
+        Me.lblDesde.Size = New System.Drawing.Size(55, 20)
+        Me.lblDesde.TabIndex = 9
+        Me.lblDesde.Text = "Desde"
+        Me.lblDesde.Visible = False
+        '
+        'dtpHasta
+        '
+        Me.dtpHasta.Enabled = False
+        Me.dtpHasta.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
+        Me.dtpHasta.Location = New System.Drawing.Point(1015, 74)
+        Me.dtpHasta.Name = "dtpHasta"
+        Me.dtpHasta.Size = New System.Drawing.Size(104, 26)
+        Me.dtpHasta.TabIndex = 8
+        Me.dtpHasta.Visible = False
+        '
+        'dtpDesde
+        '
+        Me.dtpDesde.Enabled = False
+        Me.dtpDesde.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
+        Me.dtpDesde.Location = New System.Drawing.Point(787, 74)
+        Me.dtpDesde.Name = "dtpDesde"
+        Me.dtpDesde.Size = New System.Drawing.Size(104, 26)
+        Me.dtpDesde.TabIndex = 7
+        Me.dtpDesde.Visible = False
+        '
+        'chkHistorico
+        '
+        Me.chkHistorico.AutoSize = True
+        Me.chkHistorico.Checked = True
+        Me.chkHistorico.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkHistorico.ForeColor = System.Drawing.Color.WhiteSmoke
+        Me.chkHistorico.Location = New System.Drawing.Point(540, 76)
+        Me.chkHistorico.Name = "chkHistorico"
+        Me.chkHistorico.Size = New System.Drawing.Size(156, 24)
+        Me.chkHistorico.TabIndex = 6
+        Me.chkHistorico.Text = "Todo el histórico"
+        Me.chkHistorico.UseVisualStyleBackColor = True
+        '
+        'cboAlcance
+        '
+        Me.cboAlcance.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboAlcance.FormattingEnabled = True
+        Me.cboAlcance.Items.AddRange(New Object() {"Solo documento seleccionado", "Familia (padre + adjuntos)", "Documento + familia (histórico)"})
+        Me.cboAlcance.Location = New System.Drawing.Point(619, 23)
+        Me.cboAlcance.Name = "cboAlcance"
+        Me.cboAlcance.Size = New System.Drawing.Size(378, 28)
+        Me.cboAlcance.TabIndex = 5
+        '
+        'lblAlcance
+        '
+        Me.lblAlcance.AutoSize = True
+        Me.lblAlcance.ForeColor = System.Drawing.Color.WhiteSmoke
+        Me.lblAlcance.Location = New System.Drawing.Point(536, 26)
+        Me.lblAlcance.Name = "lblAlcance"
+        Me.lblAlcance.Size = New System.Drawing.Size(66, 20)
+        Me.lblAlcance.TabIndex = 4
+        Me.lblAlcance.Text = "Alcance:"
         '
         'btnPrint
         '
@@ -147,4 +236,11 @@ Partial Class frmHistorial
     Friend WithEvents dgvHistoria As DataGridView
     Friend WithEvents btnClose As Button
     Friend WithEvents btnPrint As Button
+    Friend WithEvents lblAlcance As Label
+    Friend WithEvents cboAlcance As ComboBox
+    Friend WithEvents chkHistorico As CheckBox
+    Friend WithEvents dtpDesde As DateTimePicker
+    Friend WithEvents dtpHasta As DateTimePicker
+    Friend WithEvents lblDesde As Label
+    Friend WithEvents lblHasta As Label
 End Class

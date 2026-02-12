@@ -210,7 +210,8 @@ Public Class frmRenovacionesArt120
             Return "Sin documentación"
         End If
 
-        Return $"Documentos({cantidadDocs})"
+        Dim sufijo = If(cantidadDocs = 1, "registro", "registros")
+        Return $"Documentación({cantidadDocs} {sufijo})"
     End Function
 
     Private Function CalcularEstado(estaActiva As Boolean, dias As Integer) As String

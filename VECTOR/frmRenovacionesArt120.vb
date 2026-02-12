@@ -161,7 +161,7 @@ Public Class frmRenovacionesArt120
                                                     .DiasRestantes = dias,
                                                     .Estado = estado,
                                                     .NotificacionJudicial = ObtenerEstadoNotificacionJuez(x.FechaNotificacionJuez, x.FechaInicio),
-                                                    .Autorizacion = ObtenerDescripcionAutorizacion(parse.CodigoAutorizacion),
+                                                    .Autorizacion = ObtenerTextoAutorizacionGrilla(parse.CodigoAutorizacion, parse.DescripcionAutorizacion),
                                                     .DescripcionAutorizacion = parse.DescripcionAutorizacion,
                                                     .IdDocumentoRespaldo = x.IdDocumentoRespaldo,
                                                     .ReferenciaDocumentacion = referencia,
@@ -814,6 +814,20 @@ Public Class frmRenovacionesArt120
                 Return "Acta"
             Case Else
                 Return "Sin especificar"
+        End Select
+    End Function
+
+    Private Function ObtenerTextoAutorizacionGrilla(codigo As String, descripcion As String) As String
+        Dim codigoNormalizado = If(codigo, "").Trim().ToUpperInvariant()
+        Dim descripcionNormalizada = If(descripcion, "").Trim()
+
+        Select Case codigoNormalizado
+            Case CodigoAutorizacionResolucionJuez
+                Return If(String.IsNullOrWhiteSpace(descripcionNormalizada), "RESOLUCIÓN", $"RESOLUCIÓN {descripcionNormalizada}")
+            Case CodigoAutorizacionActa
+                Return If(String.IsNullOrWhiteSpace(descripcionNormalizada), "ACTA", $"ACTA {descripcionNormalizada}")
+            Case Else
+                Return ObtenerDescripcionAutorizacion(codigoNormalizado)
         End Select
     End Function
 

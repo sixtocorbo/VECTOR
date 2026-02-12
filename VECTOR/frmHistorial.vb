@@ -14,10 +14,6 @@ Public Class frmHistorial
     Private _idDocumento As Long
     Private _printBitmap As Bitmap
     Private WithEvents _printDocument As New PrintDocument()
-    Private WithEvents cboAlcance As ComboBox
-    Private WithEvents chkHistorico As CheckBox
-    Private WithEvents dtpDesde As DateTimePicker
-    Private WithEvents dtpHasta As DateTimePicker
 
     Public Sub New(idDoc As Long)
         InitializeComponent()
@@ -25,50 +21,9 @@ Public Class frmHistorial
     End Sub
 
     Private Sub frmHistorial_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        AppTheme.Aplicar(Me)
-        InicializarControlesFiltro()
-        CargarHistorial()
-    End Sub
-
-    Private Sub InicializarControlesFiltro()
-        cboAlcance = New ComboBox With {
-            .DropDownStyle = ComboBoxStyle.DropDownList,
-            .Width = 260,
-            .Location = New Point(540, 20)
-        }
-        cboAlcance.Items.AddRange(New Object() {
-            "Solo documento seleccionado",
-            "Familia (padre + adjuntos)",
-            "Documento + familia (histórico)"
-        })
         cboAlcance.SelectedIndex = CInt(AlcanceHistorial.DocumentoYFamiliaHistorico)
-
-        chkHistorico = New CheckBox With {
-            .Text = "Todo el histórico",
-            .ForeColor = Color.WhiteSmoke,
-            .AutoSize = True,
-            .Location = New Point(540, 65),
-            .Checked = True
-        }
-
-        dtpDesde = New DateTimePicker With {
-            .Format = DateTimePickerFormat.Short,
-            .Location = New Point(700, 63),
-            .Enabled = False,
-            .Width = 110
-        }
-
-        dtpHasta = New DateTimePicker With {
-            .Format = DateTimePickerFormat.Short,
-            .Location = New Point(820, 63),
-            .Enabled = False,
-            .Width = 110
-        }
-
-        PanelHeader.Controls.Add(cboAlcance)
-        PanelHeader.Controls.Add(chkHistorico)
-        PanelHeader.Controls.Add(dtpDesde)
-        PanelHeader.Controls.Add(dtpHasta)
+        AppTheme.Aplicar(Me)
+        CargarHistorial()
     End Sub
 
     Private Sub CargarHistorial()
@@ -247,6 +202,10 @@ Public Class frmHistorial
         Dim habilitarRango = Not chkHistorico.Checked
         dtpDesde.Enabled = habilitarRango
         dtpHasta.Enabled = habilitarRango
+        dtpDesde.Visible = habilitarRango
+        dtpHasta.Visible = habilitarRango
+        lblDesde.Visible = habilitarRango
+        lblHasta.Visible = habilitarRango
 
         If IsHandleCreated Then
             CargarHistorial()

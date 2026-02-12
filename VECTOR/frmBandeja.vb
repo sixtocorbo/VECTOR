@@ -304,21 +304,21 @@ Public Class frmBandeja
         Dim proximosDias As Integer = 7
 
         Dim totalVencidos As Integer = Enumerable.Count(_listaOriginal, Function(item)
-                                                                          If item.Vencimiento Is Nothing Then Return False
-                                                                          Dim fechaVenc As Date = CDate(item.Vencimiento)
-                                                                          Return fechaVenc < hoy
-                                                                      End Function)
+                                                                            If item.Vencimiento Is Nothing Then Return False
+                                                                            Dim fechaVenc As Date = CDate(item.Vencimiento)
+                                                                            Return fechaVenc < hoy
+                                                                        End Function)
 
         Dim totalProximos As Integer = Enumerable.Count(_listaOriginal, Function(item)
-                                                                          If item.Vencimiento Is Nothing Then Return False
-                                                                          Dim fechaVenc As Date = CDate(item.Vencimiento)
-                                                                          Return fechaVenc >= hoy AndAlso fechaVenc <= hoy.AddDays(proximosDias)
-                                                                      End Function)
+                                                                            If item.Vencimiento Is Nothing Then Return False
+                                                                            Dim fechaVenc As Date = CDate(item.Vencimiento)
+                                                                            Return fechaVenc >= hoy AndAlso fechaVenc <= hoy.AddDays(proximosDias)
+                                                                        End Function)
 
         Dim totalExternos As Integer = Enumerable.Count(_listaOriginal, Function(item)
-                                                                          If item.IdOficinaActual Is Nothing Then Return False
-                                                                          Return CInt(item.IdOficinaActual) <> SesionGlobal.OficinaID
-                                                                      End Function)
+                                                                            If item.IdOficinaActual Is Nothing Then Return False
+                                                                            Return CInt(item.IdOficinaActual) <> SesionGlobal.OficinaID
+                                                                        End Function)
 
         If totalVencidos > 0 Then
             Notifier.Warn(Me, $"⚠ Bandeja: {totalVencidos} documento(s) vencido(s).")
